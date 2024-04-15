@@ -47,7 +47,29 @@ const _bumpgen = ({
         );
 
         for (const err of errs) {
-          continue;
+          const affectedNodes = graph.dependency.getNodesInFileWithinRange(
+            dependencyGraph,
+            {
+              filePath: err.path,
+              startLine: err.line,
+              endLine: err.line,
+            },
+          );
+
+          if (affectedNodes.length === 0) {
+            console.debug("No affected nodes found for error:", err);
+            continue;
+          }
+
+          for (const node of affectedNodes) {
+            const referencingNodes = graph.dependency.getReferencingNodes(
+              dependencyGraph,
+              {
+                id: node.id,
+                relationships: ["importDeclaration"],
+              },
+            );
+          }
         }
 
         const planGraph = graph.plan.initialize();
