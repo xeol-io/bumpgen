@@ -1,12 +1,10 @@
 import type { CodePlanNodeId } from ".";
 import type { Replacement } from "../llm";
 
-export type KnownKind = "CallExpression" | "TypeReference" | "NewExpression";
-
 export type DependencyGraphNode = {
   id: CodePlanNodeId;
   block: string;
-  kind: KnownKind;
+  kind: string;
   name: string;
   typeSignature: string;
   path: string;
@@ -18,18 +16,10 @@ export type DependencyGraphNode = {
   }[];
 };
 
-export const DependencyEdgeTypes = [
-  "referencedBy",
-  "importDeclaration",
-] as const;
-export type DependencyEdgeType = (typeof DependencyEdgeTypes)[number];
+export type Relationship = "referencedBy" | "importDeclaration";
 
 export type DependencyGraphEdge = {
-  relationship: DependencyEdgeType;
-};
-
-export type Edge = {
-  nodeFromId: CodePlanNodeId;
-  nodeToId: CodePlanNodeId;
-  relationship: DependencyEdgeType;
+  source: CodePlanNodeId;
+  target: CodePlanNodeId;
+  relationship: Relationship;
 };
