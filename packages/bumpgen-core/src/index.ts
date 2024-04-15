@@ -41,7 +41,16 @@ const _bumpgen = ({
       initialize: (projectRoot: string, errs: BuildError[]): BumpgenGraph => {
         const ast = language.ast.initialize(projectRoot);
 
-        const dependencyGraph = language.ast.graph.initialize(ast);
+        const dependencyGraph = language.graph.dependency.initialize(
+          ast,
+          projectRoot,
+        );
+
+        for (const err of errs) {
+          continue;
+        }
+
+        const planGraph = graph.plan.initialize();
 
         return {
           dependency: new DirectedGraph<

@@ -10,16 +10,16 @@ import type {
 import { DirectedGraph } from "graphology";
 import { Node, Project, SyntaxKind } from "ts-morph";
 
+import type { BumpgenGraph, DependencyGraph } from "../../models/graph";
 import type {
   DependencyGraphEdge,
   DependencyGraphNode,
   Edge,
   KnownKind,
 } from "../../models/graph/dependency";
+import type { PlanGraphNode } from "../../models/graph/plan";
+import type { Replacement } from "../../models/llm";
 import type { BumpgenLanguageService } from "./types";
-import { BumpgenGraph } from "../../models/graph";
-import { PlanGraphNode } from "../../models/graph/plan";
-import { Replacement } from "../../models/llm";
 
 const hash = (str: string) => createHash("sha1").update(str).digest("hex");
 
@@ -581,37 +581,39 @@ export const makeTypescriptService = () => {
       },
     },
     graph: {
-      initialize: (project: unknown, projectRoot: string) => {
-        console.log("Initializing the dependency graph...");
+      dependency: {
+        initialize: (project: unknown, projectRoot: string) => {
+          console.log("Initializing the dependency graph...");
 
-        if (!(project instanceof Project)) {
-          throw new Error("Invalid project type");
-        }
-
-        const graph = new DirectedGraph<
-          DependencyGraphNode,
-          DependencyGraphEdge
-        >();
-        const sourceFiles = project.getSourceFiles();
-
-        // await parallel(3, sourceFiles, async (sourceFile) => {
-        sourceFiles.forEach((sourceFile) => {
-          // console.log("Processing source file:", sourceFile.getFilePath());
-          const { nodes, edges } = processSourceFile(sourceFile, projectRoot);
-          for (const node of nodes) {
-            if (!graph.hasNode(node.id)) {
-              graph.addNode(node.id, node);
-            }
+          if (!(project instanceof Project)) {
+            throw new Error("Invalid project type");
           }
-          for (const edge of edges) {
-            if (!graph.hasEdge(edge.nodeFromId, edge.nodeToId)) {
-              graph.addDirectedEdge(edge.nodeFromId, edge.nodeToId, {
-                relationship: edge.relationship,
-              });
+
+          const graph = new DirectedGraph<
+            DependencyGraphNode,
+            DependencyGraphEdge
+          >();
+          const sourceFiles = project.getSourceFiles();
+
+          // await parallel(3, sourceFiles, async (sourceFile) => {
+          sourceFiles.forEach((sourceFile) => {
+            // console.log("Processing source file:", sourceFile.getFilePath());
+            const { nodes, edges } = processSourceFile(sourceFile, projectRoot);
+            for (const node of nodes) {
+              if (!graph.hasNode(node.id)) {
+                graph.addNode(node.id, node);
+              }
             }
-          }
-        });
-        return graph;
+            for (const edge of edges) {
+              if (!graph.hasEdge(edge.nodeFromId, edge.nodeToId)) {
+                graph.addDirectedEdge(edge.nodeFromId, edge.nodeToId, {
+                  relationship: edge.relationship,
+                });
+              }
+            }
+          });
+          return graph;
+        },
       },
       //  recompute file will update nodes and edges for a file
       // so that line numbers are correct
@@ -620,26 +622,30 @@ export const makeTypescriptService = () => {
         affectedNode: PlanGraphNode,
         replacements: Replacement[],
       ) => {
+        if (!(graph.ast instanceof Project)) {
+          throw new Error("Invalid project type");
+        }
+
         console.log("recomputing file after change...");
         project = new Project({
           tsConfigFilePath: `${rootDir}/tsconfig.json`,
           skipAddingFilesFromTsConfig: true,
         });
-        project.addSourceFileAtPath(affectedNode.path);
-        const sourceFile = project.getSourceFile(affectedNode.path);
+        graph.ast.addSourceFileAtPath(affectedNode.path);
+        const sourceFile = graph.ast.getSourceFile(affectedNode.path);
         if (!sourceFile) {
           throw new Error("File not found");
         }
         const { nodes } = processSourceFile(sourceFile, rootDir);
         nodes.forEach((node) => {
-          const oldNode = graph.findNode((n) => n === node.id);
+          const oldNode = graph.dependency.findNode((n) => n === node.id);
           if (!oldNode) {
             console.log("old node not found, something in the tree changed");
             return;
             // throw new Error("old node not found, something in the tree changed");
           }
-          const oldAttrs = graph.getNodeAttributes(oldNode);
-          graph.updateNode(node.id, () => {
+          const oldAttrs = graph.dependency.getNodeAttributes(oldNode);
+          graph.dependency.updateNode(node.id, () => {
             return {
               ...node,
               edits: [

@@ -11,7 +11,9 @@ export type BumpgenLanguageService = {
     getErrors: () => Promise<BuildError[]>;
   };
   graph: {
-    initialize: (ast: unknown, projectRoot: string) => DependencyGraph;
+    dependency: {
+      initialize: (ast: unknown, projectRoot: string) => DependencyGraph;
+    };
     recomputeFileAfterChange: (
       graph: BumpgenGraph,
       affectedNode: PlanGraphNode,

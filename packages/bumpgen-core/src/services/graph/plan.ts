@@ -12,8 +12,6 @@ import type {
 } from "../../models/graph/plan";
 
 export const createPlanGraphService = () => {
-  // const graph = new DirectedGraph<PlanGraphNode, PlanGraphEdge>();
-
   return {
     initialize: (
       seeds: (Omit<PlanGraphNode, "status" | "kind" | "replacements"> & {
