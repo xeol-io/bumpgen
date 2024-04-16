@@ -1,10 +1,9 @@
 import process from "process";
 
-import type { SupportedLanguage } from "./models";
+import type { SupportedLanguage, SupportedModel } from "./models";
 import type { BuildError } from "./models/build";
 import type { BumpgenGraph } from "./models/graph";
 import type { DependencyGraphNode } from "./models/graph/dependency";
-import type { SupportedModel } from "./models/llm";
 import type { PackageUpgrade } from "./models/packages";
 import type { FilesystemService } from "./services/filesystem";
 import type { GraphService } from "./services/graph";
@@ -14,6 +13,9 @@ import { injectFilesystemService } from "./services/filesystem";
 import { injectGraphService } from "./services/graph";
 import { injectLanguageService } from "./services/language";
 import { injectLLMService } from "./services/llm";
+
+export { SupportedLanguages } from "./models";
+export { SupportedModels } from "./models";
 
 const _bumpgen = ({
   services,
