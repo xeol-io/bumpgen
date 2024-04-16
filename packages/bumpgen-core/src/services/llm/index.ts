@@ -1,9 +1,10 @@
 import OpenAI from "openai";
 
+import type { SupportedModel } from "../../models/llm";
 import { createOpenAIService } from "./openai";
 
 export const injectLLMService =
-  ({ llmApiKey, model }: { llmApiKey: string; model: "gpt-4-turbo-preview" }) =>
+  ({ llmApiKey, model }: { llmApiKey: string; model: SupportedModel }) =>
   () => {
     if (model === "gpt-4-turbo-preview") {
       const openai = new OpenAI({

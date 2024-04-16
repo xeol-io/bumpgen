@@ -3,6 +3,8 @@ import { z } from "zod";
 import type { DependencyGraphNode } from "./graph/dependency";
 import type { PlanGraphNode } from "./graph/plan";
 
+export type SupportedModel = "gpt-4-turbo-preview";
+
 export const ReplacementSchema = z.object({
   oldCode: z.string(),
   newCode: z.string(),

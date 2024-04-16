@@ -3,7 +3,7 @@ import { topologicalSort, willCreateCycle } from "graphology-dag";
 import { subgraph } from "graphology-operators";
 import { bfsFromNode } from "graphology-traversal";
 
-import type { CodePlanNodeId } from "../../models/graph";
+import type { CodePlanNodeId, PlanGraph } from "../../models/graph";
 import type { DependencyGraphNode } from "../../models/graph/dependency";
 import type {
   ErrorMessage,
@@ -30,6 +30,8 @@ export const createPlanGraphService = () => {
           status: "pending",
         });
       });
+
+      return planGraph;
     },
     addObligation: (
       graph: DirectedGraph<PlanGraphNode, PlanGraphEdge>,
@@ -63,8 +65,22 @@ export const createPlanGraphService = () => {
       graph.addEdge(parentID, id, { relationship: "referencedBy" });
     },
     node: {
+      get: (
+        graph: PlanGraph,
+        {
+          id,
+        }: {
+          id: CodePlanNodeId;
+        },
+      ) => {
+        const node = graph.findNode((n) => n === id);
+        if (!node) {
+          throw new Error(`Node with id ${id} does not exist`);
+        }
+        return graph.getNodeAttributes(id);
+      },
       update: (
-        graph: DirectedGraph<PlanGraphNode, PlanGraphEdge>,
+        graph: PlanGraph,
         { id, node }: { id: CodePlanNodeId; node: Partial<PlanGraphNode> },
       ) => {
         const existingNode = graph.findNode((n) => n === id);
@@ -74,10 +90,7 @@ export const createPlanGraphService = () => {
 
         graph.mergeNodeAttributes(id, node);
       },
-      getContext: (
-        graph: DirectedGraph<PlanGraphNode, PlanGraphEdge>,
-        { id }: { id: CodePlanNodeId },
-      ) => {
+      getContext: (graph: PlanGraph, { id }: { id: CodePlanNodeId }) => {
         const node = graph.findNode((n) => n === id);
         if (!node) {
           throw new Error(`Node with id ${id} does not exist`);
@@ -102,7 +115,7 @@ export const createPlanGraphService = () => {
       },
     },
     nodes: {
-      nextPending: (graph: DirectedGraph<PlanGraphNode, PlanGraphEdge>) => {
+      nextPending: (graph: PlanGraph) => {
         return topologicalSort(graph)
           .map((id) => graph.getNodeAttributes(id))
           .find((n) => n.status === "pending");

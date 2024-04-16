@@ -11,8 +11,14 @@ export type DependencyGraph = DirectedGraph<
 >;
 export type PlanGraph = DirectedGraph<PlanGraphNode, PlanGraphEdge>;
 
-export type BumpgenGraph = {
+export type AbstractSyntaxTree<TAst = unknown> = {
+  source: string;
+  tree: TAst;
+};
+
+export type BumpgenGraph<TAst = unknown> = {
+  root: string;
   dependency: DependencyGraph;
   plan: PlanGraph;
-  ast: unknown;
+  ast: AbstractSyntaxTree<TAst>;
 };
