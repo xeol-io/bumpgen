@@ -87,7 +87,7 @@ const _bumpgen = ({
     graph: {
       initialize: (errs: BuildError[]): BumpgenGraph => {
         const { language, graphService } = services;
-        const { packageToUpgrade } = args;
+        const { packageToUpgrade, projectRoot } = args;
         const ast = language.ast.initialize(args.projectRoot);
 
         const dependencyGraph = language.graph.dependency.initialize(ast);
@@ -104,11 +104,15 @@ const _bumpgen = ({
 
         for (const err of errs) {
           const affectedNodes =
-            graphService.dependency.getNodesInFileWithinRange(dependencyGraph, {
-              filePath: err.path,
-              startLine: err.line,
-              endLine: err.line,
-            });
+            graphService.dependency.getNodesInFileWithinRange(
+              dependencyGraph,
+              projectRoot,
+              {
+                filePath: err.path,
+                startLine: err.line,
+                endLine: err.line,
+              },
+            );
 
           if (affectedNodes.length === 0) {
             console.debug("No affected nodes found for error:", err);

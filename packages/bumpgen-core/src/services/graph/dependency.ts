@@ -1,3 +1,4 @@
+import path from "path";
 import type { DirectedGraph } from "graphology";
 
 import type {
@@ -64,17 +65,18 @@ export const createDependencyGraphService = () => {
     },
     getNodesInFileWithinRange: (
       graph: DirectedGraph<DependencyGraphNode, DependencyGraphEdge>,
+      projectRoot: string,
       {
         filePath,
         startLine,
         endLine,
       }: { filePath: string; startLine: number; endLine: number },
     ) => {
+      const fullPath = path.join(projectRoot, filePath);
       return graph
         .filterNodes((_, attrs) => {
-          console;
           return (
-            attrs.path === filePath &&
+            attrs.path === fullPath &&
             attrs.startLine <= startLine &&
             attrs.endLine >= endLine
           );
