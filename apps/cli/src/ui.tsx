@@ -13,16 +13,18 @@ export interface ExecutionState {
 }
 
 const App: FC<{
+  llmApiKey: string;
   pkgName: string;
   version: string;
   model: string;
   language: string;
-}> = ({ pkgName, version, model, language }) => {
+}> = ({ llmApiKey, pkgName, version, model, language }) => {
   const { exit } = useApp();
   console.log(pkgName);
   console.log(version);
   console.log(model);
   console.log(language);
+  console.log(llmApiKey);
 
   // const [columns, _] = useStdoutDimensions();
 

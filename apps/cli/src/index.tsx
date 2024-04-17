@@ -60,8 +60,15 @@ if (!options.model) {
   program.help();
 }
 
+const llmApiKey = process.env["LLM_API_KEY"] ?? undefined;
+if (!llmApiKey) {
+  console.error("error: missing required environment variable `LLM_API_KEY`");
+  program.help();
+}
+
 const app = render(
   <App
+    llmApiKey={llmApiKey}
     pkgName={args[0]}
     version={args[1]}
     language={options.language}
