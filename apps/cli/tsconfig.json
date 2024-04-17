@@ -1,8 +1,7 @@
 {
-  "extends": "@repo/tsconfig/base.json",
+  "extends": "@sindresorhus/tsconfig",
   "compilerOptions": {
     "outDir": "dist"
   },
-  "include": ["src"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["src"]
 }
