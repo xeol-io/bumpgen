@@ -6,7 +6,8 @@
     "lint": "eslint . --max-warnings 0"
   },
   "dependencies": {
-    "@repo/bumpgen-core": "workspace:*"
+    "@repo/bumpgen-core": "workspace:*",
+    "@commander-js/extra-typings": "^12.0.1"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",

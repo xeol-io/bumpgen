@@ -23,6 +23,9 @@ importers:
 
   apps/cli:
     dependencies:
+      '@commander-js/extra-typings':
+        specifier: ^12.0.1
+        version: 12.0.1(commander@12.0.0)
       '@repo/bumpgen-core':
         specifier: workspace:*
         version: link:../../packages/bumpgen-core
@@ -632,6 +635,14 @@ packages:
     requiresBuild: true
     dev: false
     optional: true
+
+  /@commander-js/extra-typings@12.0.1(commander@12.0.0):
+    resolution: {integrity: sha512-OvkMobb1eMqOCuJdbuSin/KJkkZr7n24/UNV+Lcz/0Dhepf3r2p9PaGwpRpAWej7A+gQnny4h8mGhpFl4giKkg==}
+    peerDependencies:
+      commander: ~12.0.0
+    dependencies:
+      commander: 12.0.0
+    dev: false
 
   /@eslint-community/eslint-utils@4.4.0(eslint@8.57.0):
     resolution: {integrity: sha512-1/sA4dwrzBAyeUoQ6oxahHKmrZvsnLCg4RfxW3ZFGGmQkSNQPFNLV9CUEFQP1x9EYXHTo5p6xdhZM1Ne9p/AfA==}
@@ -2103,6 +2114,11 @@ packages:
   /commander@10.0.1:
     resolution: {integrity: sha512-y4Mg2tXshplEbSGzx7amzPwKKOCGuoSRP/CjEdwwk0FOGlUbq6lKuoyDZTNZkmxHdJtp54hdfY/JUrdL7Xfdug==}
     engines: {node: '>=14'}
+    dev: false
+
+  /commander@12.0.0:
+    resolution: {integrity: sha512-MwVNWlYjDTtOjX5PiD7o5pK0UrFU/OYgcJfjjK4RaHZETNtjJqrZa9Y9ds88+A+f+d5lv+561eZ+yCKoS3gbAA==}
+    engines: {node: '>=18'}
     dev: false
 
   /concat-map@0.0.1:

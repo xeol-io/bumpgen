@@ -31,6 +31,7 @@ export const createSubprocessService = (
       command: string,
       options?: {
         rejectOnStderr?: boolean;
+        rejectOnNonZeroExit?: boolean;
         env?: Record<string, string>;
       },
     ) => {
@@ -54,7 +55,7 @@ export const createSubprocessService = (
         });
 
         child.on("close", (code) => {
-          if (code !== 0) {
+          if (code !== 0 && options?.rejectOnNonZeroExit) {
             console.error(stderr);
             reject(new Error(`Failed to execute command '${command}'`));
           }

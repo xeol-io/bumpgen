@@ -15,6 +15,11 @@ import { injectGraphService } from "./services/graph";
 import { injectLanguageService } from "./services/language";
 import { injectLLMService } from "./services/llm";
 
+export type { SupportedLanguage } from "./models";
+export type { SupportedModel } from "./models/llm";
+export { SupportedModels } from "./models/llm";
+export { SupportedLanguages } from "./models";
+
 const _bumpgen = ({
   services,
   args,
@@ -80,10 +85,10 @@ const _bumpgen = ({
       },
     },
     graph: {
-      initialize: (projectRoot: string, errs: BuildError[]): BumpgenGraph => {
+      initialize: (errs: BuildError[]): BumpgenGraph => {
         const { language, graphService } = services;
         const { packageToUpgrade } = args;
-        const ast = language.ast.initialize(projectRoot);
+        const ast = language.ast.initialize(args.projectRoot);
 
         const dependencyGraph = language.graph.dependency.initialize(ast);
 
@@ -148,7 +153,7 @@ const _bumpgen = ({
         );
 
         return {
-          root: projectRoot,
+          root: args.projectRoot,
           dependency: dependencyGraph,
           plan: planGraph,
           ast,
