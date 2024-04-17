@@ -22,6 +22,33 @@ import { processSourceFile } from "./process";
 
 const NcuUpgradeSchema = z.record(z.string());
 
+type ErrorRegexParsed = [
+  string,
+  string,
+  string,
+  string,
+  string,
+  string,
+  string,
+];
+
+const makeBuildError = (regexParsed: ErrorRegexParsed) => {
+  return {
+    path: regexParsed[1],
+    line: parseInt(regexParsed[2], 10),
+    column: parseInt(regexParsed[3], 10),
+    message: regexParsed[6],
+  };
+};
+
+const isRegexParsed = (value: unknown): value is ErrorRegexParsed => {
+  return (
+    Array.isArray(value) &&
+    value.length === 7 &&
+    value.every((v) => typeof v === "string")
+  );
+};
+
 export const makeTypescriptService = (
   filesystem: FilesystemService,
   subprocess: SubprocessService,
@@ -67,7 +94,47 @@ export const makeTypescriptService = (
   return {
     build: {
       getErrors: async () => {
-        return Promise.resolve([]);
+        let tscOutput = await subprocess.spawn(
+          `npx tsc --noEmit --skipLibCheck --pretty`,
+          {
+            rejectOnStderr: false,
+          },
+        );
+
+        // strip ansi
+        tscOutput = tscOutput.replace(
+          // eslint-disable-next-line no-control-regex
+          /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g,
+          "",
+        );
+        const trimRegex = /Found \d+ errors in/;
+        const trimmedString = trimRegex.test(tscOutput)
+          ? tscOutput.substring(0, tscOutput.search(trimRegex))
+          : tscOutput;
+
+        // tsc errors with lines like this
+        // src/components/Component.tsx:231:33 - error TS2339: Property 'foo' does not exist on type 'Bar'
+        const colonRegex =
+          /^(.+?):(\d+):(\d+) - (error|warning) (TS\d+): (.*(?:\n(?!src\/).*)*)/gm;
+        // tsc errors with lines like this
+        // src/components/Component.tsx(231,33): error TS2339: Property 'foo' does not exist on type 'Bar'
+        const bracketRegex =
+          /^(.+?)\((\d+),(\d+)\): (error|warning) (TS\d+): (.*(?:\n(?!src\/).*)*)/gm;
+        const items = [];
+
+        let regexParsed;
+        while ((regexParsed = colonRegex.exec(trimmedString)) !== null) {
+          if (isRegexParsed(regexParsed)) {
+            items.push(makeBuildError(regexParsed));
+          }
+        }
+        while ((regexParsed = bracketRegex.exec(trimmedString)) !== null) {
+          if (isRegexParsed(regexParsed)) {
+            items.push(makeBuildError(regexParsed));
+          }
+        }
+
+        return items;
       },
     },
     ast: {
