@@ -1,46 +1,265 @@
+import path from "path";
+import PackageJson from "@npmcli/package-json";
 import { DirectedGraph } from "graphology";
+import ncu from "npm-check-updates";
+import { isObject } from "radash";
+import semver from "semver";
 import { Project } from "ts-morph";
+import { z } from "zod";
 
-import type { BumpgenGraph } from "../../../models/graph";
 import type {
   DependencyGraphEdge,
   DependencyGraphNode,
 } from "../../../models/graph/dependency";
-import type { PlanGraphNode } from "../../../models/graph/plan";
-import type { Replacement } from "../../../models/llm";
+import type { FilesystemService } from "../../filesystem";
+import type { GraphService } from "../../graph";
+import type { SubprocessService } from "../../subprocess";
 import type { BumpgenLanguageService } from "../types";
+import { injectFilesystemService } from "../../filesystem";
+import { injectGraphService } from "../../graph";
+import { injectSubprocessService } from "../../subprocess";
 import { processSourceFile } from "./process";
 
-export const makeTypescriptService = () => {
+const NcuUpgradeSchema = z.record(z.string());
+
+type ErrorRegexParsed = [
+  string,
+  string,
+  string,
+  string,
+  string,
+  string,
+  string,
+];
+
+const makeBuildError = (regexParsed: ErrorRegexParsed) => {
+  return {
+    path: regexParsed[1],
+    line: parseInt(regexParsed[2], 10),
+    column: parseInt(regexParsed[3], 10),
+    message: regexParsed[6],
+  };
+};
+
+const isRegexParsed = (value: unknown): value is ErrorRegexParsed => {
+  return (
+    Array.isArray(value) &&
+    value.length === 7 &&
+    value.every((v) => typeof v === "string")
+  );
+};
+
+export const makeTypescriptService = (
+  filesystem: FilesystemService,
+  subprocess: SubprocessService,
+  graphService: GraphService,
+) => {
+  const findPackageManager = async (projectRoot: string) => {
+    let currentDir = projectRoot;
+    const rootPath = path.parse(currentDir).root;
+
+    while (currentDir !== rootPath) {
+      if (await filesystem.exists(path.join(currentDir, "package-lock.json"))) {
+        return {
+          packageManager: "npm" as const,
+          filePath: path.join(currentDir, "package-lock.json"),
+        };
+      } else if (await filesystem.exists(path.join(currentDir, "yarn.lock"))) {
+        return {
+          packageManager: "yarn" as const,
+          filePath: path.join(currentDir, "yarn.lock"),
+        };
+      } else if (
+        await filesystem.exists(path.join(currentDir, "pnpm-lock.yaml"))
+      ) {
+        return {
+          packageManager: "pnpm" as const,
+          filePath: path.join(currentDir, "pnpm-lock.yaml"),
+        };
+      }
+
+      // check for .git folder to stop at the root of the repo
+      if (await filesystem.exists(path.join(currentDir, ".git"))) {
+        break;
+      }
+
+      currentDir = path.join(currentDir, "..");
+    }
+    return {
+      packageManager: "npm" as const,
+      filePath: "package-lock.json",
+    };
+  };
+
   return {
     build: {
       getErrors: async () => {
-        return Promise.resolve([]);
+        let tscOutput = await subprocess.spawn(
+          `npx tsc --noEmit --skipLibCheck --pretty`,
+          {
+            rejectOnStderr: false,
+          },
+        );
+
+        // strip ansi
+        tscOutput = tscOutput.replace(
+          // eslint-disable-next-line no-control-regex
+          /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g,
+          "",
+        );
+        const trimRegex = /Found \d+ errors in/;
+        const trimmedString = trimRegex.test(tscOutput)
+          ? tscOutput.substring(0, tscOutput.search(trimRegex))
+          : tscOutput;
+
+        // tsc errors with lines like this
+        // src/components/Component.tsx:231:33 - error TS2339: Property 'foo' does not exist on type 'Bar'
+        const colonRegex =
+          /^(.+?):(\d+):(\d+) - (error|warning) (TS\d+): (.*(?:\n(?!src\/).*)*)/gm;
+        // tsc errors with lines like this
+        // src/components/Component.tsx(231,33): error TS2339: Property 'foo' does not exist on type 'Bar'
+        const bracketRegex =
+          /^(.+?)\((\d+),(\d+)\): (error|warning) (TS\d+): (.*(?:\n(?!src\/).*)*)/gm;
+        const items = [];
+
+        let regexParsed;
+        while ((regexParsed = colonRegex.exec(trimmedString)) !== null) {
+          if (isRegexParsed(regexParsed)) {
+            items.push(makeBuildError(regexParsed));
+          }
+        }
+        while ((regexParsed = bracketRegex.exec(trimmedString)) !== null) {
+          if (isRegexParsed(regexParsed)) {
+            items.push(makeBuildError(regexParsed));
+          }
+        }
+
+        return items;
       },
     },
     ast: {
-      initialize: (projectRoot: string) => {
+      initialize: (projectRoot) => {
         const project = new Project({
           tsConfigFilePath: `${projectRoot}/tsconfig.json`,
         });
 
-        return project;
+        return {
+          source: "ts-morph",
+
+          tree: project,
+        };
       },
     },
+    packages: {
+      upgrade: {
+        list: async (projectRoot) => {
+          const packages = await ncu({
+            packageFile: `${projectRoot}/package.json`,
+            dep: "prod",
+            interactive: false,
+            jsonUpgraded: true,
+            target: "latest",
+            filterResults: (name, { currentVersion, upgradedVersion }) => {
+              if (name.startsWith("@types")) {
+                return false;
+              }
+
+              const currentSemver = semver.coerce(currentVersion);
+
+              if (!currentSemver) {
+                console.debug(`No semver found for ${currentVersion}`);
+                return false;
+              }
+
+              const upgradedSemver = semver.coerce(upgradedVersion);
+
+              if (!upgradedSemver) {
+                console.debug(`No semver found for ${upgradedVersion}`);
+                return false;
+              }
+
+              return currentSemver.major !== upgradedSemver.major;
+            },
+          });
+
+          if (!isObject(packages) || !Object.keys(packages).length) {
+            return [];
+          }
+
+          const parsed = NcuUpgradeSchema.safeParse(packages);
+
+          if (!parsed.success) {
+            console.error(parsed.error);
+            return [];
+          }
+
+          return Object.entries(parsed.data).map(([name, version]) => {
+            return {
+              packageName: name,
+              newVersion: version,
+            };
+          });
+        },
+        apply: async (projectRoot, upgrade) => {
+          const { packageManager } = await findPackageManager(projectRoot);
+
+          const packageJson = await PackageJson.load(projectRoot);
+
+          const existingDependencies = packageJson.content.dependencies;
+
+          packageJson.update({
+            dependencies: {
+              ...(existingDependencies
+                ? Object.entries(existingDependencies).reduce(
+                    (acc, [key, value]) => {
+                      if (key === upgrade.packageName) {
+                        return acc;
+                      }
+                      return {
+                        ...acc,
+                        [key]: value,
+                      };
+                    },
+                    {},
+                  )
+                : {}),
+              [upgrade.packageName]: upgrade.newVersion,
+            },
+          });
+
+          await packageJson.save();
+
+          console.log("Applying upgrades...");
+
+          await subprocess.spawn(`${packageManager} install`, {
+            rejectOnStderr: false,
+          });
+        },
+      },
+      install: async (projectRoot) => {
+        const { packageManager } = await findPackageManager(projectRoot);
+
+        return await subprocess.spawn(`${packageManager} install`, {
+          rejectOnStderr: false,
+        });
+      },
+    },
+    // replacements: {
+    //   apply: async (projectRoot, affectedNode, replacements) => {
+    //     const fileContents = await filesystem.read(affectedNode.path);
+
+    //   },
+    // },
     graph: {
       dependency: {
-        initialize: (project: unknown) => {
+        initialize: (ast) => {
           console.log("Initializing the dependency graph...");
-
-          if (!(project instanceof Project)) {
-            throw new Error("Invalid project type");
-          }
 
           const graph = new DirectedGraph<
             DependencyGraphNode,
             DependencyGraphEdge
           >();
-          const sourceFiles = project.getSourceFiles();
+          const sourceFiles = ast.tree.getSourceFiles();
 
           sourceFiles.forEach((sourceFile) => {
             const { nodes, edges } = processSourceFile(sourceFile);
@@ -57,28 +276,36 @@ export const makeTypescriptService = () => {
           });
           return graph;
         },
-      },
-      //  recompute file will update nodes and edges for a file
-      // so that line numbers are correct
-      recomputeFileAfterChange: (
-        graph: BumpgenGraph,
-        affectedNode: PlanGraphNode,
-        replacements: Replacement[],
-      ) => {
-        if (!(graph.ast instanceof Project)) {
-          throw new Error("Invalid project type");
-        }
+        checkImportsForPackage: (graph, node, packageName) => {
+          const referencedImports = graphService.dependency.getReferencingNodes(
+            graph,
+            {
+              id: node.id,
+              relationships: ["importDeclaration"],
+            },
+          );
 
-        const sourceFile = graph.ast.getSourceFile(affectedNode.path);
+          return (
+            referencedImports.filter((n) => n.block.includes(packageName))
+              .length > 0
+          );
+        },
+      },
+      recomputeGraphAfterChange: (graph, affectedNode, replacements) => {
+        // recompute file will update nodes and edges for a file
+        // so that line numbers are correct
+        const sourceFile = graph.ast.tree.getSourceFile(affectedNode.path);
         if (!sourceFile) {
           throw new Error("File not found");
         }
-        const removed = graph.ast.removeSourceFile(sourceFile);
+        const removed = graph.ast.tree.removeSourceFile(sourceFile);
         if (!removed) {
           throw new Error("File not removed");
         }
 
-        const newSourceFile = graph.ast.addSourceFileAtPath(affectedNode.path);
+        const newSourceFile = graph.ast.tree.addSourceFileAtPath(
+          affectedNode.path,
+        );
         const { nodes } = processSourceFile(newSourceFile);
 
         nodes.forEach((node) => {
@@ -108,11 +335,19 @@ export const makeTypescriptService = () => {
         return graph;
       },
     },
-  } satisfies BumpgenLanguageService;
+  } satisfies BumpgenLanguageService<Project>;
 };
 
 export const injectTypescriptService = () => {
-  return makeTypescriptService();
+  const filesystemService = injectFilesystemService();
+  const subprocessService = injectSubprocessService();
+  const graphService = injectGraphService();
+
+  return makeTypescriptService(
+    filesystemService,
+    subprocessService,
+    graphService,
+  );
 };
 
 export type TypescriptService = ReturnType<typeof makeTypescriptService>;
