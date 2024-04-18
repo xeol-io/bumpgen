@@ -6,19 +6,19 @@
       "dependsOn": ["^build"],
       "outputs": ["dist/**"]
     },
+    "test": {
+      "dependsOn": ["^build"]  
+    },
+    "lint": {
+      "dependsOn": ["^lint"]
+    },
+    "typecheck": {
+      "dependsOn": ["^typecheck"],
+      "outputs": ["node_modules/.cache/tsbuildinfo.json"]
+    },
     "dev": {
       "cache": false,
       "persistent": true
-    },
-    "test": {
-      "dependsOn": ["^dev"]
-    },
-    "lint": {
-      "dependsOn": ["^test"]
-    },
-    "typecheck": {
-      "dependsOn": ["^lint"],
-      "outputs": ["node_modules/.cache/tsbuildinfo.json"]
     }
   }
 }
