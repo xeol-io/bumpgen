@@ -125,7 +125,7 @@ OPEN_AI="gpt4_key"
 
 #### Run Upgrade
 ```
-> npm install bumpgen
+> npm install -g bumpgen
 > bumpgen @tanstack/react-query 5.28.14 
 ```
 
