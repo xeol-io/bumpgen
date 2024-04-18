@@ -1,6 +1,5 @@
 import cryptography from "crypto";
-import filesystem from "fs";
-import fsPromises from "fs/promises";
+import filesystem, { promises as fsPromises } from "fs";
 import { isObject } from "radash";
 
 export const createFilesystemService = (

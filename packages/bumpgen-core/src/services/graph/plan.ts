@@ -17,7 +17,7 @@ export const createPlanGraphService = () => {
       seeds: (Omit<PlanGraphNode, "status" | "kind" | "replacements"> & {
         errorMessages: ErrorMessage[];
       })[],
-    ) => {
+    ): PlanGraph => {
       // initalizing the plan graph adds "seeds" as root nodes in the DAG.
       // seeds are the starting point of an upgrade task, and are dervied from
       // type errors immediately after upgrading a major package version
@@ -34,7 +34,7 @@ export const createPlanGraphService = () => {
       return planGraph;
     },
     addObligation: (
-      graph: DirectedGraph<PlanGraphNode, PlanGraphEdge>,
+      graph: PlanGraph,
       {
         depGraphNode,
         parentID,

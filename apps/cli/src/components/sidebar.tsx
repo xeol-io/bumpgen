@@ -4,14 +4,29 @@ import Spinner from "ink-spinner";
 import logSymbols from "log-symbols";
 import ms from "ms";
 
-import { Bold } from "../common/bold.js";
-import { ExecutionState } from "../ui.js";
+import type { BumpgenEvent } from "@repo/bumpgen-core";
 
-interface SidebarProps {
+import type { ExecutionState } from "../ui";
+import { Bold } from "../common/bold";
+import { TitleText } from "./title-text";
+
+// interface SidebarProps {
+//   executionState: ExecutionState[];
+// }
+
+const renderExecutionHistory = (executionHistory: BumpgenEvent[]) => {
+  return executionHistory.map((event, index) => {
+    return <Text key={index}>{event.type}</Text>;
+  });
+};
+
+export const Sidebar = ({
+  executionState,
+  executionHistory,
+}: {
   executionState: ExecutionState[];
-}
-
-export const Sidebar: FC<SidebarProps> = ({ executionState }) => {
+  executionHistory: BumpgenEvent[];
+}) => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const startTime = React.useRef(new Date());
 
@@ -66,11 +81,11 @@ export const Sidebar: FC<SidebarProps> = ({ executionState }) => {
   };
 
   return (
-    <Box width={80} borderStyle="single" flexDirection="column">
+    <Box width="20%" height="100%" borderStyle="single" flexDirection="column">
       <Box
         padding={1}
         flexDirection="column"
-        height={10}
+        // height={10}
         minHeight={5}
         flexShrink={0}
       >
@@ -78,9 +93,9 @@ export const Sidebar: FC<SidebarProps> = ({ executionState }) => {
         <Text>Current Time: {currentTime.toLocaleTimeString()}</Text>
         <Text>Elapsed Time: {getElapsedTime()}</Text>
         <Text>Timeout: 10m</Text>
-
         <Bold>Execution</Bold>
-        {renderExecutionState(executionState)}
+        {/* {renderExecutionState(executionState)} */}
+        {renderExecutionHistory(executionHistory)}
       </Box>
       <Box height={17} />
     </Box>

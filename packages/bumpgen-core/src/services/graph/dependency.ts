@@ -1,25 +1,18 @@
 import path from "path";
-import type { DirectedGraph } from "graphology";
 
-import type {
-  DependencyGraphEdge,
-  DependencyGraphNode,
-  Relationship,
-} from "../../models/graph/dependency";
+import type { DependencyGraph } from "../../models/graph";
+import type { Relationship } from "../../models/graph/dependency";
 
 export const createDependencyGraphService = () => {
   return {
-    getNodesByBlock: (
-      graph: DirectedGraph<DependencyGraphNode, DependencyGraphEdge>,
-      { block }: { block: string },
-    ) => {
+    getNodesByBlock: (graph: DependencyGraph, { block }: { block: string }) => {
       return graph
         .nodes()
         .map((node) => graph.getNodeAttributes(node))
         .filter((node) => node.block === block);
     },
     getReferencingNodes: (
-      graph: DirectedGraph<DependencyGraphNode, DependencyGraphEdge>,
+      graph: DependencyGraph,
       { id, relationships }: { id: string; relationships: Relationship[] },
     ) => {
       return Array.from(graph.outEdgeEntries(id))
@@ -31,7 +24,7 @@ export const createDependencyGraphService = () => {
         });
     },
     getContextsForNodeById: (
-      graph: DirectedGraph<DependencyGraphNode, DependencyGraphEdge>,
+      graph: DependencyGraph,
       { id, relationships }: { id: string; relationships: Relationship[] },
     ) => {
       return Array.from(graph.inEdgeEntries(id))
@@ -42,19 +35,14 @@ export const createDependencyGraphService = () => {
           return graph.getNodeAttributes(edge.target);
         });
     },
-    getNodeById: (
-      graph: DirectedGraph<DependencyGraphNode, DependencyGraphEdge>,
-      { id }: { id: string },
-    ) => {
+    getNodeById: (graph: DependencyGraph, { id }: { id: string }) => {
       return graph.getNodeAttributes(id);
     },
-    getNodes: (
-      graph: DirectedGraph<DependencyGraphNode, DependencyGraphEdge>,
-    ) => {
+    getNodes: (graph: DependencyGraph) => {
       return graph.nodes().map((node) => graph.getNodeAttributes(node));
     },
     getNodesInFile: (
-      graph: DirectedGraph<DependencyGraphNode, DependencyGraphEdge>,
+      graph: DependencyGraph,
       { filePath }: { filePath: string },
     ) => {
       return graph
@@ -64,7 +52,7 @@ export const createDependencyGraphService = () => {
         .map((node) => graph.getNodeAttributes(node));
     },
     getNodesInFileWithinRange: (
-      graph: DirectedGraph<DependencyGraphNode, DependencyGraphEdge>,
+      graph: DependencyGraph,
       projectRoot: string,
       {
         filePath,
