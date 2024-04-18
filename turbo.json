@@ -14,7 +14,11 @@
       "dependsOn": ["^dev"]
     },
     "lint": {
-      "dependsOn": ["^lint"]
+      "dependsOn": ["^test"]
+    },
+    "typecheck": {
+      "dependsOn": ["^lint"],
+      "outputs": ["node_modules/.cache/tsbuildinfo.json"]
     }
   }
 }
