@@ -8,7 +8,6 @@ export type DependencyGraphNode = {
   block: string;
   kind: Kind;
   name: string;
-  typeSignature?: string;
   path: string;
   startLine: number;
   endLine: number;
