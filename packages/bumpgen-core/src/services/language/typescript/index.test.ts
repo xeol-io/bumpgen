@@ -12,16 +12,22 @@ describe("dependencyGraphService", () => {
     const project = client.ast.initialize(rootDir);
     const depGraph = client.graph.dependency.initialize(project);
 
-    const graphObj = depGraph.export();
-    graphObj.edges.forEach((edge) => delete edge.key);
-    graphObj.nodes.forEach((node) => {
-      if (node.attributes?.path) {
-        node.attributes.path = node.attributes?.path.replace(
-          /^.*?(\/scripts\/)/,
-          "$1",
-        );
-      }
+    const updatedNodes = depGraph.nodes().map((id) => {
+      const node = depGraph.getNodeAttributes(id);
+      return {
+        ...node,
+        // remove part of the path so snapshots don't fail
+        path: node?.path.replace(/^.*?(\/test-project\/)/, "$1"),
+        typeSignature: client.graph.getTypeSignature(project, node),
+      };
     });
-    expect(graphObj).toMatchSnapshot();
+
+    const graphObj = depGraph.export();
+
+    // delete edge key so snapshots don't fail
+    graphObj.edges.forEach((edge) => delete edge.key);
+
+    expect(updatedNodes).toMatchSnapshot();
+    expect(graphObj.edges).toMatchSnapshot();
   });
 });

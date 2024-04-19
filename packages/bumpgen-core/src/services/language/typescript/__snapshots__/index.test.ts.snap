@@ -1,168 +1,91 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`dependencyGraphService initializes 1`] = `
-{
-  "attributes": {},
-  "edges": [
-    {
-      "attributes": {
-        "relationship": "importDeclaration",
-        "source": "499d9d793ba233cf0a3ef8e4585b7e411901f15c",
-        "target": "bcab7b12325a07c0f86dea154a195fed3af9d675",
-      },
-      "source": "499d9d793ba233cf0a3ef8e4585b7e411901f15c",
-      "target": "bcab7b12325a07c0f86dea154a195fed3af9d675",
-    },
-    {
-      "attributes": {
-        "relationship": "importDeclaration",
-        "source": "8075d0e4613922bbd56f0009959451346b3f370b",
-        "target": "744ff521e84ebc809167c9b8d1c41263ed04508f",
-      },
-      "source": "8075d0e4613922bbd56f0009959451346b3f370b",
-      "target": "744ff521e84ebc809167c9b8d1c41263ed04508f",
-    },
-    {
-      "attributes": {
-        "relationship": "referencedBy",
-        "source": "8075d0e4613922bbd56f0009959451346b3f370b",
-        "target": "499d9d793ba233cf0a3ef8e4585b7e411901f15c",
-      },
-      "source": "8075d0e4613922bbd56f0009959451346b3f370b",
-      "target": "499d9d793ba233cf0a3ef8e4585b7e411901f15c",
-    },
-    {
-      "attributes": {
-        "relationship": "importDeclaration",
-        "source": "e529f2d724201ab2e85fe2d04206f906455b8c35",
-        "target": "744ff521e84ebc809167c9b8d1c41263ed04508f",
-      },
-      "source": "e529f2d724201ab2e85fe2d04206f906455b8c35",
-      "target": "744ff521e84ebc809167c9b8d1c41263ed04508f",
-    },
-    {
-      "attributes": {
-        "relationship": "importDeclaration",
-        "source": "af98bd4a9f21da0ef9138e91b2e2c0146038c81e",
-        "target": "ae004d4bf2f02bb8330ba065e46aefef4f301d38",
-      },
-      "source": "af98bd4a9f21da0ef9138e91b2e2c0146038c81e",
-      "target": "ae004d4bf2f02bb8330ba065e46aefef4f301d38",
-    },
-    {
-      "attributes": {
-        "relationship": "importDeclaration",
-        "source": "4e567e969228d3bd9d437ea11af597903c8b3eb6",
-        "target": "744ff521e84ebc809167c9b8d1c41263ed04508f",
-      },
-      "source": "4e567e969228d3bd9d437ea11af597903c8b3eb6",
-      "target": "744ff521e84ebc809167c9b8d1c41263ed04508f",
-    },
-  ],
-  "nodes": [
-    {
-      "attributes": {
-        "block": "import {
+[
+  {
+    "block": "import {
   date,
   myFunction,
   NodeRelations,
 } from "./utils";",
-        "edits": [],
-        "endLine": 5,
-        "id": "8e23bb9f006f99d941ea11632f5af9272dac1abc",
-        "kind": "ImportDeclaration",
-        "name": "import date from "./utils"",
-        "path": "/Users/noqcks/go/src/github.com/xeol-io/bumpgen/packages/test-project/src/index.ts",
-        "startLine": 1,
-        "typeSignature": "() => Zod.ZodEffects<Zod.ZodString, Date | undefined, string>",
-      },
-      "key": "8e23bb9f006f99d941ea11632f5af9272dac1abc",
-    },
-    {
-      "attributes": {
-        "block": "import {
+    "edits": [],
+    "endLine": 5,
+    "id": "5a9d43600be848878765e00840ef7084604664cf",
+    "kind": "ImportDeclaration",
+    "name": "date",
+    "path": "/test-project/src/index.ts",
+    "startLine": 1,
+    "typeSignature": "() => Zod.ZodEffects<Zod.ZodString, Date | undefined, string>",
+  },
+  {
+    "block": "import {
   date,
   myFunction,
   NodeRelations,
 } from "./utils";",
-        "edits": [],
-        "endLine": 5,
-        "id": "d3a7403e4102b040d88b45655bee0a35a490dc45",
-        "kind": "ImportDeclaration",
-        "name": "import myFunction from "./utils"",
-        "path": "/Users/noqcks/go/src/github.com/xeol-io/bumpgen/packages/test-project/src/index.ts",
-        "startLine": 1,
-        "typeSignature": "(text: string) => string
+    "edits": [],
+    "endLine": 5,
+    "id": "3d6a18e61378adb3158347587e6ab60eb39cd038",
+    "kind": "ImportDeclaration",
+    "name": "myFunction",
+    "path": "/test-project/src/index.ts",
+    "startLine": 1,
+    "typeSignature": "(text: string) => string
 ",
-      },
-      "key": "d3a7403e4102b040d88b45655bee0a35a490dc45",
-    },
-    {
-      "attributes": {
-        "block": "import {
+  },
+  {
+    "block": "import {
   date,
   myFunction,
   NodeRelations,
 } from "./utils";",
-        "edits": [],
-        "endLine": 5,
-        "id": "bcab7b12325a07c0f86dea154a195fed3af9d675",
-        "kind": "ImportDeclaration",
-        "name": "import NodeRelations from "./utils"",
-        "path": "/Users/noqcks/go/src/github.com/xeol-io/bumpgen/packages/test-project/src/index.ts",
-        "startLine": 1,
-        "typeSignature": "class NodeRelations  {
+    "edits": [],
+    "endLine": 5,
+    "id": "b4690ab017d431ea4492ff3c79330a7290284c82",
+    "kind": "ImportDeclaration",
+    "name": "NodeRelations",
+    "path": "/test-project/src/index.ts",
+    "startLine": 1,
+    "typeSignature": "class NodeRelations  {
  constructor (hasCycle: boolean) => NodeRelations
   NodeRelations.addEdge: () => string
 }",
-      },
-      "key": "bcab7b12325a07c0f86dea154a195fed3af9d675",
-    },
-    {
-      "attributes": {
-        "block": "n = new NodeRelations(false)",
-        "edits": [],
-        "endLine": 11,
-        "id": "499d9d793ba233cf0a3ef8e4585b7e411901f15c",
-        "kind": "VariableDeclaration",
-        "name": "n",
-        "path": "/Users/noqcks/go/src/github.com/xeol-io/bumpgen/packages/test-project/src/index.ts",
-        "startLine": 11,
-        "typeSignature": "import("/Users/noqcks/go/src/github.com/xeol-io/bumpgen/packages/test-project/src/utils/index").NodeRelations",
-      },
-      "key": "499d9d793ba233cf0a3ef8e4585b7e411901f15c",
-    },
-    {
-      "attributes": {
-        "block": "import React from "react";",
-        "edits": [],
-        "endLine": 1,
-        "id": "8590339d67366aef0cd6df0e702c5465acfe82f0",
-        "kind": "ImportDeclaration",
-        "name": "import React from "react"",
-        "path": "/Users/noqcks/go/src/github.com/xeol-io/bumpgen/packages/test-project/src/app/index.tsx",
-        "startLine": 1,
-        "typeSignature": "any",
-      },
-      "key": "8590339d67366aef0cd6df0e702c5465acfe82f0",
-    },
-    {
-      "attributes": {
-        "block": "import ReactDOM from "react-dom";",
-        "edits": [],
-        "endLine": 2,
-        "id": "33da0a078a1640ab2d036a22b90718cc6f3be60c",
-        "kind": "ImportDeclaration",
-        "name": "import ReactDOM from "react-dom"",
-        "path": "/Users/noqcks/go/src/github.com/xeol-io/bumpgen/packages/test-project/src/app/index.tsx",
-        "startLine": 2,
-        "typeSignature": "any",
-      },
-      "key": "33da0a078a1640ab2d036a22b90718cc6f3be60c",
-    },
-    {
-      "attributes": {
-        "block": "function App() {
+  },
+  {
+    "block": "n = new NodeRelations(false)",
+    "edits": [],
+    "endLine": 11,
+    "id": "499d9d793ba233cf0a3ef8e4585b7e411901f15c",
+    "kind": "VariableDeclaration",
+    "name": "n",
+    "path": "/test-project/src/index.ts",
+    "startLine": 11,
+    "typeSignature": "",
+  },
+  {
+    "block": "import React from "react";",
+    "edits": [],
+    "endLine": 1,
+    "id": "5e0643ad5719febad710540175289db2e6092ebc",
+    "kind": "ImportDeclaration",
+    "name": "React",
+    "path": "/test-project/src/app/index.tsx",
+    "startLine": 1,
+    "typeSignature": "any",
+  },
+  {
+    "block": "import ReactDOM from "react-dom";",
+    "edits": [],
+    "endLine": 2,
+    "id": "77c88d8db141dff041dd73aadf6c29070ccbbf2b",
+    "kind": "ImportDeclaration",
+    "name": "ReactDOM",
+    "path": "/test-project/src/app/index.tsx",
+    "startLine": 2,
+    "typeSignature": "any",
+  },
+  {
+    "block": "function App() {
   return (
     <div>
       <h1>My React App</h1>
@@ -170,46 +93,40 @@ exports[`dependencyGraphService initializes 1`] = `
     </div>
   );
 }",
-        "edits": [],
-        "endLine": 11,
-        "id": "41cbcc9031d9de2619afbe446cd506168b59feae",
-        "kind": "FunctionDeclaration",
-        "name": "App",
-        "path": "/Users/noqcks/go/src/github.com/xeol-io/bumpgen/packages/test-project/src/app/index.tsx",
-        "startLine": 4,
-        "typeSignature": "() => any
+    "edits": [],
+    "endLine": 11,
+    "id": "41cbcc9031d9de2619afbe446cd506168b59feae",
+    "kind": "FunctionDeclaration",
+    "name": "App",
+    "path": "/test-project/src/app/index.tsx",
+    "startLine": 4,
+    "typeSignature": "() => any
 ",
-      },
-      "key": "41cbcc9031d9de2619afbe446cd506168b59feae",
-    },
-    {
-      "attributes": {
-        "block": "function MyNewComponent() {
+  },
+  {
+    "block": "function MyNewComponent() {
   return <p>This is my new component</p>;
 }",
-        "edits": [],
-        "endLine": 15,
-        "id": "4751583d8062938f4a996ef45539f4e77507d9f9",
-        "kind": "FunctionDeclaration",
-        "name": "MyNewComponent",
-        "path": "/Users/noqcks/go/src/github.com/xeol-io/bumpgen/packages/test-project/src/app/index.tsx",
-        "startLine": 13,
-        "typeSignature": "() => any
+    "edits": [],
+    "endLine": 15,
+    "id": "4751583d8062938f4a996ef45539f4e77507d9f9",
+    "kind": "FunctionDeclaration",
+    "name": "MyNewComponent",
+    "path": "/test-project/src/app/index.tsx",
+    "startLine": 13,
+    "typeSignature": "() => any
 ",
-      },
-      "key": "4751583d8062938f4a996ef45539f4e77507d9f9",
-    },
-    {
-      "attributes": {
-        "block": "import { useQuery } from "@tanstack/react-query";",
-        "edits": [],
-        "endLine": 1,
-        "id": "ae004d4bf2f02bb8330ba065e46aefef4f301d38",
-        "kind": "ImportDeclaration",
-        "name": "import useQuery from "@tanstack/react-query"",
-        "path": "/Users/noqcks/go/src/github.com/xeol-io/bumpgen/packages/test-project/src/utils/index.ts",
-        "startLine": 1,
-        "typeSignature": "(options: DefinedInitialDataOptions<TQueryFnData, TError, TData, TQueryKey>, queryClient?: QueryClient) => DefinedUseQueryResult<TData, TError>
+  },
+  {
+    "block": "import { useQuery } from "@tanstack/react-query";",
+    "edits": [],
+    "endLine": 1,
+    "id": "6d08cd93852138810d10156622fdab68490ffadd",
+    "kind": "ImportDeclaration",
+    "name": "useQuery",
+    "path": "/test-project/src/utils/index.ts",
+    "startLine": 1,
+    "typeSignature": "(options: DefinedInitialDataOptions<TQueryFnData, TError, TData, TQueryKey>, queryClient?: QueryClient) => DefinedUseQueryResult<TData, TError>
 
 type DefaultError = Register extends {
     defaultError: infer TError;
@@ -680,26 +597,20 @@ type FetchInfiniteQueryOptions<TQueryFnData = unknown, TError = DefaultError, TD
 type UseBaseQueryResult<TData = unknown, TError = DefaultError> = QueryObserverResult<TData, TError>;
 type UseQueryResult<TData = unknown, TError = DefaultError> = UseBaseQueryResult<TData, TError>;
 ",
-      },
-      "key": "ae004d4bf2f02bb8330ba065e46aefef4f301d38",
-    },
-    {
-      "attributes": {
-        "block": "import { z } from "zod";",
-        "edits": [],
-        "endLine": 2,
-        "id": "744ff521e84ebc809167c9b8d1c41263ed04508f",
-        "kind": "ImportDeclaration",
-        "name": "import z from "zod"",
-        "path": "/Users/noqcks/go/src/github.com/xeol-io/bumpgen/packages/test-project/src/utils/index.ts",
-        "startLine": 2,
-        "typeSignature": "",
-      },
-      "key": "744ff521e84ebc809167c9b8d1c41263ed04508f",
-    },
-    {
-      "attributes": {
-        "block": "export class NodeRelations {
+  },
+  {
+    "block": "import { z } from "zod";",
+    "edits": [],
+    "endLine": 2,
+    "id": "f3db0d36061cc8a3501a31acec9a010118c9193d",
+    "kind": "ImportDeclaration",
+    "name": "z",
+    "path": "/test-project/src/utils/index.ts",
+    "startLine": 2,
+    "typeSignature": "",
+  },
+  {
+    "block": "export class NodeRelations {
   protected hasCycle = false;
 
   constructor(hasCycle: boolean) {
@@ -712,42 +623,36 @@ type UseQueryResult<TData = unknown, TError = DefaultError> = UseBaseQueryResult
     return "";
   }
 }",
-        "edits": [],
-        "endLine": 26,
-        "id": "8075d0e4613922bbd56f0009959451346b3f370b",
-        "kind": "ClassDeclaration",
-        "name": "NodeRelations",
-        "path": "/Users/noqcks/go/src/github.com/xeol-io/bumpgen/packages/test-project/src/utils/index.ts",
-        "startLine": 14,
-        "typeSignature": "class NodeRelations  {
+    "edits": [],
+    "endLine": 26,
+    "id": "8075d0e4613922bbd56f0009959451346b3f370b",
+    "kind": "ClassDeclaration",
+    "name": "NodeRelations",
+    "path": "/test-project/src/utils/index.ts",
+    "startLine": 14,
+    "typeSignature": "class NodeRelations  {
  constructor (hasCycle: boolean) => NodeRelations
   NodeRelations.addEdge: () => string
 }",
-      },
-      "key": "8075d0e4613922bbd56f0009959451346b3f370b",
-    },
-    {
-      "attributes": {
-        "block": "export function myFunction(text: string) {
+  },
+  {
+    "block": "export function myFunction(text: string) {
   z.string();
   console.log(text);
   return text;
 }",
-        "edits": [],
-        "endLine": 38,
-        "id": "e529f2d724201ab2e85fe2d04206f906455b8c35",
-        "kind": "FunctionDeclaration",
-        "name": "myFunction",
-        "path": "/Users/noqcks/go/src/github.com/xeol-io/bumpgen/packages/test-project/src/utils/index.ts",
-        "startLine": 34,
-        "typeSignature": "(text: string) => string
+    "edits": [],
+    "endLine": 38,
+    "id": "e529f2d724201ab2e85fe2d04206f906455b8c35",
+    "kind": "FunctionDeclaration",
+    "name": "myFunction",
+    "path": "/test-project/src/utils/index.ts",
+    "startLine": 34,
+    "typeSignature": "(text: string) => string
 ",
-      },
-      "key": "e529f2d724201ab2e85fe2d04206f906455b8c35",
-    },
-    {
-      "attributes": {
-        "block": "useQueryFn = () => {
+  },
+  {
+    "block": "useQueryFn = () => {
   useQuery({
     queryKey: ["key"],
     queryFn: () => {
@@ -755,40 +660,88 @@ type UseQueryResult<TData = unknown, TError = DefaultError> = UseBaseQueryResult
     },
   });
 }",
-        "edits": [],
-        "endLine": 12,
-        "id": "af98bd4a9f21da0ef9138e91b2e2c0146038c81e",
-        "kind": "VariableDeclaration",
-        "name": "useQueryFn",
-        "path": "/Users/noqcks/go/src/github.com/xeol-io/bumpgen/packages/test-project/src/utils/index.ts",
-        "startLine": 5,
-        "typeSignature": "() => void",
-      },
-      "key": "af98bd4a9f21da0ef9138e91b2e2c0146038c81e",
-    },
-    {
-      "attributes": {
-        "block": "date = () =>
+    "edits": [],
+    "endLine": 12,
+    "id": "af98bd4a9f21da0ef9138e91b2e2c0146038c81e",
+    "kind": "VariableDeclaration",
+    "name": "useQueryFn",
+    "path": "/test-project/src/utils/index.ts",
+    "startLine": 5,
+    "typeSignature": "",
+  },
+  {
+    "block": "date = () =>
   z.string().transform((v) => {
     const date = v.replace(/(\\\\d+)(st|nd|rd|th)/, "$1");
     return isNaN(new Date(date).getTime()) ? undefined : new Date(date);
   })",
-        "edits": [],
-        "endLine": 32,
-        "id": "4e567e969228d3bd9d437ea11af597903c8b3eb6",
-        "kind": "VariableDeclaration",
-        "name": "date",
-        "path": "/Users/noqcks/go/src/github.com/xeol-io/bumpgen/packages/test-project/src/utils/index.ts",
-        "startLine": 28,
-        "typeSignature": "() => Zod.ZodEffects<Zod.ZodString, Date | undefined, string>",
-      },
-      "key": "4e567e969228d3bd9d437ea11af597903c8b3eb6",
-    },
-  ],
-  "options": {
-    "allowSelfLoops": true,
-    "multi": false,
-    "type": "directed",
+    "edits": [],
+    "endLine": 32,
+    "id": "4e567e969228d3bd9d437ea11af597903c8b3eb6",
+    "kind": "VariableDeclaration",
+    "name": "date",
+    "path": "/test-project/src/utils/index.ts",
+    "startLine": 28,
+    "typeSignature": "",
   },
-}
+]
+`;
+
+exports[`dependencyGraphService initializes 2`] = `
+[
+  {
+    "attributes": {
+      "relationship": "importDeclaration",
+      "source": "499d9d793ba233cf0a3ef8e4585b7e411901f15c",
+      "target": "b4690ab017d431ea4492ff3c79330a7290284c82",
+    },
+    "source": "499d9d793ba233cf0a3ef8e4585b7e411901f15c",
+    "target": "b4690ab017d431ea4492ff3c79330a7290284c82",
+  },
+  {
+    "attributes": {
+      "relationship": "importDeclaration",
+      "source": "8075d0e4613922bbd56f0009959451346b3f370b",
+      "target": "f3db0d36061cc8a3501a31acec9a010118c9193d",
+    },
+    "source": "8075d0e4613922bbd56f0009959451346b3f370b",
+    "target": "f3db0d36061cc8a3501a31acec9a010118c9193d",
+  },
+  {
+    "attributes": {
+      "relationship": "referencedBy",
+      "source": "8075d0e4613922bbd56f0009959451346b3f370b",
+      "target": "499d9d793ba233cf0a3ef8e4585b7e411901f15c",
+    },
+    "source": "8075d0e4613922bbd56f0009959451346b3f370b",
+    "target": "499d9d793ba233cf0a3ef8e4585b7e411901f15c",
+  },
+  {
+    "attributes": {
+      "relationship": "importDeclaration",
+      "source": "e529f2d724201ab2e85fe2d04206f906455b8c35",
+      "target": "f3db0d36061cc8a3501a31acec9a010118c9193d",
+    },
+    "source": "e529f2d724201ab2e85fe2d04206f906455b8c35",
+    "target": "f3db0d36061cc8a3501a31acec9a010118c9193d",
+  },
+  {
+    "attributes": {
+      "relationship": "importDeclaration",
+      "source": "af98bd4a9f21da0ef9138e91b2e2c0146038c81e",
+      "target": "6d08cd93852138810d10156622fdab68490ffadd",
+    },
+    "source": "af98bd4a9f21da0ef9138e91b2e2c0146038c81e",
+    "target": "6d08cd93852138810d10156622fdab68490ffadd",
+  },
+  {
+    "attributes": {
+      "relationship": "importDeclaration",
+      "source": "4e567e969228d3bd9d437ea11af597903c8b3eb6",
+      "target": "f3db0d36061cc8a3501a31acec9a010118c9193d",
+    },
+    "source": "4e567e969228d3bd9d437ea11af597903c8b3eb6",
+    "target": "f3db0d36061cc8a3501a31acec9a010118c9193d",
+  },
+]
 `;

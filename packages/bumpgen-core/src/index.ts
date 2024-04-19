@@ -173,7 +173,7 @@ const _bumpgen = ({
           return graphService.plan.nodes.nextPending(graph.plan) === undefined;
         },
         execute: async (graph: BumpgenGraph) => {
-          const { llm, graphService } = services;
+          const { llm, graphService, language } = services;
           const { packageToUpgrade } = args;
           const planNode = graphService.plan.nodes.nextPending(graph.plan);
 
@@ -181,26 +181,35 @@ const _bumpgen = ({
             return null;
           }
 
-          const spatialContext = graphService.dependency.getContextsForNodeById(
-            graph.dependency,
-            {
+          const spatialContext = graphService.dependency
+            .getContextsForNodeById(graph.dependency, {
               id: planNode.id,
               relationships: ["referencedBy"],
-            },
-          );
+            })
+            .map((node) => {
+              return {
+                ...node,
+                typeSignature: language.graph.getTypeSignature(graph.ast, node),
+              };
+            });
+
           const temporalContext = graphService.plan.node.getContext(
             graph.plan,
             {
               id: planNode.id,
             },
           );
-          const importContext = graphService.dependency.getReferencingNodes(
-            graph.dependency,
-            {
+          const importContext = graphService.dependency
+            .getReferencingNodes(graph.dependency, {
               id: planNode.id,
               relationships: ["importDeclaration"],
-            },
-          );
+            })
+            .map((node) => {
+              return {
+                ...node,
+                typeSignature: language.graph.getTypeSignature(graph.ast, node),
+              };
+            });
 
           const { replacements, commitMessage } =
             await llm.codeplan.getReplacements({
