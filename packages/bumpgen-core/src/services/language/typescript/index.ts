@@ -301,7 +301,8 @@ export const makeTypescriptService = (
 
         const astNode = ast.tree
           .getSourceFile(path)
-          ?.getChildrenOfKind(SyntaxKind[kind])
+          ?.getFirstChild() // get first child is the syntax tree / code
+          ?.getDescendantsOfKind(SyntaxKind[kind])
           .map((descendant) => {
             if (
               allChildrenOfKindIdentifier(descendant).some((identifier) => {
