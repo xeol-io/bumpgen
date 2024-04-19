@@ -22,3 +22,9 @@ export type BumpgenGraph<TAst = unknown> = {
   plan: PlanGraph;
   ast: AbstractSyntaxTree<TAst>;
 };
+
+export type SerializeableBumpgenGraph = {
+  root: string;
+  dependency: ReturnType<DependencyGraph["export"]>;
+  plan: ReturnType<PlanGraph["export"]>;
+};

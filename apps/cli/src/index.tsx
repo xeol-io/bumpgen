@@ -1,7 +1,11 @@
 #!/usr/bin/env node
+import { rejects } from "assert";
+import { spawn } from "child_process";
+import { write } from "fs";
 import React from "react";
 import { Option, program } from "@commander-js/extra-typings";
-import { Box, render, Text } from "ink";
+import { Box, measureElement, render, Text } from "ink";
+import { serializeError } from "serialize-error";
 
 import {
   makeBumpgen,
@@ -29,9 +33,11 @@ const command = program
       .choices(SupportedModels)
       .default("gpt-4-turbo-preview" as const),
   )
+  // .option("-p, --port <port>", "ipc port", parseInt)
+  .option("-i, --ipc <port>", "run in ipc mode", parseInt)
   .parse();
 
-const { model, language } = command.opts();
+const { model, language, ipc } = command.opts();
 
 const [pkg, version] = command.processedArgs;
 
@@ -46,7 +52,38 @@ const bumpgen = makeBumpgen({
   projectRoot: process.cwd(),
 });
 
-const app = render(<App bumpgen={bumpgen} />);
+if (ipc) {
+  console.log("Running in IPC mode");
+  for await (const event of bumpgen.executeSerializeable()) {
+    console.log("event", event);
+    try {
+      const data = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(event),
+      };
+      await fetch(`http://localhost:${ipc}/data`, data);
+      // console.log("Server response:", response.data);
+    } catch (error) {
+      console.log("error", serializeError(error));
+      // console.error("Error sending data:", error.response.data);
+    }
+    // await new Promise<void>((resolve, reject) => {
+    //   write(ipc, JSON.stringify(event), (err) => {
+    //     if (err) {
+    //       reject(err);
+    //     } else {
+    //       resolve();
+    //     }
+    //   });
+    // });
+  }
+} else {
+  const app = render(<App bumpgen={bumpgen} />);
+  await app.waitUntilExit();
+}
 
 // const foo = program.opts();
 
@@ -92,5 +129,4 @@ const app = render(<App bumpgen={bumpgen} />);
 //   />,
 // );
 
-await app.waitUntilExit();
 // await app.waitUntilExit();
