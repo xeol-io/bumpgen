@@ -40,6 +40,10 @@ export type BumpgenLanguageService<TAst = any> = {
         packageName: string,
       ) => boolean;
     };
+    getTypeSignature: (
+      graph: AbstractSyntaxTree<TAst>,
+      node: DependencyGraphNode,
+    ) => string;
     recomputeGraphAfterChange: (
       graph: BumpgenGraph<TAst>,
       affectedNode: PlanGraphNode,

@@ -293,14 +293,6 @@ export const createOpenAIService = (openai: OpenAI) => {
         return parsed.data;
       },
     },
-    applyReplacements: (fileContent: string, replacements: Replacement[]) => {
-      return replacements.reduce((content, { oldCode, newCode }) => {
-        if (!content.includes(oldCode)) {
-          throw new Error("Old code not found in file");
-        }
-        return content.replace(oldCode, newCode);
-      }, fileContent);
-    },
   } satisfies LLMService;
 };
 

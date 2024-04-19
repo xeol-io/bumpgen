@@ -13,10 +13,9 @@ import type {
   DependencyGraphEdge,
   DependencyGraphNode,
 } from "../../../models/graph/dependency";
-import { getSignature } from "./signatures";
 
 // walks the AST tree to find all children of the kind Identifier
-const allChildrenOfKindIdentifier = (
+export const allChildrenOfKindIdentifier = (
   node: Node | SourceFile,
   identifiers: Identifier[] = [],
 ) => {
@@ -39,7 +38,6 @@ const getSurroundingBlock = (node: ImportSpecifier | Node) => {
   // outer containing block
   const secondFromTopAncestor = ancestors[ancestors.length - 2];
   if (!secondFromTopAncestor) {
-    console.log("no surrounding block, returning node");
     return node;
   }
   return secondFromTopAncestor;
@@ -57,55 +55,39 @@ const id = ({
   return createHash("sha1").update(`${path}:${kind}:${name}`).digest("hex");
 };
 
-const getDefinitionNodesOutsideBlock = (
-  id: Identifier,
-  filePath: string,
-  blockStart: number,
-  blockEnd: number,
-) => {
-  const definitionNodes = id.getDefinitionNodes().filter((def) => {
-    const defNodeIsOutsideIdNodeBlock =
-      (def.getStartLineNumber() < blockStart &&
-        def.getSourceFile().getFilePath() === filePath) ||
-      (def.getEndLineNumber() <= blockEnd &&
-        def.getSourceFile().getFilePath() === filePath) ||
-      def.getSourceFile().getFilePath() !== filePath;
+// const getDefinitionNodesOutsideBlock = (
+//   id: Identifier,
+//   filePath: string,
+//   blockStart: number,
+//   blockEnd: number,
+// ) => {
+//   const definitionNodes = id.getDefinitionNodes().filter((def) => {
+//     const defNodeIsOutsideIdNodeBlock =
+//       (def.getStartLineNumber() < blockStart &&
+//         def.getSourceFile().getFilePath() === filePath) ||
+//       (def.getEndLineNumber() <= blockEnd &&
+//         def.getSourceFile().getFilePath() === filePath) ||
+//       def.getSourceFile().getFilePath() !== filePath;
 
-    return defNodeIsOutsideIdNodeBlock;
-  });
-  return definitionNodes;
-};
+//     return defNodeIsOutsideIdNodeBlock;
+//   });
+//   return definitionNodes;
+// };
 
 // a string literal for an import would be the "lib" in import {x} from "lib"
-const getImportStringLiterals = (node: Node) => {
-  const importLiterals = node.getChildrenOfKind(SyntaxKind.StringLiteral);
-  if (importLiterals.length === 0 || importLiterals.length > 1) {
-    return;
-  }
-  return importLiterals.find(Boolean);
-};
+// const getImportStringLiterals = (node: Node) => {
+//   const importLiterals = node.getChildrenOfKind(SyntaxKind.StringLiteral);
+//   if (importLiterals.length === 0 || importLiterals.length > 1) {
+//     return;
+//   }
+//   return importLiterals.find(Boolean);
+// };
 
 // process an import node. e.g 'import {x} from "y"'
 const processImportNode = (identifier: Identifier, parentNode: Node) => {
   const surroundingBlock = getSurroundingBlock(parentNode);
 
-  const defs = getDefinitionNodesOutsideBlock(
-    identifier,
-    surroundingBlock.getSourceFile().getFilePath(),
-    surroundingBlock.getStartLineNumber(),
-    surroundingBlock.getEndLineNumber(),
-  );
-
-  const typeSignatures = [];
-  for (const def of defs) {
-    const signature = getSignature(def);
-    if (signature) {
-      typeSignatures.push(signature);
-    }
-  }
-
-  const fromText = getImportStringLiterals(surroundingBlock);
-  const name = `import ${identifier.getText()} from ${fromText?.getText()}`;
+  const name = identifier.getText();
   const kind = surroundingBlock.getKindName();
   const path = surroundingBlock.getSourceFile().getFilePath();
 
@@ -119,7 +101,6 @@ const processImportNode = (identifier: Identifier, parentNode: Node) => {
     name,
     path,
     block: surroundingBlock.getText(),
-    typeSignature: typeSignatures.join("\n"),
     startLine: surroundingBlock.getStartLineNumber(),
     endLine: surroundingBlock.getEndLineNumber(),
     edits: [],
@@ -146,6 +127,9 @@ const getImportNodes = (
         ) {
           const parentNode = getSurroundingBlock(declaration);
           const node = processImportNode(identifier, parentNode);
+          if (!node) {
+            return;
+          }
           importNodes.push(node);
         }
       });
@@ -210,7 +194,6 @@ const createTopLevelNode = (
     return;
   }
   const path = n.getSourceFile().getFilePath();
-  const signature = getSignature(n);
 
   return {
     id: id({
@@ -221,7 +204,6 @@ const createTopLevelNode = (
     name,
     kind,
     path,
-    typeSignature: signature,
     block: n.getText(),
     startLine: n.getStartLineNumber(),
     endLine: n.getEndLineNumber(),

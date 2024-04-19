@@ -6,7 +6,7 @@ export type DependencyGraphNode = {
   block: string;
   kind: string;
   name: string;
-  typeSignature: string;
+  typeSignature?: string;
   path: string;
   startLine: number;
   endLine: number;

@@ -4,7 +4,7 @@ import { DirectedGraph } from "graphology";
 import ncu from "npm-check-updates";
 import { isObject } from "radash";
 import semver from "semver";
-import { Project } from "ts-morph";
+import { Project, SyntaxKind } from "ts-morph";
 import { z } from "zod";
 
 import type {
@@ -18,7 +18,8 @@ import type { BumpgenLanguageService } from "../types";
 import { injectFilesystemService } from "../../filesystem";
 import { injectGraphService } from "../../graph";
 import { injectSubprocessService } from "../../subprocess";
-import { processSourceFile } from "./process";
+import { allChildrenOfKindIdentifier, processSourceFile } from "./process";
+import { getSignature } from "./signatures";
 
 const NcuUpgradeSchema = z.record(z.string());
 
@@ -262,6 +263,7 @@ export const makeTypescriptService = (
           const sourceFiles = ast.tree.getSourceFiles();
 
           sourceFiles.forEach((sourceFile) => {
+            console.log("processing source file:", sourceFile.getFilePath());
             const { nodes, edges } = processSourceFile(sourceFile);
             for (const node of nodes) {
               if (!graph.hasNode(node.id)) {
@@ -290,6 +292,32 @@ export const makeTypescriptService = (
               .length > 0
           );
         },
+      },
+      // the performance of .getType() and .getReturnType() in ts-morph is not very good.
+      // thus, we need to compute these typeSignatures on the fly rather than when we
+      // create the dependency graph
+      getTypeSignature: (ast, node) => {
+        const { name, kind, path } = node;
+        const syntaxKind = SyntaxKind[kind as keyof typeof SyntaxKind];
+
+        const astNode = ast.tree
+          .getSourceFile(path)
+          ?.getChildrenOfKind(syntaxKind)
+          .find((descendant) => {
+            return allChildrenOfKindIdentifier(descendant).some(
+              (identifier) => {
+                return identifier.getText() == name;
+              },
+            );
+          });
+
+        if (!astNode) {
+          console.log(
+            `couldn't find identifier ${name} of kind ${kind} in ${path}, something in the tree might have changed`,
+          );
+          return "";
+        }
+        return getSignature(astNode);
       },
       recomputeGraphAfterChange: (graph, affectedNode, replacements) => {
         // recompute file will update nodes and edges for a file

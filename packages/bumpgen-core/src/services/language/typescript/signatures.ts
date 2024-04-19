@@ -131,6 +131,8 @@ const classDeclarationSignature = (node: ClassDeclaration) => {
   return `class ${className} ${heritageClause.length > 0 ? ` ${heritageClause.join(" ")}` : ""} {\n ${[...constructorSignatures, ...methodSignatures].join("\n  ")}}`;
 };
 
+// the performance of .getType() and .getReturnType() in ts-morph is poor, getSignature()
+// should only be executed when absolutely necessary
 export const getSignature = (node: Node) => {
   // ref: https://user-images.githubusercontent.com/16563603/106034659-2dd70700-60a1-11eb-9f2c-0b3fa81ae8e8.png
   if (Node.isIndexSignatureDeclaration(node)) {
