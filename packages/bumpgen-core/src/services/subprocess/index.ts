@@ -32,7 +32,7 @@ export const createSubprocessService = (
       options?: {
         rejectOnStderr?: boolean;
         rejectOnNonZeroExit?: boolean;
-        env?: Record<string, string>;
+        env?: typeof proc.env;
       },
     ) => {
       return await new Promise<string>((resolve, reject) => {

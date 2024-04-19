@@ -2,7 +2,7 @@ import process from "process";
 
 import type { SupportedLanguage } from "./models";
 import type { BuildError } from "./models/build";
-import type { BumpgenGraph } from "./models/graph";
+import type { AbstractSyntaxTree, BumpgenGraph } from "./models/graph";
 import type { DependencyGraphNode } from "./models/graph/dependency";
 import type { SupportedModel } from "./models/llm";
 import type { PackageUpgrade } from "./models/packages";
@@ -36,6 +36,7 @@ const _bumpgen = ({
   };
 }) => {
   const createOrUpdatePlanGraphNode = (
+    ast: AbstractSyntaxTree,
     node: DependencyGraphNode,
     existingNodes: Map<
       string,
@@ -43,6 +44,7 @@ const _bumpgen = ({
     >,
     err: BuildError,
   ) => {
+    const { language } = services;
     if (existingNodes.has(node.id)) {
       const existingNode = existingNodes.get(node.id)!;
 
@@ -58,7 +60,7 @@ const _bumpgen = ({
         startLine: node.startLine,
         endLine: node.endLine,
         path: node.path,
-        typeSignature: node.typeSignature,
+        typeSignature: language.graph.getTypeSignature(ast, node),
         errorMessages: [err],
       });
     }
@@ -128,12 +130,14 @@ const _bumpgen = ({
               )
             ) {
               createOrUpdatePlanGraphNode(
+                ast,
                 node,
                 externallyCausedPlanGraphNodes,
                 err,
               );
             } else {
               createOrUpdatePlanGraphNode(
+                ast,
                 node,
                 internallyCausedPlanGraphNodes,
                 err,
@@ -169,7 +173,7 @@ const _bumpgen = ({
           return graphService.plan.nodes.nextPending(graph.plan) === undefined;
         },
         execute: async (graph: BumpgenGraph) => {
-          const { llm, graphService } = services;
+          const { llm, graphService, language } = services;
           const { packageToUpgrade } = args;
           const planNode = graphService.plan.nodes.nextPending(graph.plan);
 
@@ -177,26 +181,35 @@ const _bumpgen = ({
             return null;
           }
 
-          const spatialContext = graphService.dependency.getContextsForNodeById(
-            graph.dependency,
-            {
+          const spatialContext = graphService.dependency
+            .getContextsForNodeById(graph.dependency, {
               id: planNode.id,
               relationships: ["referencedBy"],
-            },
-          );
+            })
+            .map((node) => {
+              return {
+                ...node,
+                typeSignature: language.graph.getTypeSignature(graph.ast, node),
+              };
+            });
+
           const temporalContext = graphService.plan.node.getContext(
             graph.plan,
             {
               id: planNode.id,
             },
           );
-          const importContext = graphService.dependency.getReferencingNodes(
-            graph.dependency,
-            {
+          const importContext = graphService.dependency
+            .getReferencingNodes(graph.dependency, {
               id: planNode.id,
               relationships: ["importDeclaration"],
-            },
-          );
+            })
+            .map((node) => {
+              return {
+                ...node,
+                typeSignature: language.graph.getTypeSignature(graph.ast, node),
+              };
+            });
 
           const { replacements, commitMessage } =
             await llm.codeplan.getReplacements({
@@ -220,6 +233,7 @@ const _bumpgen = ({
             const originalSignature = planNode.typeSignature;
 
             await services.filesystem.write(planNode.path, newFileContents);
+
             services.language.graph.recomputeGraphAfterChange(
               graph,
               planNode,
@@ -231,14 +245,27 @@ const _bumpgen = ({
               { id: planNode.id },
             );
 
-            if (originalSignature !== newDepGraphNode.typeSignature) {
+            if (
+              originalSignature !==
+              services.language.graph.getTypeSignature(
+                graph.ast,
+                newDepGraphNode,
+              )
+            ) {
               const affectedNodes = graphService.dependency.getReferencingNodes(
                 graph.dependency,
                 { id: planNode.id, relationships: ["referencedBy"] },
               );
+
               affectedNodes.forEach((node) => {
                 graphService.plan.addObligation(graph.plan, {
-                  depGraphNode: node,
+                  depGraphNode: {
+                    ...node,
+                    typeSignature: services.language.graph.getTypeSignature(
+                      graph.ast,
+                      node,
+                    ),
+                  },
                   parentID: planNode.id,
                 });
               });

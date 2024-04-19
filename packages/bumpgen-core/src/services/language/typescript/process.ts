@@ -12,11 +12,11 @@ import { Node, SyntaxKind } from "ts-morph";
 import type {
   DependencyGraphEdge,
   DependencyGraphNode,
+  Kind,
 } from "../../../models/graph/dependency";
-import { getSignature } from "./signatures";
 
 // walks the AST tree to find all children of the kind Identifier
-const allChildrenOfKindIdentifier = (
+export const allChildrenOfKindIdentifier = (
   node: Node | SourceFile,
   identifiers: Identifier[] = [],
 ) => {
@@ -33,13 +33,12 @@ const allChildrenOfKindIdentifier = (
   return identifiers;
 };
 
-const getSurroundingBlock = (node: ImportSpecifier | Node) => {
+export const getSurroundingBlock = (node: ImportSpecifier | Node) => {
   const ancestors = node.getAncestors();
   // the top ancestor is the entire file, the second from the top of the most
   // outer containing block
   const secondFromTopAncestor = ancestors[ancestors.length - 2];
   if (!secondFromTopAncestor) {
-    console.log("no surrounding block, returning node");
     return node;
   }
   return secondFromTopAncestor;
@@ -51,13 +50,17 @@ const id = ({
   name,
 }: {
   path: string;
-  kind: string;
+  kind: Kind;
   name: string;
 }) => {
   return createHash("sha1").update(`${path}:${kind}:${name}`).digest("hex");
 };
 
-const getDefinitionNodesOutsideBlock = (
+const makeKind = (kind: SyntaxKind) => {
+  return SyntaxKind[kind] as Kind;
+};
+
+export const getDefinitionNodesOutsideBlock = (
   id: Identifier,
   filePath: string,
   blockStart: number,
@@ -76,37 +79,12 @@ const getDefinitionNodesOutsideBlock = (
   return definitionNodes;
 };
 
-// a string literal for an import would be the "lib" in import {x} from "lib"
-const getImportStringLiterals = (node: Node) => {
-  const importLiterals = node.getChildrenOfKind(SyntaxKind.StringLiteral);
-  if (importLiterals.length === 0 || importLiterals.length > 1) {
-    return;
-  }
-  return importLiterals.find(Boolean);
-};
-
 // process an import node. e.g 'import {x} from "y"'
 const processImportNode = (identifier: Identifier, parentNode: Node) => {
   const surroundingBlock = getSurroundingBlock(parentNode);
 
-  const defs = getDefinitionNodesOutsideBlock(
-    identifier,
-    surroundingBlock.getSourceFile().getFilePath(),
-    surroundingBlock.getStartLineNumber(),
-    surroundingBlock.getEndLineNumber(),
-  );
-
-  const typeSignatures = [];
-  for (const def of defs) {
-    const signature = getSignature(def);
-    if (signature) {
-      typeSignatures.push(signature);
-    }
-  }
-
-  const fromText = getImportStringLiterals(surroundingBlock);
-  const name = `import ${identifier.getText()} from ${fromText?.getText()}`;
-  const kind = surroundingBlock.getKindName();
+  const name = identifier.getText();
+  const kind = makeKind(surroundingBlock.getKind());
   const path = surroundingBlock.getSourceFile().getFilePath();
 
   const node = {
@@ -119,7 +97,6 @@ const processImportNode = (identifier: Identifier, parentNode: Node) => {
     name,
     path,
     block: surroundingBlock.getText(),
-    typeSignature: typeSignatures.join("\n"),
     startLine: surroundingBlock.getStartLineNumber(),
     endLine: surroundingBlock.getEndLineNumber(),
     edits: [],
@@ -146,6 +123,9 @@ const getImportNodes = (
         ) {
           const parentNode = getSurroundingBlock(declaration);
           const node = processImportNode(identifier, parentNode);
+          if (!node) {
+            return;
+          }
           importNodes.push(node);
         }
       });
@@ -203,14 +183,13 @@ const getReferenceNodes = (
 const createTopLevelNode = (
   n: FunctionDeclaration | ClassDeclaration | VariableDeclaration,
 ) => {
-  const kind = n.getKindName();
+  const kind = makeKind(n.getKind());
   const name = n.getName();
   if (!name) {
     console.log("no name for top level item");
     return;
   }
   const path = n.getSourceFile().getFilePath();
-  const signature = getSignature(n);
 
   return {
     id: id({
@@ -221,7 +200,6 @@ const createTopLevelNode = (
     name,
     kind,
     path,
-    typeSignature: signature,
     block: n.getText(),
     startLine: n.getStartLineNumber(),
     endLine: n.getEndLineNumber(),

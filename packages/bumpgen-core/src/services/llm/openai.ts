@@ -3,7 +3,7 @@ import type { OpenAI } from "openai";
 // import type { ContextSearchResponse } from "../../clients/sourcegraph/responses";
 import type { DependencyGraphNode } from "../../models/graph/dependency";
 import type { PlanGraphNode } from "../../models/graph/plan";
-import type { LLMContext, Replacement } from "../../models/llm";
+import type { LLMContext } from "../../models/llm";
 import type { LLMService } from "./types";
 import { ReplacementsResultSchema } from "../../models/llm";
 
@@ -292,14 +292,6 @@ export const createOpenAIService = (openai: OpenAI) => {
 
         return parsed.data;
       },
-    },
-    applyReplacements: (fileContent: string, replacements: Replacement[]) => {
-      return replacements.reduce((content, { oldCode, newCode }) => {
-        if (!content.includes(oldCode)) {
-          throw new Error("Old code not found in file");
-        }
-        return content.replace(oldCode, newCode);
-      }, fileContent);
     },
   } satisfies LLMService;
 };
