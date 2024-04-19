@@ -249,12 +249,14 @@ const _bumpgen = ({
               );
 
               affectedNodes.forEach((node) => {
-                node.typeSignature = services.language.graph.getTypeSignature(
-                  graph.ast,
-                  node,
-                );
                 graphService.plan.addObligation(graph.plan, {
-                  depGraphNode: node,
+                  depGraphNode: {
+                    ...node,
+                    typeSignature: services.language.graph.getTypeSignature(
+                      graph.ast,
+                      node,
+                    ),
+                  },
                   parentID: planNode.id,
                 });
               });

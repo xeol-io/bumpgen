@@ -3,7 +3,7 @@ import type { OpenAI } from "openai";
 // import type { ContextSearchResponse } from "../../clients/sourcegraph/responses";
 import type { DependencyGraphNode } from "../../models/graph/dependency";
 import type { PlanGraphNode } from "../../models/graph/plan";
-import type { LLMContext, Replacement } from "../../models/llm";
+import type { LLMContext } from "../../models/llm";
 import type { LLMService } from "./types";
 import { ReplacementsResultSchema } from "../../models/llm";
 

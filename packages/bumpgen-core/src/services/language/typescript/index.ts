@@ -4,7 +4,7 @@ import { DirectedGraph } from "graphology";
 import ncu from "npm-check-updates";
 import { isObject } from "radash";
 import semver from "semver";
-import { Project, SyntaxKind } from "ts-morph";
+import { Node, Project, SyntaxKind } from "ts-morph";
 import { z } from "zod";
 
 import type {
@@ -19,7 +19,7 @@ import { injectFilesystemService } from "../../filesystem";
 import { injectGraphService } from "../../graph";
 import { injectSubprocessService } from "../../subprocess";
 import { allChildrenOfKindIdentifier, processSourceFile } from "./process";
-import { getSignature } from "./signatures";
+import { getImportSignature, getSignature } from "./signatures";
 
 const NcuUpgradeSchema = z.record(z.string());
 
@@ -298,18 +298,23 @@ export const makeTypescriptService = (
       // create the dependency graph
       getTypeSignature: (ast, node) => {
         const { name, kind, path } = node;
-        const syntaxKind = SyntaxKind[kind as keyof typeof SyntaxKind];
 
         const astNode = ast.tree
           .getSourceFile(path)
-          ?.getChildrenOfKind(syntaxKind)
-          .find((descendant) => {
-            return allChildrenOfKindIdentifier(descendant).some(
-              (identifier) => {
+          ?.getChildrenOfKind(SyntaxKind[kind])
+          .map((descendant) => {
+            if (
+              allChildrenOfKindIdentifier(descendant).some((identifier) => {
                 return identifier.getText() == name;
-              },
-            );
-          });
+              })
+            ) {
+              return {
+                node: descendant,
+                identifier: name,
+              };
+            }
+          })
+          .find(Boolean);
 
         if (!astNode) {
           console.log(
@@ -317,7 +322,14 @@ export const makeTypescriptService = (
           );
           return "";
         }
-        return getSignature(astNode);
+
+        if (
+          Node.isImportDeclaration(astNode.node) ||
+          Node.isImportSpecifier(astNode.node)
+        ) {
+          return getImportSignature(astNode.node, astNode.identifier);
+        }
+        return getSignature(astNode.node);
       },
       recomputeGraphAfterChange: (graph, affectedNode, replacements) => {
         // recompute file will update nodes and edges for a file

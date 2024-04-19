@@ -9,6 +9,12 @@ import type {
 } from "ts-morph";
 import { Node, SyntaxKind, TypeFormatFlags } from "ts-morph";
 
+import {
+  allChildrenOfKindIdentifier,
+  getDefinitionNodesOutsideBlock,
+  getSurroundingBlock,
+} from "./process";
+
 // Gets the definition nodes for a given node identifier
 const getDefinitionNodes = (id: Identifier, allowExternal = false) => {
   const definitionNodes = id.getDefinitionNodes().filter((def) => {
@@ -129,6 +135,35 @@ const classDeclarationSignature = (node: ClassDeclaration) => {
   });
 
   return `class ${className} ${heritageClause.length > 0 ? ` ${heritageClause.join(" ")}` : ""} {\n ${[...constructorSignatures, ...methodSignatures].join("\n  ")}}`;
+};
+
+export const getImportSignature = (node: Node, identifierName: string) => {
+  const children = allChildrenOfKindIdentifier(node);
+  const identifier = children.find(
+    (child) => child.getText() === identifierName,
+  );
+  if (!identifier) {
+    return "";
+  }
+
+  const parentNode = getSurroundingBlock(identifier);
+
+  const defs = getDefinitionNodesOutsideBlock(
+    identifier,
+    parentNode.getSourceFile().getFilePath(),
+    parentNode.getStartLineNumber(),
+    parentNode.getEndLineNumber(),
+  );
+
+  const typeSignatures = [];
+  for (const def of defs) {
+    const signature = getSignature(def);
+    if (signature) {
+      typeSignatures.push(signature);
+    }
+  }
+
+  return typeSignatures.join("\n");
 };
 
 // the performance of .getType() and .getReturnType() in ts-morph is poor, getSignature()

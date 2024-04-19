@@ -1,10 +1,12 @@
+import type { SyntaxKind } from "ts-morph";
+
 import type { CodePlanNodeId } from ".";
 import type { Replacement } from "../llm";
 
 export type DependencyGraphNode = {
   id: CodePlanNodeId;
   block: string;
-  kind: string;
+  kind: Kind;
   name: string;
   typeSignature?: string;
   path: string;
@@ -23,3 +25,5 @@ export type DependencyGraphEdge = {
   target: CodePlanNodeId;
   relationship: Relationship;
 };
+
+export type Kind = keyof typeof SyntaxKind;

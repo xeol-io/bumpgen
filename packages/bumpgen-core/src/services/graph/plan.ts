@@ -39,7 +39,9 @@ export const createPlanGraphService = () => {
         depGraphNode,
         parentID,
       }: {
-        depGraphNode: DependencyGraphNode;
+        depGraphNode: DependencyGraphNode & {
+          typeSignature: string;
+        };
         parentID: string;
       },
     ) => {

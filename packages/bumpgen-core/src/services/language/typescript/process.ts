@@ -12,6 +12,7 @@ import { Node, SyntaxKind } from "ts-morph";
 import type {
   DependencyGraphEdge,
   DependencyGraphNode,
+  Kind,
 } from "../../../models/graph/dependency";
 
 // walks the AST tree to find all children of the kind Identifier
@@ -32,7 +33,7 @@ export const allChildrenOfKindIdentifier = (
   return identifiers;
 };
 
-const getSurroundingBlock = (node: ImportSpecifier | Node) => {
+export const getSurroundingBlock = (node: ImportSpecifier | Node) => {
   const ancestors = node.getAncestors();
   // the top ancestor is the entire file, the second from the top of the most
   // outer containing block
@@ -49,30 +50,34 @@ const id = ({
   name,
 }: {
   path: string;
-  kind: string;
+  kind: Kind;
   name: string;
 }) => {
   return createHash("sha1").update(`${path}:${kind}:${name}`).digest("hex");
 };
 
-// const getDefinitionNodesOutsideBlock = (
-//   id: Identifier,
-//   filePath: string,
-//   blockStart: number,
-//   blockEnd: number,
-// ) => {
-//   const definitionNodes = id.getDefinitionNodes().filter((def) => {
-//     const defNodeIsOutsideIdNodeBlock =
-//       (def.getStartLineNumber() < blockStart &&
-//         def.getSourceFile().getFilePath() === filePath) ||
-//       (def.getEndLineNumber() <= blockEnd &&
-//         def.getSourceFile().getFilePath() === filePath) ||
-//       def.getSourceFile().getFilePath() !== filePath;
+const makeKind = (kind: SyntaxKind) => {
+  return SyntaxKind[kind] as Kind;
+};
 
-//     return defNodeIsOutsideIdNodeBlock;
-//   });
-//   return definitionNodes;
-// };
+export const getDefinitionNodesOutsideBlock = (
+  id: Identifier,
+  filePath: string,
+  blockStart: number,
+  blockEnd: number,
+) => {
+  const definitionNodes = id.getDefinitionNodes().filter((def) => {
+    const defNodeIsOutsideIdNodeBlock =
+      (def.getStartLineNumber() < blockStart &&
+        def.getSourceFile().getFilePath() === filePath) ||
+      (def.getEndLineNumber() <= blockEnd &&
+        def.getSourceFile().getFilePath() === filePath) ||
+      def.getSourceFile().getFilePath() !== filePath;
+
+    return defNodeIsOutsideIdNodeBlock;
+  });
+  return definitionNodes;
+};
 
 // a string literal for an import would be the "lib" in import {x} from "lib"
 // const getImportStringLiterals = (node: Node) => {
@@ -88,7 +93,7 @@ const processImportNode = (identifier: Identifier, parentNode: Node) => {
   const surroundingBlock = getSurroundingBlock(parentNode);
 
   const name = identifier.getText();
-  const kind = surroundingBlock.getKindName();
+  const kind = makeKind(surroundingBlock.getKind());
   const path = surroundingBlock.getSourceFile().getFilePath();
 
   const node = {
@@ -187,7 +192,7 @@ const getReferenceNodes = (
 const createTopLevelNode = (
   n: FunctionDeclaration | ClassDeclaration | VariableDeclaration,
 ) => {
-  const kind = n.getKindName();
+  const kind = makeKind(n.getKind());
   const name = n.getName();
   if (!name) {
     console.log("no name for top level item");

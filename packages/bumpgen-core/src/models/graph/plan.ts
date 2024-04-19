@@ -26,7 +26,7 @@ export type PlanGraphNode = {
   // the status of this plan
   status: "pending" | "completed";
 
-  typeSignature?: string;
+  typeSignature: string;
 } & (
   | {
       kind: "seed";
