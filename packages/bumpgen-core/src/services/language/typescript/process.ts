@@ -79,15 +79,6 @@ export const getDefinitionNodesOutsideBlock = (
   return definitionNodes;
 };
 
-// a string literal for an import would be the "lib" in import {x} from "lib"
-// const getImportStringLiterals = (node: Node) => {
-//   const importLiterals = node.getChildrenOfKind(SyntaxKind.StringLiteral);
-//   if (importLiterals.length === 0 || importLiterals.length > 1) {
-//     return;
-//   }
-//   return importLiterals.find(Boolean);
-// };
-
 // process an import node. e.g 'import {x} from "y"'
 const processImportNode = (identifier: Identifier, parentNode: Node) => {
   const surroundingBlock = getSurroundingBlock(parentNode);
