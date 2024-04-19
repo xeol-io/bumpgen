@@ -72,7 +72,11 @@ const makePlanNodeMessage = (
 //   };
 // };
 
-const makeSpatialContextMessage = (spatialContext: DependencyGraphNode[]) => {
+const makeSpatialContextMessage = (
+  spatialContext: (DependencyGraphNode & {
+    typeSignature: string;
+  })[],
+) => {
   const relevantMessage: string[] = [];
   for (const context of spatialContext) {
     relevantMessage.push(
@@ -221,6 +225,8 @@ export const createOpenAIService = (openai: OpenAI) => {
         const remaining = checkBudget(messages, LLM_CONTEXT_SIZE);
 
         console.debug("Remaining budget", remaining);
+
+        console.log("ChatGPT Message:\n", messages);
 
         const response = await openai.chat.completions.create({
           model: "gpt-4-turbo-preview",
