@@ -42,7 +42,7 @@ const { model, language, ipc } = command.opts();
 const [pkg, version] = command.processedArgs;
 
 const bumpgen = makeBumpgen({
-  llmApiKey: "foo",
+  llmApiKey: process.env["LLM_API_KEY"] ?? "",
   model,
   packageToUpgrade: {
     packageName: pkg,

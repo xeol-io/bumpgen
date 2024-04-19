@@ -3,6 +3,8 @@ import React, { useEffect, useRef, useState } from "react";
 import express from "express";
 import DirectedGraph from "graphology";
 import { Box, Text, useApp, useInput } from "ink";
+import BigText from "ink-big-text";
+import Spinner from "ink-spinner";
 import stripAnsi from "strip-ansi";
 
 import type {
@@ -59,6 +61,15 @@ const getLatestPlanGraph = (events: SerializeableBumpgenEvent[]) => {
 };
 
 const GraphView = ({ graph }: { graph: PlanGraph | null }) => {
+  if (!graph) {
+    return (
+      <Box flexDirection="row" paddingLeft={1}>
+        <Text>Waiting for AST graph </Text>
+        <Spinner type="dots" />
+      </Box>
+    );
+  }
+
   return <Text>{JSON.stringify(graph, null, 2)}</Text>;
 };
 

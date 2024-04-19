@@ -133,7 +133,7 @@ const renderExecutionHistory = (
                 key={index}
                 state="loading"
                 spinner={spinners.dots}
-                label="Executing upgrade plan"
+                label="Executing plan node"
               />
             );
           }
@@ -141,8 +141,8 @@ const renderExecutionHistory = (
             <Task
               key={index}
               state="success"
-              label="Upgrade plan executed"
-              status={`${event.data.upgradePlan.length} steps`}
+              label="Plan node complete"
+              status={event.data.iterationResult.commitMessage}
             />
           );
         }
