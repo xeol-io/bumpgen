@@ -8,7 +8,8 @@ describe('fitToContext', () => {
       { content: "A bit longer message than the first" },
       { content: "A significantly longer message that should be truncated significantly to fit the budget" },
       { content: "Short" },
-      { content: "An adequately sized message for testing" }
+      { content: "An adequately sized message for testing" },
+      { content: "Some other message" },
     ];
     
     const originalLength = messages.reduce((acc, msg) => acc + msg.content.length, 0);
@@ -19,6 +20,6 @@ describe('fitToContext', () => {
     const totalLength = messages.reduce((acc, msg) => acc + msg.content.length, 0);
     
     expect(totalLength).toBe(originalLength + remainingBudget);
-    expect(messages[1]).toStrictEqual({content: ""});
+    expect(messages[4]).toStrictEqual({content: ""});
   });
 });
