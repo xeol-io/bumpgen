@@ -19,6 +19,6 @@ describe('fitToContext', () => {
     const totalLength = messages.reduce((acc, msg) => acc + msg.content.length, 0);
     
     expect(totalLength).toBe(originalLength + remainingBudget);
-    expect(messages[1]).toBe({content: ""});
+    expect(messages[1]).toStrictEqual({content: ""});
   });
 });
