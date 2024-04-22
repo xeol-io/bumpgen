@@ -9,6 +9,12 @@ import { ReplacementsResultSchema } from "../../models/llm";
 
 const LLM_CONTEXT_SIZE = 28_000;
 
+interface Message {
+  role: string;
+  content: string;
+}
+
+
 const makePlanNodeMessage = (
   planNode: PlanGraphNode,
   importContext: DependencyGraphNode[],
@@ -150,7 +156,7 @@ const makeImportContextMessage = (importContext: DependencyGraphNode[]) => {
 };
 
 // TODO: make it smarter based on relevance of messages
-export const fitToContext = (remainingBudget: number, messages: any[]) => {
+export const fitToContext = (remainingBudget: number, messages: Message[]) => {
   let charsToRemove = -remainingBudget;
 
   // chunking priority order
@@ -160,6 +166,9 @@ export const fitToContext = (remainingBudget: number, messages: any[]) => {
       if (charsToRemove <= 0) break;
   
       const message = messages[index];
+
+      if (!message) continue; 
+
       let currentLength = message.content.length;
   
       if (currentLength > charsToRemove) {
@@ -241,7 +250,6 @@ export const createOpenAIService = (openai: OpenAI) => {
 
         if (remaining < 0) {
           fitToContext(remaining, messages);
-          console.debug("messages too long so it was chunked");
         }
 
         console.debug("Remaining budget", remaining);
