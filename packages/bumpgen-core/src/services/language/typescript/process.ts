@@ -119,6 +119,7 @@ const getImportNodes = (
         // if the declaration is an import, create an edge
         if (
           Node.isImportDeclaration(declaration) ||
+          Node.isImportClause(declaration) ||
           Node.isImportSpecifier(declaration)
         ) {
           const parentNode = getSurroundingBlock(declaration);
