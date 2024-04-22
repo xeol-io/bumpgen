@@ -132,7 +132,7 @@ program
         }
       } while (iterationResult);
       iterations += 1;
-    } while (errors.length > 0 && iterations < 5);
+    } while (errors.length > 0 && iterations < 10);
 
     if (iterations === 0) {
       console.log(
