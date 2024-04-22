@@ -7,7 +7,12 @@ import type { LLMContext } from "../../models/llm";
 import type { LLMService } from "./types";
 import { ReplacementsResultSchema } from "../../models/llm";
 
-const LLM_CONTEXT_SIZE = 28_000;
+const LLM_CONTEXT_SIZE = 56_000;
+
+interface Message {
+  role: "system" | "user" | "assistant";
+  content: string;
+}
 
 const makePlanNodeMessage = (
   planNode: PlanGraphNode,
@@ -132,7 +137,7 @@ const makeTemporalContextMessage = (temporalContext: PlanGraphNode[]) => {
 };
 
 const checkBudget = (
-  messages: { role: "system" | "user" | "assistant"; content: string }[],
+  messages: Message[],
   budget: number = LLM_CONTEXT_SIZE,
 ) => {
   const remaining =
@@ -148,6 +153,36 @@ const makeImportContextMessage = (importContext: DependencyGraphNode[]) => {
     return context.block;
   });
 };
+
+// TODO: make it smarter based on relevance of messages
+export const fitToContext = (remainingBudget: number, messages: Message[]) => {
+  let charsToRemove = -remainingBudget;
+
+  // chunking priority order
+  const priorityOrder = [4, 1, 2, 3];
+
+  for (const index of priorityOrder) {
+      if (charsToRemove <= 0) break;
+  
+      const message = messages[index];
+
+      if (!message) continue; 
+
+      let currentLength = message.content.length;
+  
+      if (currentLength > charsToRemove) {
+          message.content = message.content.substring(0, currentLength - charsToRemove);
+          charsToRemove = 0;
+      } else {
+          charsToRemove -= currentLength;
+          message.content = '';
+      }
+  }
+
+  if (charsToRemove > 0) {
+    console.debug('Unable to remove enough characters to meet the budget.');
+  }
+}
 
 // const makeChangeReasonMessage = (planNode: PlanGraphNode) => {};
 
@@ -183,29 +218,23 @@ export const createOpenAIService = (openai: OpenAI) => {
             "- You can assume that the code block is part of a larger codebase and that the code is correct except for the errors provided",
           ].join("\n"),
         };
-
-        const spatialContextMessage = makeSpatialContextMessage(spatialContext);
-        const temporalContextMessage =
-          makeTemporalContextMessage(temporalContext);
-
-        const planNodeMessage = makePlanNodeMessage(
-          currentPlanNode,
-          importContext,
-          bumpedPackage,
-        );
-
-        const externalDependencyMessage = makeExternalDependencyContextMessage(
-          importContext,
-          bumpedPackage,
-        );
-
-        // const changeReasonMessage = makeChangeReasonMessage(); // TODO
-
         const finalMessage = {
           role: "user" as const,
           content:
             "Given the above information, use the update_code function to fix the code block. If there are no changes to be made, use the update_code function to return an empty array of replacements.",
         };
+  
+        const spatialContextMessage = makeSpatialContextMessage(spatialContext);
+        const temporalContextMessage = makeTemporalContextMessage(temporalContext);
+        const planNodeMessage = makePlanNodeMessage(
+          currentPlanNode,
+          importContext,
+          bumpedPackage,
+        );
+        const externalDependencyMessage = makeExternalDependencyContextMessage(
+          importContext,
+          bumpedPackage,
+        );
 
         const messages = [
           systemMessage,
@@ -217,6 +246,10 @@ export const createOpenAIService = (openai: OpenAI) => {
         ].filter(<T>(r: T | null): r is T => !!r);
 
         const remaining = checkBudget(messages, LLM_CONTEXT_SIZE);
+
+        if (remaining < 0) {
+          fitToContext(remaining, messages);
+        }
 
         console.debug("Remaining budget", remaining);
 
