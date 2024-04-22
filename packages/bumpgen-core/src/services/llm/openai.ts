@@ -149,6 +149,33 @@ const makeImportContextMessage = (importContext: DependencyGraphNode[]) => {
   });
 };
 
+// TODO: make it smarter based on relevance of messages
+const fitToContext = (remainingBudget: number, messages: any[]) => {
+  let charsToRemove = -remainingBudget;
+
+  // chunking priority order
+  const priorityOrder = [1, 2, 3, 0, 4];
+
+  for (const index of priorityOrder) {
+      if (charsToRemove <= 0) break;
+  
+      const message = messages[index];
+      let currentLength = message.content.length;
+  
+      if (currentLength > charsToRemove) {
+          message.content = message.content.substring(0, currentLength - charsToRemove);
+          charsToRemove = 0;
+      } else {
+          charsToRemove -= currentLength;
+          message.content = '';
+      }
+  }
+
+  if (charsToRemove > 0) {
+    console.debug('Unable to remove enough characters to meet the budget.');
+  }
+}
+
 // const makeChangeReasonMessage = (planNode: PlanGraphNode) => {};
 
 export const createOpenAIService = (openai: OpenAI) => {
@@ -217,6 +244,11 @@ export const createOpenAIService = (openai: OpenAI) => {
         ].filter(<T>(r: T | null): r is T => !!r);
 
         const remaining = checkBudget(messages, LLM_CONTEXT_SIZE);
+
+        if (remaining < 0) {
+          fitToContext(remaining, messages);
+          console.debug("messages too long so it was chunked");
+        }
 
         console.debug("Remaining budget", remaining);
 
