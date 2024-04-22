@@ -84,7 +84,10 @@ program
       commit,
     } = tasks[taskNumber]!;
 
-    const logPath = `${process.cwd()}/log/${id}.json`;
+    // const logPath = `${process.cwd()}/log/${id}.json`;
+    const outputPath = `${process.cwd()}/output/${id}`;
+    const outcomePath = `${outputPath}/OUTCOME`;
+    const predictionPath = `${outputPath}/prediction.json`;
 
     const workingDir = `${tmpDir}/${id}`;
 
@@ -116,46 +119,63 @@ program
       process.exit(1);
     }
 
-    let iterations = 0;
-    let errors;
-    do {
-      errors = await bumpgen.build.getErrors();
-      if (errors.length === 0) {
-        break;
-      }
-      const graph = bumpgen.graph.initialize(errors);
-      let iterationResult;
+    try {
+      let iterations = 0;
+      let errors;
       do {
-        iterationResult = await bumpgen.graph.plan.execute(graph);
-        if (!iterationResult) {
+        errors = await bumpgen.build.getErrors();
+        if (errors.length === 0) {
           break;
         }
-      } while (iterationResult);
-      iterations += 1;
-    } while (errors.length > 0 && iterations < 10);
+        const graph = bumpgen.graph.initialize(errors);
+        let iterationResult;
+        do {
+          iterationResult = await bumpgen.graph.plan.execute(graph);
+          if (!iterationResult) {
+            break;
+          }
+        } while (iterationResult);
+        iterations += 1;
+      } while (errors.length > 0 && iterations < 10);
 
-    if (iterations === 0) {
-      console.log(
-        `This task didn't have any errors after the pkg upgrade ${id}`,
-      );
-      process.exit(1);
+      if (iterations === 0) {
+        console.log(
+          `This task didn't have any errors after the pkg upgrade ${id}`,
+        );
+        process.exit(1);
+      }
+
+      const errorsAfter = await bumpgen.build.getErrors();
+      if (errorsAfter.length === 0) {
+        console.log("SUCCESS");
+        const outcome = "SUCCESS";
+        await saveOutcome(outcomePath, outcome);
+      } else {
+        console.log("FAILURE");
+        const outcome = "FAILURE";
+        await saveOutcome(outcomePath, outcome);
+      }
+
+      await execCmd(`git diff > ${workingDir}/patch.diff`);
+      const patch = readFileSync(`${workingDir}/patch.diff`, "utf8");
+      const prediction = {
+        modelName: "bumgen",
+        id: id,
+        patch: patch,
+      };
+      await saveTaskResult(predictionPath, prediction);
+    } catch (e) {
+      console.log("TASK ERRORED BECAUSE", e);
+      console.log("ERROR");
+      const outcome = "ERROR";
+      await saveOutcome(outcomePath, outcome);
     }
-
-    const errorsAfter = await bumpgen.build.getErrors();
-    if (errorsAfter.length === 0) {
-      console.log("TASK SUCCESS", id);
-    }
-
-    await execCmd(`git diff > ${workingDir}/patch.diff`);
-    const patch = readFileSync(`${workingDir}/patch.diff`, "utf8");
-    const prediction = {
-      modelName: "bumgen",
-      id: id,
-      patch: patch,
-    };
-    await saveTaskResult(logPath, prediction);
   })
   .parse();
+
+const saveOutcome = async (path: string, outcome: string) => {
+  await writeFile(path, outcome);
+};
 
 const saveTaskResult = async (path: string, task: Prediction) => {
   const file = JSON.stringify(task, null, 2);
