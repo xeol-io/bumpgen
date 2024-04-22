@@ -162,27 +162,30 @@ export const fitToContext = (remainingBudget: number, messages: Message[]) => {
   const priorityOrder = [4, 1, 2, 3];
 
   for (const index of priorityOrder) {
-      if (charsToRemove <= 0) break;
-  
-      const message = messages[index];
+    if (charsToRemove <= 0) break;
 
-      if (!message) continue; 
+    const message = messages[index];
 
-      let currentLength = message.content.length;
-  
-      if (currentLength > charsToRemove) {
-          message.content = message.content.substring(0, currentLength - charsToRemove);
-          charsToRemove = 0;
-      } else {
-          charsToRemove -= currentLength;
-          message.content = '';
-      }
+    if (!message) continue;
+
+    let currentLength = message.content.length;
+
+    if (currentLength > charsToRemove) {
+      message.content = message.content.substring(
+        0,
+        currentLength - charsToRemove,
+      );
+      charsToRemove = 0;
+    } else {
+      charsToRemove -= currentLength;
+      message.content = "";
+    }
   }
 
   if (charsToRemove > 0) {
-    console.debug('Unable to remove enough characters to meet the budget.');
+    console.debug("Unable to remove enough characters to meet the budget.");
   }
-}
+};
 
 // const makeChangeReasonMessage = (planNode: PlanGraphNode) => {};
 
@@ -223,9 +226,10 @@ export const createOpenAIService = (openai: OpenAI) => {
           content:
             "Given the above information, use the update_code function to fix the code block. If there are no changes to be made, use the update_code function to return an empty array of replacements.",
         };
-  
+
         const spatialContextMessage = makeSpatialContextMessage(spatialContext);
-        const temporalContextMessage = makeTemporalContextMessage(temporalContext);
+        const temporalContextMessage =
+          makeTemporalContextMessage(temporalContext);
         const planNodeMessage = makePlanNodeMessage(
           currentPlanNode,
           importContext,
