@@ -10,7 +10,7 @@ import { ReplacementsResultSchema } from "../../models/llm";
 const LLM_CONTEXT_SIZE = 56_000;
 
 interface Message {
-  role: string;
+  role: "system" | "user" | "assistant";
   content: string;
 }
 
@@ -137,7 +137,7 @@ const makeTemporalContextMessage = (temporalContext: PlanGraphNode[]) => {
 };
 
 const checkBudget = (
-  messages: { role: "system" | "user" | "assistant"; content: string }[],
+  messages: Message[],
   budget: number = LLM_CONTEXT_SIZE,
 ) => {
   const remaining =
