@@ -14,7 +14,6 @@ interface Message {
   content: string;
 }
 
-
 const makePlanNodeMessage = (
   planNode: PlanGraphNode,
   importContext: DependencyGraphNode[],
