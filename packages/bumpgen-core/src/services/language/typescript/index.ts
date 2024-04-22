@@ -60,12 +60,7 @@ export const makeTypescriptService = (
     const rootPath = path.parse(currentDir).root;
 
     while (currentDir !== rootPath) {
-      if (await filesystem.exists(path.join(currentDir, "package-lock.json"))) {
-        return {
-          packageManager: "npm" as const,
-          filePath: path.join(currentDir, "package-lock.json"),
-        };
-      } else if (await filesystem.exists(path.join(currentDir, "yarn.lock"))) {
+      if (await filesystem.exists(path.join(currentDir, "yarn.lock"))) {
         return {
           packageManager: "yarn" as const,
           filePath: path.join(currentDir, "yarn.lock"),
@@ -76,6 +71,13 @@ export const makeTypescriptService = (
         return {
           packageManager: "pnpm" as const,
           filePath: path.join(currentDir, "pnpm-lock.yaml"),
+        };
+      } else if (
+        await filesystem.exists(path.join(currentDir, "package-lock.json"))
+      ) {
+        return {
+          packageManager: "npm" as const,
+          filePath: path.join(currentDir, "package-lock.json"),
         };
       }
 
@@ -262,8 +264,8 @@ export const makeTypescriptService = (
           >();
           const sourceFiles = ast.tree.getSourceFiles();
 
+          const start = Date.now();
           sourceFiles.forEach((sourceFile) => {
-            console.log("processing source file:", sourceFile.getFilePath());
             const { nodes, edges } = processSourceFile(sourceFile);
             for (const node of nodes) {
               if (!graph.hasNode(node.id)) {
@@ -276,6 +278,11 @@ export const makeTypescriptService = (
               }
             }
           });
+          console.log(
+            "Done processing source files in",
+            Date.now() - start,
+            "ms",
+          );
           return graph;
         },
         checkImportsForPackage: (graph, node, packageName) => {
