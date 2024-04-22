@@ -270,16 +270,6 @@
     "commit": "f9a2daeb4f85fada0b2b82711f2aca24a01d4dc0"
   },
   {
-    "id": "MikeBirdTech__gpt3-vscode-extension-glob__^10.3.12",
-    "name": "gpt3-vscode-extension",
-    "owner": "MikeBirdTech",
-    "pkgManager": "npm",
-    "package": "glob",
-    "versionTo": "^10.3.12",
-    "nodeVersion": "v20.12.2",
-    "commit": "f9a2daeb4f85fada0b2b82711f2aca24a01d4dc0"
-  },
-  {
     "id": "frederickk__chatgpt-figma-plugin-chatgpt__^5.2.5",
     "name": "chatgpt-figma-plugin",
     "owner": "frederickk",
