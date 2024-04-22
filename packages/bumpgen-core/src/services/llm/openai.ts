@@ -142,9 +142,6 @@ const checkBudget = (
 ) => {
   const remaining =
     budget - messages.reduce((acc, m) => acc + m.content.length, 0);
-  if (remaining < 0) {
-    throw new Error("The messages are too large");
-  }
   return remaining;
 };
 
@@ -165,11 +162,9 @@ export const fitToContext = (remainingBudget: number, messages: Message[]) => {
     if (charsToRemove <= 0) break;
 
     const message = messages[index];
-
     if (!message) continue;
 
-    let currentLength = message.content.length;
-
+    const currentLength = message.content.length;
     if (currentLength > charsToRemove) {
       message.content = message.content.substring(
         0,
@@ -183,7 +178,7 @@ export const fitToContext = (remainingBudget: number, messages: Message[]) => {
   }
 
   if (charsToRemove > 0) {
-    console.debug("Unable to remove enough characters to meet the budget.");
+    throw new Error(`Unable to remove enough characters to meet the budget`);
   }
 };
 
@@ -250,7 +245,6 @@ export const createOpenAIService = (openai: OpenAI) => {
         ].filter(<T>(r: T | null): r is T => !!r);
 
         const remaining = checkBudget(messages, LLM_CONTEXT_SIZE);
-
         if (remaining < 0) {
           fitToContext(remaining, messages);
         }
