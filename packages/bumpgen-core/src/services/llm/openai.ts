@@ -7,7 +7,7 @@ import type { LLMContext } from "../../models/llm";
 import type { LLMService } from "./types";
 import { ReplacementsResultSchema } from "../../models/llm";
 
-const LLM_CONTEXT_SIZE = 28_000;
+const LLM_CONTEXT_SIZE = 56_000;
 
 interface Message {
   role: string;
@@ -159,7 +159,7 @@ export const fitToContext = (remainingBudget: number, messages: Message[]) => {
   let charsToRemove = -remainingBudget;
 
   // chunking priority order
-  const priorityOrder = [1, 2, 3, 0, 4];
+  const priorityOrder = [4, 1, 2, 3];
 
   for (const index of priorityOrder) {
       if (charsToRemove <= 0) break;
