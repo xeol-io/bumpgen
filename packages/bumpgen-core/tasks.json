@@ -800,7 +800,7 @@
     "commit": "ed2be64731b2f53ca13e2870a09eb82d3b296b44"
   },
   {
-    "id": "JoinColony__colonySDK-@colony/colony-js__^7.1.0",
+    "id": "JoinColony__colonySDK-@colony-slash-colony-js__^7.1.0",
     "name": "colonySDK",
     "owner": "JoinColony",
     "pkgManager": "npm",
@@ -810,7 +810,7 @@
     "commit": "9f492f02a69e325fc4a511d54f09a801ca8d0c4e"
   },
   {
-    "id": "JoinColony__colonySDK-@urql/core__^5.0.1",
+    "id": "JoinColony__colonySDK-@urql-slash-core__^5.0.1",
     "name": "colonySDK",
     "owner": "JoinColony",
     "pkgManager": "npm",
