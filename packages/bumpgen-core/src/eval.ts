@@ -50,8 +50,8 @@ const getTasks = (filePath: string) => {
 
 const tmpDir = "/tmp/workspace";
 
-const tasksPath =
-  "/Users/noqcks/go/src/github.com/xeol-io/swe-bump-bench/results.json";
+const cwd = process.cwd();
+const tasksPath = `${cwd}/tasks.json`;
 const tasks = getTasks(tasksPath);
 
 const execCmd = async (cmd: string) => {
