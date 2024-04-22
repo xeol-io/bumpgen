@@ -303,6 +303,7 @@ export const makeTypescriptService = (
       // the performance of .getType() and .getReturnType() in ts-morph is not very good.
       // thus, we need to compute these typeSignatures on the fly rather than when we
       // create the dependency graph
+      // TODO(benji): handle typesignature calculation for ImportClauses like 'import Foo from "bar"'
       getTypeSignature: (ast, node) => {
         const { name, kind, path } = node;
 

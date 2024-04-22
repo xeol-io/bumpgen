@@ -224,11 +224,19 @@ const _bumpgen = ({
             const fileContents = await services.filesystem.read(planNode.path);
 
             // TODO: implement the new fuzzy matcher
-            const newFileContents = replacements.reduce(
-              (acc, replacement) =>
-                acc.replace(replacement.oldCode, replacement.newCode),
-              fileContents,
-            );
+            const newFileContents = replacements.reduce((acc, replacement) => {
+              const beforeReplace = acc;
+              const afterReplace = acc.replace(
+                replacement.oldCode,
+                replacement.newCode,
+              );
+              if (beforeReplace === afterReplace) {
+                console.warn(
+                  `Replacement did not match: ${replacement.oldCode} -> ${replacement.newCode}`,
+                );
+              }
+              return afterReplace;
+            }, fileContents);
 
             const originalSignature = planNode.typeSignature;
 
