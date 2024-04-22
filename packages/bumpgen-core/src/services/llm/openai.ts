@@ -142,6 +142,9 @@ const checkBudget = (
 ) => {
   const remaining =
     budget - messages.reduce((acc, m) => acc + m.content.length, 0);
+  if (remaining < 0) {
+    throw new Error("The messages are too large");
+  }
   return remaining;
 };
 
@@ -247,13 +250,6 @@ export const createOpenAIService = (openai: OpenAI) => {
         ].filter(<T>(r: T | null): r is T => !!r);
 
         const remaining = checkBudget(messages, LLM_CONTEXT_SIZE);
-        if (remaining < 0) {
-          console.debug(`LLM token budget exceeded by ${Math.abs(remaining)}`);
-          return {
-            replacements: [],
-            commitMessage: "",
-          };
-        }
 
         if (remaining < 0) {
           fitToContext(remaining, messages);

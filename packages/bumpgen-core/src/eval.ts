@@ -140,6 +140,12 @@ program
       );
       process.exit(1);
     }
+
+    const errorsAfter = await bumpgen.build.getErrors();
+    if (errorsAfter.length === 0) {
+      console.log("TASK SUCCESS", id);
+    }
+
     await execCmd(`git diff > ${workingDir}/patch.diff`);
     const patch = readFileSync(`${workingDir}/patch.diff`, "utf8");
     const prediction = {
