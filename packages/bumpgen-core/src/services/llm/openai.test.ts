@@ -9,13 +9,12 @@ describe('fitToContext', () => {
       { content: "Short" },
       { content: "An adequately sized message for testing" }
     ];
-    const remainingBudget = -50; // Need to remove 50 characters
+    const remainingBudget = -50;
 
     fitToContext(remainingBudget, messages);
 
-    // Calculate total length of all messages after processing
     const totalLength = messages.reduce((acc, msg) => acc + msg.content.length, 0);
-    const initialTotalLength = 151; // Total length of all initial message contents
+    const initialTotalLength = 151;
     expect(totalLength).toBe(initialTotalLength + remainingBudget);
   });
 });
