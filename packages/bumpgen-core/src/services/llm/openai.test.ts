@@ -1,7 +1,8 @@
 const { fitToContext } = require('./openai.ts');
 
 describe('fitToContext', () => {
-  it('should truncate messages to fit the specified negative remaining budget', () => {
+  it('should truncate messages in the right order to fit the specified negative remaining budget', () => {
+    
     const messages = [
       { content: "Short message" },
       { content: "A bit longer message than the first" },
@@ -9,12 +10,15 @@ describe('fitToContext', () => {
       { content: "Short" },
       { content: "An adequately sized message for testing" }
     ];
+    
+    const originalLength = messages.reduce((acc, msg) => acc + msg.content.length, 0);
     const remainingBudget = -50;
-
+    
     fitToContext(remainingBudget, messages);
 
     const totalLength = messages.reduce((acc, msg) => acc + msg.content.length, 0);
-    const initialTotalLength = 151;
-    expect(totalLength).toBe(initialTotalLength + remainingBudget);
+    
+    expect(totalLength).toBe(originalLength + remainingBudget);
+    expect(messages[1]).toBe({content: ""});
   });
 });

@@ -150,7 +150,7 @@ const makeImportContextMessage = (importContext: DependencyGraphNode[]) => {
 };
 
 // TODO: make it smarter based on relevance of messages
-const fitToContext = (remainingBudget: number, messages: any[]) => {
+export const fitToContext = (remainingBudget: number, messages: any[]) => {
   let charsToRemove = -remainingBudget;
 
   // chunking priority order
@@ -210,29 +210,23 @@ export const createOpenAIService = (openai: OpenAI) => {
             "- You can assume that the code block is part of a larger codebase and that the code is correct except for the errors provided",
           ].join("\n"),
         };
-
-        const spatialContextMessage = makeSpatialContextMessage(spatialContext);
-        const temporalContextMessage =
-          makeTemporalContextMessage(temporalContext);
-
-        const planNodeMessage = makePlanNodeMessage(
-          currentPlanNode,
-          importContext,
-          bumpedPackage,
-        );
-
-        const externalDependencyMessage = makeExternalDependencyContextMessage(
-          importContext,
-          bumpedPackage,
-        );
-
-        // const changeReasonMessage = makeChangeReasonMessage(); // TODO
-
         const finalMessage = {
           role: "user" as const,
           content:
             "Given the above information, use the update_code function to fix the code block. If there are no changes to be made, use the update_code function to return an empty array of replacements.",
         };
+  
+        const spatialContextMessage = makeSpatialContextMessage(spatialContext);
+        const temporalContextMessage = makeTemporalContextMessage(temporalContext);
+        const planNodeMessage = makePlanNodeMessage(
+          currentPlanNode,
+          importContext,
+          bumpedPackage,
+        );
+        const externalDependencyMessage = makeExternalDependencyContextMessage(
+          importContext,
+          bumpedPackage,
+        );
 
         const messages = [
           systemMessage,
