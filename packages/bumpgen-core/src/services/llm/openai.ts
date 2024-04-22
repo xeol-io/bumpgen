@@ -37,40 +37,34 @@ const makePlanNodeMessage = (
   };
 };
 
-// const makeExternalDependencyContextMessage = (
-//   contexts: {
-//     sourcegraph: ContextSearchResponse["getCodyContext"];
-//     imports: DependencyGraphNode[];
-//   },
-//   bumpedPackage: string,
-// ) => {
-//   if (contexts.sourcegraph.length === 0 && contexts.imports.length === 0) {
-//     return null;
-//   }
-//   return {
-//     role: "user" as const,
-//     content: [
-//       ...(contexts.sourcegraph.length > 0
-//         ? [
-//             `External dependency context for the external dependency ${bumpedPackage}:\n`,
-//             ...contexts.sourcegraph.map(
-//               (context) =>
-//                 `<context file=${context.blob.path}>\n${context.chunkContent}\n</context>`,
-//             ),
-//           ]
-//         : []),
-//       ...(contexts.imports.length > 0
-//         ? [
-//             `Type signatures for the imports from ${bumpedPackage}:\n`,
-//             ...contexts.imports.map(
-//               (imp) =>
-//                 `<import statement=${imp.block}>${imp.typeSignature}</import>`,
-//             ),
-//           ]
-//         : []),
-//     ].join("\n"),
-//   };
-// };
+const makeExternalDependencyContextMessage = (
+  importContext: (DependencyGraphNode & {
+    typeSignature: string;
+  })[],
+  bumpedPackage: string,
+) => {
+  if (importContext.length === 0) {
+    return null;
+  }
+  if (importContext.map((imp) => imp.typeSignature).join("") === "") {
+    return null;
+  }
+
+  return {
+    role: "user" as const,
+    content: [
+      ...(importContext.length > 0
+        ? [
+            `Type signatures for the imports from ${bumpedPackage}:\n`,
+            ...importContext.map(
+              (imp) =>
+                `<import statement=${imp.block}>${imp.typeSignature}</import>`,
+            ),
+          ]
+        : []),
+    ].join("\n"),
+  };
+};
 
 const makeSpatialContextMessage = (
   spatialContext: (DependencyGraphNode & {
@@ -200,10 +194,10 @@ export const createOpenAIService = (openai: OpenAI) => {
           bumpedPackage,
         );
 
-        // const externalDependencyMessage = makeExternalDependencyContextMessage(
-        //   externalDependencyContext,
-        //   bumpedPackage,
-        // );
+        const externalDependencyMessage = makeExternalDependencyContextMessage(
+          importContext,
+          bumpedPackage,
+        );
 
         // const changeReasonMessage = makeChangeReasonMessage(); // TODO
 
@@ -218,7 +212,7 @@ export const createOpenAIService = (openai: OpenAI) => {
           spatialContextMessage,
           temporalContextMessage,
           planNodeMessage,
-          // externalDependencyMessage,
+          externalDependencyMessage,
           finalMessage,
         ].filter(<T>(r: T | null): r is T => !!r);
 
