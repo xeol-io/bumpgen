@@ -14,6 +14,11 @@ interface Message {
   content: string;
 }
 
+interface fitToContextResult {
+  remainingMessages: string[];
+  remainingBudget: number;
+}
+
 const makePlanNodeMessage = (
   planNode: PlanGraphNode,
   importContext: DependencyGraphNode[],
@@ -47,27 +52,41 @@ const makeExternalDependencyContextMessage = (
     typeSignature: string;
   })[],
   bumpedPackage: string,
+  budget: number,
 ) => {
   if (importContext.length === 0) {
-    return null;
+    return {
+      remainingMessages: null,
+      remainingBudget: budget,
+    };
   }
   if (importContext.map((imp) => imp.typeSignature).join("") === "") {
-    return null;
+    return {
+      remainingMessages: null,
+      remainingBudget: budget,
+    };
   }
 
+  const content = [
+    ...(importContext.length > 0
+      ? [
+          `Type signatures for the imports from ${bumpedPackage}:\n`,
+          ...importContext.map(
+            (imp) =>
+              `<import statement=${imp.block}>${imp.typeSignature}</import>`,
+          ),
+        ]
+      : []),
+    ]
+
+  const { remainingMessages, remainingBudget} = betterFitToContext(budget, content);
+
   return {
-    role: "user" as const,
-    content: [
-      ...(importContext.length > 0
-        ? [
-            `Type signatures for the imports from ${bumpedPackage}:\n`,
-            ...importContext.map(
-              (imp) =>
-                `<import statement=${imp.block}>${imp.typeSignature}</import>`,
-            ),
-          ]
-        : []),
-    ].join("\n"),
+    remainingMessages: {
+      role: "user" as const,
+      content: remainingMessages.join("\n"),
+    },
+    remainingBudget: remainingBudget,
   };
 };
 
@@ -136,6 +155,12 @@ const makeTemporalContextMessage = (temporalContext: PlanGraphNode[]) => {
   };
 };
 
+const makeImportContextMessage = (importContext: DependencyGraphNode[]) => {
+  return importContext.map((context) => {
+    return context.block;
+  });
+};
+
 const checkBudget = (
   messages: Message[],
   budget: number = LLM_CONTEXT_SIZE,
@@ -146,12 +171,6 @@ const checkBudget = (
     throw new Error("The messages are too large");
   }
   return remaining;
-};
-
-const makeImportContextMessage = (importContext: DependencyGraphNode[]) => {
-  return importContext.map((context) => {
-    return context.block;
-  });
 };
 
 // TODO: make it smarter based on relevance of messages
@@ -182,7 +201,21 @@ export const fitToContext = (remainingBudget: number, messages: Message[]) => {
   if (charsToRemove > 0) {
     console.debug('Unable to remove enough characters to meet the budget.');
   }
-}
+};
+
+export const betterFitToContext = (budget: number, messages: string[]): fitToContextResult => {
+  let totalLength = messages.reduce((acc, message) => acc + message.length, 0);
+  
+  while (totalLength > budget && messages.length > 0) {
+      const lastMessage = messages.pop()!;  
+      totalLength -= lastMessage.length;  
+  }
+
+  return {
+    remainingMessages: messages,
+    remainingBudget: budget - messages.reduce((acc, message) => acc + message.length, 0)
+  };
+};
 
 // const makeChangeReasonMessage = (planNode: PlanGraphNode) => {};
 
@@ -223,15 +256,19 @@ export const createOpenAIService = (openai: OpenAI) => {
           content:
             "Given the above information, use the update_code function to fix the code block. If there are no changes to be made, use the update_code function to return an empty array of replacements.",
         };
-  
+        const budget = LLM_CONTEXT_SIZE- systemMessage.content.length + finalMessage.content.length;
+
+        const {remainingBudget, remainingMessages} = makeExternalDependencyContextMessage(
+          importContext,
+          bumpedPackage,
+          budget,
+        );
+        const externalDependencyMessage = remainingMessages;
+
         const spatialContextMessage = makeSpatialContextMessage(spatialContext);
         const temporalContextMessage = makeTemporalContextMessage(temporalContext);
         const planNodeMessage = makePlanNodeMessage(
           currentPlanNode,
-          importContext,
-          bumpedPackage,
-        );
-        const externalDependencyMessage = makeExternalDependencyContextMessage(
           importContext,
           bumpedPackage,
         );
