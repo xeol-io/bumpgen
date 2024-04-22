@@ -1,4 +1,4 @@
-const { fitToContext } = require('./openai.ts');
+const { fitToContext, betterFitToContext } = require('./openai.ts');
 
 describe('fitToContext', () => {
   it('should truncate messages in the right order to fit the specified negative remaining budget', () => {
