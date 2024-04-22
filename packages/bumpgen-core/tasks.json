@@ -70,7 +70,7 @@
     "commit": "8bafd2a781fb19d5fa5e080caea76e2b12655f2c"
   },
   {
-    "id": "actions__labeler-@octokit/plugin-retry__^7.1.0",
+    "id": "actions__labeler-@octokit-slash-plugin-retry__^7.1.0",
     "name": "labeler",
     "owner": "actions",
     "pkgManager": "npm",
@@ -320,7 +320,7 @@
     "commit": "69c7be979e390420d145c5562777179738ad9e2e"
   },
   {
-    "id": "hyperlane-xyz__hyperlane-warp-ui-template-@rainbow-me/rainbowkit__2.0.5",
+    "id": "hyperlane-xyz__hyperlane-warp-ui-template-@rainbow-me-slash-rainbowkit__2.0.5",
     "name": "hyperlane-warp-ui-template",
     "owner": "hyperlane-xyz",
     "pkgManager": "yarn",
@@ -330,7 +330,7 @@
     "commit": "60d689b7163fc0a0c6c21e95f7012206d1dc4dd5"
   },
   {
-    "id": "hyperlane-xyz__hyperlane-warp-ui-template-@tanstack/react-query__^5.29.2",
+    "id": "hyperlane-xyz__hyperlane-warp-ui-template-@tanstack-slash-react-query__^5.29.2",
     "name": "hyperlane-warp-ui-template",
     "owner": "hyperlane-xyz",
     "pkgManager": "yarn",
@@ -360,7 +360,7 @@
     "commit": "60d689b7163fc0a0c6c21e95f7012206d1dc4dd5"
   },
   {
-    "id": "ton-blockchain__verifier-@tanstack/react-query__^5.29.2",
+    "id": "ton-blockchain__verifier-@tanstack-slash-react-query__^5.29.2",
     "name": "verifier",
     "owner": "ton-blockchain",
     "pkgManager": "npm",
@@ -440,7 +440,7 @@
     "commit": "77e250f3597faab35c82024bed79e479c4b3b796"
   },
   {
-    "id": "Minds__mobile-native-@react-native-community/hooks__^3.0.0",
+    "id": "Minds__mobile-native-@react-native-community-slash-hooks__^3.0.0",
     "name": "mobile-native",
     "owner": "Minds",
     "pkgManager": "yarn",
@@ -450,7 +450,7 @@
     "commit": "d48b3b20a759bad7a1512bb5db0dfb353c6998b7"
   },
   {
-    "id": "Minds__mobile-native-@tanstack/react-query__^5.29.2",
+    "id": "Minds__mobile-native-@tanstack-slash-react-query__^5.29.2",
     "name": "mobile-native",
     "owner": "Minds",
     "pkgManager": "yarn",
@@ -760,7 +760,7 @@
     "commit": "1277dfe75387d115343906b84201768544fdf808"
   },
   {
-    "id": "MetaMask__eth-ledger-bridge-keyring-@ethereumjs/tx__^5.3.0",
+    "id": "MetaMask__eth-ledger-bridge-keyring-@ethereumjs-slash-tx__^5.3.0",
     "name": "eth-ledger-bridge-keyring",
     "owner": "MetaMask",
     "pkgManager": "yarn",
@@ -770,7 +770,7 @@
     "commit": "127eb744ca0ba4de74e9bcdb3a8c997dfccdb644"
   },
   {
-    "id": "MetaMask__eth-ledger-bridge-keyring-@ethereumjs/util__^9.0.3",
+    "id": "MetaMask__eth-ledger-bridge-keyring-@ethereumjs-slash-util__^9.0.3",
     "name": "eth-ledger-bridge-keyring",
     "owner": "MetaMask",
     "pkgManager": "yarn",
@@ -780,7 +780,7 @@
     "commit": "127eb744ca0ba4de74e9bcdb3a8c997dfccdb644"
   },
   {
-    "id": "MetaMask__eth-ledger-bridge-keyring-@ethereumjs/common__^4.3.0",
+    "id": "MetaMask__eth-ledger-bridge-keyring-@ethereumjs-slash-common__^4.3.0",
     "name": "eth-ledger-bridge-keyring",
     "owner": "MetaMask",
     "pkgManager": "yarn",
@@ -980,7 +980,7 @@
     "commit": "cccb49784ca199db00deca5520560890681c0dad"
   },
   {
-    "id": "victronenergy__venus-html5-app-@sentry/react__^7.111.0",
+    "id": "victronenergy__venus-html5-app-@sentry-slash-react__^7.111.0",
     "name": "venus-html5-app",
     "owner": "victronenergy",
     "pkgManager": "npm",
@@ -990,7 +990,7 @@
     "commit": "9bb36644b1cc08c280104f1b8cad9b90907afd50"
   },
   {
-    "id": "victronenergy__venus-html5-app-@sentry/tracing__^7.111.0",
+    "id": "victronenergy__venus-html5-app-@sentry-slash-tracing__^7.111.0",
     "name": "venus-html5-app",
     "owner": "victronenergy",
     "pkgManager": "npm",
@@ -1140,7 +1140,7 @@
     "commit": "d8e38ba8489e2f2de414f42eb3666b585a31dac4"
   },
   {
-    "id": "Coding-Coach__coding-coach-api-@azure/functions__^4.4.0",
+    "id": "Coding-Coach__coding-coach-api-@azure-slash-functions__^4.4.0",
     "name": "coding-coach-api",
     "owner": "Coding-Coach",
     "pkgManager": "yarn",
@@ -1340,7 +1340,7 @@
     "commit": "1a674ecf4f4966bdfbdeb61beb72fab876086e61"
   },
   {
-    "id": "karrioapi__karrio-dashboard-@tanstack/react-query__^5.29.2",
+    "id": "karrioapi__karrio-dashboard-@tanstack-slash-react-query__^5.29.2",
     "name": "karrio-dashboard",
     "owner": "karrioapi",
     "pkgManager": "npm",
@@ -1380,7 +1380,7 @@
     "commit": "8bdca29548574a333a704573c853e84642aa85bf"
   },
   {
-    "id": "kgoggin__graphql-codegen-reason-@graphql-codegen/plugin-helpers__^5.0.3",
+    "id": "kgoggin__graphql-codegen-reason-@graphql-codegen-slash-plugin-helpers__^5.0.3",
     "name": "graphql-codegen-reason",
     "owner": "kgoggin",
     "pkgManager": "yarn",
