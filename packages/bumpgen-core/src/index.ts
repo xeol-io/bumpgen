@@ -1,3 +1,4 @@
+import { writeFileSync } from "fs";
 import process from "process";
 
 import type { SupportedLanguage } from "./models";
@@ -231,6 +232,16 @@ const _bumpgen = ({
                 replacement.newCode,
               );
               if (beforeReplace === afterReplace) {
+                const unmatched = {
+                  oldCode: replacement.oldCode,
+                  newCode: replacement.newCode,
+                  fileContents,
+                };
+                writeFileSync(
+                  `/tmp/unmatched/${Date.now()}.json`,
+                  JSON.stringify(unmatched, null, 2),
+                );
+
                 console.warn(
                   `Replacement did not match: ${replacement.oldCode} -> ${replacement.newCode}`,
                 );
