@@ -100,7 +100,7 @@ exports[`dependencyGraphService initializes 1`] = `
     "name": "App",
     "path": "/test-project/src/app/index.tsx",
     "startLine": 4,
-    "typeSignature": "() => JSX.Element
+    "typeSignature": "() => any
 ",
   },
   {
@@ -114,7 +114,7 @@ exports[`dependencyGraphService initializes 1`] = `
     "name": "MyNewComponent",
     "path": "/test-project/src/app/index.tsx",
     "startLine": 13,
-    "typeSignature": "() => JSX.Element
+    "typeSignature": "() => any
 ",
   },
   {

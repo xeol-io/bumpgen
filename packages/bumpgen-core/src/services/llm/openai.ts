@@ -136,32 +136,26 @@ const makeTemporalContextMessage = (temporalContext: PlanGraphNode[]) => {
   };
 };
 
-const checkBudget = (
-  messages: Message[],
-  budget: number = LLM_CONTEXT_SIZE,
-) => {
-  const remaining =
-    budget - messages.reduce((acc, m) => acc + m.content.length, 0);
-  if (remaining < 0) {
-    throw new Error("The messages are too large");
-  }
-  return remaining;
-};
-
 const makeImportContextMessage = (importContext: DependencyGraphNode[]) => {
   return importContext.map((context) => {
     return context.block;
   });
 };
 
-// TODO: make it smarter based on relevance of messages
-export const fitToContext = (remainingBudget: number, messages: Message[]) => {
-  let charsToRemove = -remainingBudget;
+export const fitToContext = (contextSize: number, messages: (Message | null)[]): Message[] => {
+  const remainingBudget = contextSize - messages.reduce(
+    (acc, m) => acc + (m ? m.content.length : 0), 0
+  );
+  
+  if (remainingBudget < 0) {
+    let charsToRemove = -remainingBudget;
+    
+    console.debug(`messages too large, removing ${charsToRemove} characters`);
 
-  // chunking priority order
-  const priorityOrder = [4, 1, 2, 3];
-
-  for (const index of priorityOrder) {
+    // chunking priority order
+    const priorityOrder = [4, 1, 2, 3];
+  
+    for (const index of priorityOrder) {
       if (charsToRemove <= 0) break;
   
       const message = messages[index];
@@ -171,17 +165,20 @@ export const fitToContext = (remainingBudget: number, messages: Message[]) => {
       let currentLength = message.content.length;
   
       if (currentLength > charsToRemove) {
-          message.content = message.content.substring(0, currentLength - charsToRemove);
-          charsToRemove = 0;
+        message.content = message.content.substring(0, currentLength - charsToRemove);
+        charsToRemove = 0;
       } else {
-          charsToRemove -= currentLength;
-          message.content = '';
+        charsToRemove -= currentLength;
+        messages[index] = null
       }
-  }
+    }
+  
+    if (charsToRemove > 0) {
+      console.debug('Unable to remove enough characters to meet the budget.');
+    }
+  };
 
-  if (charsToRemove > 0) {
-    console.debug('Unable to remove enough characters to meet the budget.');
-  }
+  return messages.filter(<T>(r: T | null): r is T => !!r);
 }
 
 // const makeChangeReasonMessage = (planNode: PlanGraphNode) => {};
@@ -236,22 +233,17 @@ export const createOpenAIService = (openai: OpenAI) => {
           bumpedPackage,
         );
 
-        const messages = [
-          systemMessage,
-          spatialContextMessage,
-          temporalContextMessage,
-          planNodeMessage,
-          externalDependencyMessage,
-          finalMessage,
-        ].filter(<T>(r: T | null): r is T => !!r);
-
-        const remaining = checkBudget(messages, LLM_CONTEXT_SIZE);
-
-        if (remaining < 0) {
-          fitToContext(remaining, messages);
-        }
-
-        console.debug("Remaining budget", remaining);
+        const messages = fitToContext(
+          LLM_CONTEXT_SIZE,
+          [
+            systemMessage,
+            spatialContextMessage,
+            temporalContextMessage,
+            planNodeMessage,
+            externalDependencyMessage,
+            finalMessage,
+          ]
+        );
 
         console.log("ChatGPT Message:\n", messages);
 
