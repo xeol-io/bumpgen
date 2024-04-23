@@ -132,6 +132,9 @@ importers:
       '@npmcli/package-json':
         specifier: ^5.0.3
         version: 5.0.3
+      fuse.js:
+        specifier: ^7.0.0
+        version: 7.0.0
       graphology:
         specifier: ^0.25.4
         version: 0.25.4(graphology-types@0.24.7)
@@ -6396,7 +6399,14 @@ snapshots:
 
   functions-have-names@1.2.3: {}
 
-  gauge@4.0.4:
+  /fuse.js@7.0.0:
+    resolution: {integrity: sha512-14F4hBIxqKvD4Zz/XjDc3y94mNZN6pRv3U13Udo0lNLCWRBUsrMv2xwcF/y/Z5sV6+FQW+/ow68cHpm4sunt8Q==}
+    engines: {node: '>=10'}
+    dev: false
+
+  /gauge@4.0.4:
+    resolution: {integrity: sha512-f9m+BEN5jkg6a0fZjleidjN51VE1X+mPFQ2DJ0uv1V39oCLCbsGe6yjbBnp7eK7z/+GAon99a3nHuqbuuthyPg==}
+    engines: {node: ^12.13.0 || ^14.15.0 || >=16.0.0}
     dependencies:
       aproba: 2.0.0
       color-support: 1.1.3
