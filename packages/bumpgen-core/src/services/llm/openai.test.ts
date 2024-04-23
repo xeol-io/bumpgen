@@ -1,8 +1,6 @@
 const { fitToContext } = require('./openai.ts');
 
 describe('fitToContext', () => {
-  const LLM_CONTEXT_SIZE = 1024;
-
   it('should return all messages if they fit within the budget', () => {
     const messages = [
       { content: "systemMessage" },
