@@ -205,9 +205,7 @@ export const makeTypescriptService = (
         },
         apply: async (projectRoot, upgrade) => {
           const { packageManager } = await findPackageManager(projectRoot);
-
           const packageJson = await PackageJson.load(projectRoot);
-
           const existingDependencies = packageJson.content.dependencies;
 
           packageJson.update({
@@ -236,6 +234,7 @@ export const makeTypescriptService = (
 
           await subprocess.spawn(`${packageManager} install`, {
             rejectOnStderr: false,
+            rejectOnNonZeroExit: true,
           });
         },
       },

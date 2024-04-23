@@ -23,8 +23,8 @@ const makePlanNodeMessage = (
   return {
     role: "user" as const,
     content: [
-      `I'm upgrading ${bumpedPackage} and my code is failing. You are tasked with fixing the following code block if there is a problem with it. You might need to change the code or the imports, depending on the error message. If there is no related error message, don't make a change unless you absolutely need to!\n`,
-      `<code path="${planNode.path}" type_signature=${planNode.typeSignature}>`,
+      `I'm upgrading the package '${bumpedPackage}' and my code is failing. You might need to modify the code or the imports. Look at the errors below and think step-by-step about what the errors mean and how to fix the code.\n`,
+      `<code path="${planNode.path}">`,
     ]
       .concat(importMessages.length ? [...importMessages, "\n"] : [])
       .concat([`${planNode.block}`, "</code>\n"])
@@ -63,7 +63,7 @@ const makeExternalDependencyContextMessage = (
             `Type signatures for the imports from ${bumpedPackage}:\n`,
             ...importContext.map(
               (imp) =>
-                `<import statement=${imp.block}>${imp.typeSignature}</import>`,
+                `<import statement="${imp.block}">\n${imp.typeSignature}</import>`,
             ),
           ]
         : []),
@@ -205,21 +205,19 @@ export const createOpenAIService = (openai: OpenAI) => {
         const systemMessage = {
           role: "system" as const,
           content: [
-            `You are an expert software engineer tasked with fixing a code block in a typescript file. We're trying to upgrade ${bumpedPackage} and the code is failing, You will be provided with a block of code-to-edit, the context of the code block, and the history of changes so far.\n`,
-            "Think through step-by-step to fix the code block if it needs to be fixed",
-            "- Do not make any behavioral changes to the code, only fix the errors while preserving existing behavior",
-            "- Do not change any hardcoded values in the code",
-            "- Do not add comments to the code",
-            "- Never explicitly cast types",
-            "- Do not change the imports unless there is an error message related to an import",
-            "- Do not change the name of any variables, functions, or classes",
-            "- You can assume that the code block is part of a larger codebase and that the code is correct except for the errors provided",
+            `You are a seasoned software engineer assigned to resolve an issue in a TypeScript file related to an '${bumpedPackage}' upgrade. You will receive a specific code block, its context, and the revision history. Your task is to correct errors in the code block under the following constraints.`,
+            "\n",
+            "- Preserve the original behavior without introducing functional changes.",
+            "- Maintain all hardcoded values as is",
+            "- Avoid adding comments within the code",
+            "- Refrain from using explicit type casting",
+            "- Keep all existing variable, function, and class names unchanged.",
           ].join("\n"),
         };
         const finalMessage = {
           role: "user" as const,
           content:
-            "Given the above information, use the update_code function to fix the code block. If there are no changes to be made, use the update_code function to return an empty array of replacements.",
+            "First, think step-by-step about the errors, and then use the update_code function to fix the code block.",
         };
 
         const spatialContextMessage = makeSpatialContextMessage(spatialContext);
@@ -290,7 +288,7 @@ export const createOpenAIService = (openai: OpenAI) => {
                         },
                       },
                       description:
-                        "An array of code sections to update in the block. If there are no changes to be made, this array MUST be empty.",
+                        "An array of code sections to update in the block.",
                     },
                     commitMessage: {
                       type: "string",
@@ -320,6 +318,8 @@ export const createOpenAIService = (openai: OpenAI) => {
           );
           throw new Error("Invalid response from OpenAI", parsed.error);
         }
+
+        console.log("ChatGPT Response:\n", parsed.data);
 
         return parsed.data;
       },

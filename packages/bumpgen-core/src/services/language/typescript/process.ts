@@ -14,6 +14,7 @@ import type {
   DependencyGraphNode,
   Kind,
 } from "../../../models/graph/dependency";
+import { isImportNode } from "./signatures";
 
 // walks the AST tree to find all children of the kind Identifier
 export const allChildrenOfKindIdentifier = (
@@ -117,11 +118,7 @@ const getImportNodes = (
       ?.getDeclarations()
       .forEach((declaration) => {
         // if the declaration is an import, create an edge
-        if (
-          Node.isImportDeclaration(declaration) ||
-          Node.isImportClause(declaration) ||
-          Node.isImportSpecifier(declaration)
-        ) {
+        if (isImportNode(declaration)) {
           const parentNode = getSurroundingBlock(declaration);
           const node = processImportNode(identifier, parentNode);
           if (!node) {
