@@ -307,7 +307,11 @@ export const createOpenAIService = (openai: OpenAI) => {
         });
 
         if (!response.choices[0]?.message?.tool_calls?.[0]) {
-          throw new Error("No tool called in OpenAI response");
+          console.debug("No tool call in OpenAI response");
+          return {
+            replacements: [],
+            commitMessage: "No changes needed",
+          };
         }
 
         const rawJson = JSON.parse(
@@ -319,7 +323,11 @@ export const createOpenAIService = (openai: OpenAI) => {
           console.log(
             response.choices[0].message.tool_calls[0].function.arguments,
           );
-          throw new Error("Invalid response from OpenAI", parsed.error);
+          console.debug("Invalid response from OpenAI: ", parsed.error);
+          return {
+            replacements: [],
+            commitMessage: "No valid changes provided",
+          };
         }
 
         console.log("ChatGPT Response:\n", parsed.data);
