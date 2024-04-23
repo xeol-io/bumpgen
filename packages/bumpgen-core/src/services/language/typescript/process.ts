@@ -36,7 +36,7 @@ export const allChildrenOfKindIdentifier = (
   return identifiers;
 };
 
-export const getSurroundingBlock = (node: ImportSpecifier | Node) => {
+export const getSurroundingBlock = (node: ImportSpecifier | Node): Node => {
   const ancestors = node.getAncestors();
   // the top ancestor is the entire file, the second from the top of the most
   // outer containing block
@@ -68,7 +68,7 @@ export const getDefinitionNodesOutsideBlock = (
   filePath: string,
   blockStart: number,
   blockEnd: number,
-) => {
+): Node[] => {
   const definitionNodes = id.getDefinitionNodes().filter((def) => {
     const defNodeIsOutsideIdNodeBlock =
       (def.getStartLineNumber() < blockStart &&

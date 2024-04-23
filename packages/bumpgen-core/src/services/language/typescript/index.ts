@@ -7,6 +7,7 @@ import semver from "semver";
 import { Node, Project, SyntaxKind } from "ts-morph";
 import { z } from "zod";
 
+import type { DependencyGraph } from "../../../models/graph";
 import type {
   DependencyGraphEdge,
   DependencyGraphNode,
@@ -229,6 +230,8 @@ export const makeTypescriptService = (
             rejectOnStderr: false,
             rejectOnNonZeroExit: true,
           });
+
+          return upgrade;
         },
       },
       install: async (projectRoot) => {
@@ -239,15 +242,9 @@ export const makeTypescriptService = (
         });
       },
     },
-    // replacements: {
-    //   apply: async (projectRoot, affectedNode, replacements) => {
-    //     const fileContents = await filesystem.read(affectedNode.path);
-
-    //   },
-    // },
     graph: {
       dependency: {
-        initialize: (ast) => {
+        initialize: (ast): DependencyGraph => {
           console.log("Initializing the dependency graph...");
 
           const graph = new DirectedGraph<

@@ -227,6 +227,7 @@ export const createOpenAIService = (openai: OpenAI) => {
           content:
             "First, think step-by-step about the errors given, and then use the update_code function to fix the code block.",
         };
+
         const spatialContextMessage = makeSpatialContextMessage(spatialContext);
         const temporalContextMessage =
           makeTemporalContextMessage(temporalContext);

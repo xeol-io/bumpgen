@@ -1,9 +1,14 @@
-import { mkdirSync, writeFileSync } from "fs";
 import process from "process";
+import { serializeError } from "serialize-error";
+import { v4 } from "uuid";
 
 import type { SupportedLanguage } from "./models";
 import type { BuildError } from "./models/build";
-import type { AbstractSyntaxTree, BumpgenGraph } from "./models/graph";
+import type {
+  AbstractSyntaxTree,
+  BumpgenGraph,
+  SerializeableBumpgenGraph,
+} from "./models/graph";
 import type { DependencyGraphNode } from "./models/graph/dependency";
 import type { SupportedModel } from "./models/llm";
 import type { PackageUpgrade } from "./models/packages";
@@ -20,8 +25,24 @@ export { injectGitService } from "./services/git";
 
 export type { SupportedLanguage } from "./models";
 export type { SupportedModel } from "./models/llm";
+export type { BumpgenGraph, PlanGraph, DependencyGraph } from "./models/graph";
+export type { PlanGraphNode, PlanGraphEdge } from "./models/graph/plan";
+export type {
+  DependencyGraphNode,
+  DependencyGraphEdge,
+} from "./models/graph/dependency";
 export { SupportedModels } from "./models/llm";
 export { SupportedLanguages } from "./models";
+
+const makeSerializeableGraph = (
+  graph: BumpgenGraph,
+): SerializeableBumpgenGraph => {
+  return {
+    root: graph.root,
+    dependency: graph.dependency.export(),
+    plan: graph.plan.export(),
+  };
+};
 
 const _bumpgen = ({
   services,
@@ -226,6 +247,8 @@ const _bumpgen = ({
               bumpedPackage: packageToUpgrade.packageName,
             });
 
+          console.log("Received replacements from LLM", replacements);
+
           if (replacements.length > 0) {
             const fileContents = await services.filesystem.read(planNode.path);
 
@@ -304,11 +327,148 @@ const _bumpgen = ({
     },
   };
 
+  const execute = async function* (options?: {
+    maxIterations?: number;
+    timeout?: number;
+  }) {
+    let id;
+    try {
+      id = v4();
+      yield {
+        type: "upgrade.apply" as const,
+        status: "started" as const,
+        id,
+      };
+      const applied = await bumpgen.upgrade.apply();
+      yield {
+        type: "upgrade.apply" as const,
+        status: "finished" as const,
+        data: applied,
+        id,
+      };
+      let iteration = 0;
+      const startedAt = Date.now();
+
+      const maxIterations = options?.maxIterations ?? 20;
+      const timeout = options?.timeout ?? 1000 * 60 * 10;
+
+      let errors;
+      do {
+        id = v4();
+        yield {
+          id,
+          type: "build.getErrors" as const,
+          status: "started" as const,
+        };
+        errors = await bumpgen.build.getErrors();
+        yield {
+          id,
+          type: "build.getErrors" as const,
+          status: "finished" as const,
+          data: errors,
+        };
+
+        id = v4();
+        yield {
+          id,
+          type: "graph.initialize" as const,
+          status: "started" as const,
+        };
+        const graph = bumpgen.graph.initialize(errors);
+        yield {
+          id,
+          type: "graph.initialize" as const,
+          status: "finished" as const,
+          data: graph,
+        };
+
+        while (!bumpgen.graph.plan.isComplete(graph)) {
+          id = v4();
+          yield {
+            id,
+            type: "graph.plan.execute" as const,
+            status: "started" as const,
+          };
+          const iterationResult = await bumpgen.graph.plan.execute(graph);
+          if (!iterationResult) {
+            break;
+          }
+          yield {
+            id,
+            type: "graph.plan.execute" as const,
+            status: "finished" as const,
+            data: {
+              graph,
+              iterationResult,
+            },
+          };
+        }
+
+        iteration += 1;
+      } while (
+        errors.length > 0 &&
+        iteration < maxIterations &&
+        Date.now() - startedAt < timeout
+      );
+
+      if (errors.length > 0) {
+        yield {
+          type: "failed" as const,
+          data: {
+            reason:
+              iteration >= maxIterations
+                ? ("maxIterations" as const)
+                : ("timeout" as const),
+            errors,
+          },
+        };
+      } else {
+        yield {
+          type: "complete" as const,
+          data: null,
+        };
+      }
+    } catch (e) {
+      yield {
+        type: "error" as const,
+        data: e,
+      };
+    }
+  };
+
+  const executeSerializeable = async function* () {
+    for await (const event of execute()) {
+      if (event.type === "graph.initialize" && event.status === "finished") {
+        yield {
+          ...event,
+          data: makeSerializeableGraph(event.data),
+        };
+      } else if (
+        event.type === "graph.plan.execute" &&
+        event.status === "finished"
+      ) {
+        yield {
+          ...event,
+          data: {
+            ...event.data,
+            graph: makeSerializeableGraph(event.data.graph),
+          },
+        };
+      } else if (event.type === "error") {
+        yield {
+          ...event,
+          data: serializeError(event.data),
+        };
+      } else {
+        yield event;
+      }
+    }
+  };
+
   return {
     ...bumpgen,
-    // execute: async function* () {
-    //   yield await bumpgen.build.getErrors();
-    // },
+    execute,
+    executeSerializeable,
   };
 };
 
@@ -338,3 +498,22 @@ export const makeBumpgen = ({
     args: { projectRoot, packageToUpgrade },
   });
 };
+
+export type Bumpgen = ReturnType<typeof makeBumpgen>;
+export type BumpgenEvent =
+  ReturnType<Bumpgen["execute"]> extends AsyncGenerator<
+    infer R,
+    unknown,
+    unknown
+  >
+    ? R
+    : never;
+
+export type SerializeableBumpgenEvent =
+  ReturnType<Bumpgen["executeSerializeable"]> extends AsyncGenerator<
+    infer R,
+    unknown,
+    unknown
+  >
+    ? R
+    : never;
