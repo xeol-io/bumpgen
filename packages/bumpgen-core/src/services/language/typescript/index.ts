@@ -19,7 +19,7 @@ import { injectFilesystemService } from "../../filesystem";
 import { injectGraphService } from "../../graph";
 import { injectSubprocessService } from "../../subprocess";
 import { allChildrenOfKindIdentifier, processSourceFile } from "./process";
-import { getImportSignature, getSignature } from "./signatures";
+import { getImportSignature, getSignature, isImportNode } from "./signatures";
 
 const NcuUpgradeSchema = z.record(z.string());
 
@@ -331,10 +331,7 @@ export const makeTypescriptService = (
           return "";
         }
 
-        if (
-          Node.isImportDeclaration(astNode.node) ||
-          Node.isImportSpecifier(astNode.node)
-        ) {
+        if (isImportNode(astNode.node)) {
           return getImportSignature(astNode.node, astNode.identifier);
         }
         return getSignature(astNode.node);
@@ -354,12 +351,26 @@ export const makeTypescriptService = (
         const newSourceFile = graph.ast.tree.addSourceFileAtPath(
           affectedNode.path,
         );
-        const { nodes } = processSourceFile(newSourceFile);
+        const { nodes, edges } = processSourceFile(newSourceFile);
 
+        // map new nodes to existing nodes in the dependency graph
         nodes.forEach((node) => {
+          const n = graph.dependency.nodes();
           const oldNode = graph.dependency.findNode((n) => n === node.id);
           if (!oldNode) {
-            console.log("old node not found, something in the tree changed");
+            console.log(
+              "old node not found, something in the tree changed, adding new node",
+            );
+            graph.dependency.addNode(node.id, node);
+            for (const edge of edges) {
+              if (edge.source === node.id || edge.target === node.id) {
+                graph.dependency.addDirectedEdge(
+                  edge.source,
+                  edge.target,
+                  edge,
+                );
+              }
+            }
             return;
           }
           const oldAttrs = graph.dependency.getNodeAttributes(oldNode);

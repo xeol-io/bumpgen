@@ -33,7 +33,7 @@ const resolveTypeReferences = (
   types: Set<string> = new Set<string>(),
   seenNodes: Set<Node> = new Set<Node>(),
   depth: number = 0,
-  maxDepth: number = 3,
+  maxDepth: number = 1,
 ) => {
   // we set a somewhat arbitary depth to the fetching of type signatures from external
   // packages due to the size of type signature that could be returned

@@ -60,11 +60,14 @@ const makeExternalDependencyContextMessage = (
     content: [
       ...(importContext.length > 0
         ? [
-            `Type signatures for the imports from ${bumpedPackage}:\n`,
-            ...importContext.map(
-              (imp) =>
-                `<import statement="${imp.block}">\n${imp.typeSignature}</import>`,
-            ),
+            `Type signatures for the imports used in the code block:\n`,
+            ...importContext.map((imp) => {
+              if (imp.typeSignature.length > 0) {
+                return `<import statement="${imp.block}">\n${imp.typeSignature}</import>`;
+              } else {
+                return "";
+              }
+            }),
           ]
         : []),
     ].join("\n"),
@@ -208,9 +211,10 @@ export const createOpenAIService = (openai: OpenAI) => {
             `You are a seasoned software engineer assigned to resolve an issue in a TypeScript file related to an '${bumpedPackage}' upgrade. You will receive a specific code block, its context, and the revision history. Your task is to correct errors in the code block under the following constraints.`,
             "\n",
             "- Preserve the original behavior without introducing functional changes.",
-            "- Maintain all hardcoded values as is",
-            "- Avoid adding comments within the code",
-            "- Refrain from using explicit type casting",
+            "- Maintain all hardcoded values as is.",
+            "- Avoid adding comments within the code.",
+            "- Refrain from using explicit type casting.",
+            "- Only show the specific lines of code that have been changed or need modification, without including unchanged surrounding code.",
             "- Keep all existing variable, function, and class names unchanged.",
           ].join("\n"),
         };
