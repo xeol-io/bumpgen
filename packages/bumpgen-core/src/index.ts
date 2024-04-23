@@ -282,25 +282,9 @@ const _bumpgen = ({
               fileContents = newFileContents;
             }
 
-            // TODO: implement the new fuzzy matcher
-            const newFileContents = replacements.reduce((acc, replacement) => {
-              const beforeReplace = acc;
-              const afterReplace = acc.replace(
-                replacement.oldCode,
-                replacement.newCode,
-              );
-              if (beforeReplace === afterReplace) {
-                console.log(
-                  `ERROR_REPLACEMENTS: Replacement did not match - ${replacement.oldCode} -> ${replacement.newCode}`,
-                );
-              }
-              return afterReplace;
-            }, fileContents);
-
             const originalSignature = planNode.typeSignature;
 
-            // await services.filesystem.write(planNode.path, fileContents);
-            await services.filesystem.write(planNode.path, newFileContents);
+            await services.filesystem.write(planNode.path, fileContents);
 
             services.language.graph.recomputeGraphAfterChange(
               graph,
