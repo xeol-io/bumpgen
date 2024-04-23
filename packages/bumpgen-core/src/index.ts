@@ -1,4 +1,3 @@
-import { mkdirSync, writeFileSync } from "fs";
 import process from "process";
 
 import type { SupportedLanguage } from "./models";
@@ -15,8 +14,6 @@ import { injectFilesystemService } from "./services/filesystem";
 import { injectGraphService } from "./services/graph";
 import { injectLanguageService } from "./services/language";
 import { injectLLMService } from "./services/llm";
-
-export { injectGitService } from "./services/git";
 
 export type { SupportedLanguage } from "./models";
 export type { SupportedModel } from "./models/llm";
