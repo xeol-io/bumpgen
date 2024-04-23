@@ -1,6 +1,8 @@
 import { createHash } from "crypto";
 import type {
   ClassDeclaration,
+  ExportAssignment,
+  ExpressionStatement,
   FunctionDeclaration,
   Identifier,
   ImportSpecifier,
@@ -14,6 +16,7 @@ import type {
   DependencyGraphNode,
   Kind,
 } from "../../../models/graph/dependency";
+import { isImportNode } from "./signatures";
 
 // walks the AST tree to find all children of the kind Identifier
 export const allChildrenOfKindIdentifier = (
@@ -106,7 +109,12 @@ const processImportNode = (identifier: Identifier, parentNode: Node) => {
 };
 
 const getImportNodes = (
-  node: FunctionDeclaration | ClassDeclaration | VariableDeclaration,
+  node:
+    | FunctionDeclaration
+    | ClassDeclaration
+    | VariableDeclaration
+    | ExportAssignment
+    | ExpressionStatement,
 ) => {
   const importNodes: DependencyGraphNode[] = [];
   // for all children of type identifier in the function declaration block
@@ -117,11 +125,7 @@ const getImportNodes = (
       ?.getDeclarations()
       .forEach((declaration) => {
         // if the declaration is an import, create an edge
-        if (
-          Node.isImportDeclaration(declaration) ||
-          Node.isImportClause(declaration) ||
-          Node.isImportSpecifier(declaration)
-        ) {
+        if (isImportNode(declaration)) {
           const parentNode = getSurroundingBlock(declaration);
           const node = processImportNode(identifier, parentNode);
           if (!node) {
@@ -135,62 +139,80 @@ const getImportNodes = (
 };
 
 const getReferenceNodes = (
-  node: FunctionDeclaration | ClassDeclaration | VariableDeclaration,
+  node:
+    | FunctionDeclaration
+    | ClassDeclaration
+    | VariableDeclaration
+    | ExportAssignment
+    | ExpressionStatement,
 ) => {
   const nodes: DependencyGraphNode[] = [];
-  node.findReferences().forEach((r) => {
-    r.getReferences().forEach((ref) => {
-      const referencingNode = ref.getNode();
-      if (
-        referencingNode.getSourceFile().getFilePath() ===
-          node.getSourceFile().getFilePath() &&
-        referencingNode.getStartLineNumber() === node.getStartLineNumber()
-      ) {
-        return;
-      }
+  if ("findReferences" in node) {
+    node.findReferences().forEach((r) => {
+      r.getReferences().forEach((ref) => {
+        const referencingNode = ref.getNode();
+        if (
+          referencingNode.getSourceFile().getFilePath() ===
+            node.getSourceFile().getFilePath() &&
+          referencingNode.getStartLineNumber() === node.getStartLineNumber()
+        ) {
+          return;
+        }
 
-      if (referencingNode.getSourceFile().isInNodeModules()) {
-        return;
-      }
+        if (referencingNode.getSourceFile().isInNodeModules()) {
+          return;
+        }
 
-      const surroundingBlock = getSurroundingBlock(referencingNode);
-      const topLevelNode =
-        surroundingBlock.getFirstDescendantByKind(
-          SyntaxKind.ClassDeclaration,
-        ) ??
-        surroundingBlock.getFirstDescendantByKind(
-          SyntaxKind.FunctionDeclaration,
-        ) ??
-        surroundingBlock.getFirstDescendantByKind(
-          SyntaxKind.VariableDeclaration,
-        );
-      if (!topLevelNode) {
-        // TODO(benji): we have a limitation here, we're only processing references that are
-        // in a block of these three kinds, however the referencing block might just be a naked
-        // call expression like myClass.call() which we're not handling
-        return;
-      }
+        const surroundingBlock = getSurroundingBlock(referencingNode);
+        const topLevelNode =
+          surroundingBlock.getFirstDescendantByKind(
+            SyntaxKind.ClassDeclaration,
+          ) ??
+          surroundingBlock.getFirstDescendantByKind(
+            SyntaxKind.FunctionDeclaration,
+          ) ??
+          surroundingBlock.getFirstDescendantByKind(
+            SyntaxKind.VariableDeclaration,
+          );
+        if (!topLevelNode) {
+          // TODO(benji): we have a limitation here, we're only processing references that are
+          // in a block of these three kinds, however the referencing block might just be a naked
+          // call expression like myClass.call() which we're not handling
+          return;
+        }
 
-      const refNode = createTopLevelNode(topLevelNode);
-      if (!refNode) {
-        return;
-      }
-      nodes.push(refNode);
+        const refNode = createTopLevelNode(topLevelNode);
+        if (!refNode) {
+          return;
+        }
+        nodes.push(refNode);
+      });
     });
-  });
+  }
   return nodes;
 };
 
 const createTopLevelNode = (
-  n: FunctionDeclaration | ClassDeclaration | VariableDeclaration,
+  n:
+    | FunctionDeclaration
+    | ClassDeclaration
+    | VariableDeclaration
+    | ExportAssignment
+    | ExpressionStatement,
 ) => {
   const kind = makeKind(n.getKind());
-  const name = n.getName();
+  const idName = n
+    .getFirstDescendantByKind(SyntaxKind.Identifier)
+    ?.getSymbol()
+    ?.getName();
+  const nodeName = "getName" in n ? n.getName() : n.getSymbol()?.getName();
+  const name = nodeName ?? idName;
   if (!name) {
     console.log("no name for top level item");
     return;
   }
   const path = n.getSourceFile().getFilePath();
+  const surroundingBlock = getSurroundingBlock(n);
 
   return {
     id: id({
@@ -201,15 +223,20 @@ const createTopLevelNode = (
     name,
     kind,
     path,
-    block: n.getText(),
-    startLine: n.getStartLineNumber(),
-    endLine: n.getEndLineNumber(),
+    block: surroundingBlock.getText(),
+    startLine: surroundingBlock.getStartLineNumber(),
+    endLine: surroundingBlock.getEndLineNumber(),
     edits: [],
   };
 };
 
 const processTopLevelItem = (
-  n: FunctionDeclaration | ClassDeclaration | VariableDeclaration,
+  n:
+    | FunctionDeclaration
+    | ClassDeclaration
+    | VariableDeclaration
+    | ExportAssignment
+    | ExpressionStatement,
 ) => {
   const nodes: DependencyGraphNode[] = [];
   const edges: DependencyGraphEdge[] = [];
@@ -283,6 +310,34 @@ export const processSourceFile = (sourceFile: SourceFile) => {
     const { nodes, edges } = processTopLevelItem(variableDeclaration);
     collectedNodes.push(...nodes);
     collectedEdges.push(...edges);
+  });
+
+  sourceFile.getExportAssignments().forEach((exportAssignment) => {
+    const { nodes, edges } = processTopLevelItem(exportAssignment);
+    collectedNodes.push(...nodes);
+    collectedEdges.push(...edges);
+  });
+
+  sourceFile
+    .getChildrenOfKind(SyntaxKind.ExpressionStatement)
+    .forEach((expressionStatement) => {
+      const { nodes, edges } = processTopLevelItem(expressionStatement);
+      collectedNodes.push(...nodes);
+      collectedEdges.push(...edges);
+    });
+
+  sourceFile.getVariableStatements().forEach((variableStatement) => {
+    variableStatement
+      .getChildrenOfKind(SyntaxKind.VariableDeclarationList)
+      .forEach((variableDeclarationList) => {
+        variableDeclarationList
+          .getChildrenOfKind(SyntaxKind.VariableDeclaration)
+          .forEach((variableDeclaration) => {
+            const { nodes, edges } = processTopLevelItem(variableDeclaration);
+            collectedNodes.push(...nodes);
+            collectedEdges.push(...edges);
+          });
+      });
   });
 
   return {

@@ -19,7 +19,7 @@ import { injectFilesystemService } from "../../filesystem";
 import { injectGraphService } from "../../graph";
 import { injectSubprocessService } from "../../subprocess";
 import { allChildrenOfKindIdentifier, processSourceFile } from "./process";
-import { getImportSignature, getSignature } from "./signatures";
+import { getImportSignature, getSignature, isImportNode } from "./signatures";
 
 const NcuUpgradeSchema = z.record(z.string());
 
@@ -60,12 +60,7 @@ export const makeTypescriptService = (
     const rootPath = path.parse(currentDir).root;
 
     while (currentDir !== rootPath) {
-      if (await filesystem.exists(path.join(currentDir, "package-lock.json"))) {
-        return {
-          packageManager: "npm" as const,
-          filePath: path.join(currentDir, "package-lock.json"),
-        };
-      } else if (await filesystem.exists(path.join(currentDir, "yarn.lock"))) {
+      if (await filesystem.exists(path.join(currentDir, "yarn.lock"))) {
         return {
           packageManager: "yarn" as const,
           filePath: path.join(currentDir, "yarn.lock"),
@@ -76,6 +71,13 @@ export const makeTypescriptService = (
         return {
           packageManager: "pnpm" as const,
           filePath: path.join(currentDir, "pnpm-lock.yaml"),
+        };
+      } else if (
+        await filesystem.exists(path.join(currentDir, "package-lock.json"))
+      ) {
+        return {
+          packageManager: "npm" as const,
+          filePath: path.join(currentDir, "package-lock.json"),
         };
       }
 
@@ -135,7 +137,12 @@ export const makeTypescriptService = (
           }
         }
 
-        return items;
+        // I thought --skipLibCheck filtered out items inside node_modules
+        // but it doesn't always, so we add a manual filter to remove all
+        // items with a part in node_modules
+        return items.filter((item) => {
+          return !item.path.startsWith("node_modules/");
+        });
       },
     },
     ast: {
@@ -203,30 +210,16 @@ export const makeTypescriptService = (
         },
         apply: async (projectRoot, upgrade) => {
           const { packageManager } = await findPackageManager(projectRoot);
-
           const packageJson = await PackageJson.load(projectRoot);
-
+          const existingDevDependencies = packageJson.content.devDependencies;
           const existingDependencies = packageJson.content.dependencies;
 
-          packageJson.update({
-            dependencies: {
-              ...(existingDependencies
-                ? Object.entries(existingDependencies).reduce(
-                    (acc, [key, value]) => {
-                      if (key === upgrade.packageName) {
-                        return acc;
-                      }
-                      return {
-                        ...acc,
-                        [key]: value,
-                      };
-                    },
-                    {},
-                  )
-                : {}),
-              [upgrade.packageName]: upgrade.newVersion,
-            },
-          });
+          if (existingDependencies?.[upgrade.packageName]) {
+            existingDependencies[upgrade.packageName] = upgrade.newVersion;
+          }
+          if (existingDevDependencies?.[upgrade.packageName]) {
+            existingDevDependencies[upgrade.packageName] = upgrade.newVersion;
+          }
 
           await packageJson.save();
 
@@ -234,6 +227,7 @@ export const makeTypescriptService = (
 
           await subprocess.spawn(`${packageManager} install`, {
             rejectOnStderr: false,
+            rejectOnNonZeroExit: true,
           });
         },
       },
@@ -262,8 +256,8 @@ export const makeTypescriptService = (
           >();
           const sourceFiles = ast.tree.getSourceFiles();
 
+          const start = Date.now();
           sourceFiles.forEach((sourceFile) => {
-            console.log("processing source file:", sourceFile.getFilePath());
             const { nodes, edges } = processSourceFile(sourceFile);
             for (const node of nodes) {
               if (!graph.hasNode(node.id)) {
@@ -276,6 +270,11 @@ export const makeTypescriptService = (
               }
             }
           });
+          console.log(
+            "Done processing source files in",
+            Date.now() - start,
+            "ms",
+          );
           return graph;
         },
         checkImportsForPackage: (graph, node, packageName) => {
@@ -296,6 +295,7 @@ export const makeTypescriptService = (
       // the performance of .getType() and .getReturnType() in ts-morph is not very good.
       // thus, we need to compute these typeSignatures on the fly rather than when we
       // create the dependency graph
+      // TODO(benji): handle typesignature calculation for ImportClauses like 'import Foo from "bar"'
       getTypeSignature: (ast, node) => {
         const { name, kind, path } = node;
 
@@ -319,15 +319,12 @@ export const makeTypescriptService = (
 
         if (!astNode) {
           console.log(
-            `couldn't find identifier ${name} of kind ${kind} in ${path}, something in the tree might have changed`,
+            `couldn't find ${name} of kind ${kind} in ${path}, something in the tree might have changed`,
           );
           return "";
         }
 
-        if (
-          Node.isImportDeclaration(astNode.node) ||
-          Node.isImportSpecifier(astNode.node)
-        ) {
+        if (isImportNode(astNode.node)) {
           return getImportSignature(astNode.node, astNode.identifier);
         }
         return getSignature(astNode.node);
@@ -347,12 +344,29 @@ export const makeTypescriptService = (
         const newSourceFile = graph.ast.tree.addSourceFileAtPath(
           affectedNode.path,
         );
-        const { nodes } = processSourceFile(newSourceFile);
+        const { nodes, edges } = processSourceFile(newSourceFile);
 
+        // map new nodes to existing nodes in the dependency graph
         nodes.forEach((node) => {
           const oldNode = graph.dependency.findNode((n) => n === node.id);
           if (!oldNode) {
-            console.log("old node not found, something in the tree changed");
+            console.log(
+              "old node not found, something in the tree changed, adding new node",
+            );
+            if (!graph.dependency.hasNode(node.id)) {
+              graph.dependency.addNode(node.id, node);
+            }
+            for (const edge of edges) {
+              if (edge.source === node.id || edge.target === node.id) {
+                if (!graph.dependency.hasEdge(edge.source, edge.target)) {
+                  graph.dependency.addDirectedEdge(
+                    edge.source,
+                    edge.target,
+                    edge,
+                  );
+                }
+              }
+            }
             return;
           }
           const oldAttrs = graph.dependency.getNodeAttributes(oldNode);

@@ -32,7 +32,15 @@ const resolveTypeReferences = (
   node: Node,
   types: Set<string> = new Set<string>(),
   seenNodes: Set<Node> = new Set<Node>(),
+  depth: number = 0,
+  maxDepth: number = 1,
 ) => {
+  // we set a somewhat arbitary depth to the fetching of type signatures from external
+  // packages due to the size of type signature that could be returned
+  if (depth >= maxDepth) {
+    return;
+  }
+
   node.getDescendantsOfKind(SyntaxKind.TypeReference).forEach((typeRef) => {
     if (seenNodes.has(typeRef)) {
       return;
@@ -48,7 +56,13 @@ const resolveTypeReferences = (
         return;
       }
       seenNodes.add(typeDefinition);
-      resolveTypeReferences(typeDefinition, types, seenNodes);
+      resolveTypeReferences(
+        typeDefinition,
+        types,
+        seenNodes,
+        depth + 1,
+        maxDepth,
+      );
       if (typeDefinition.getText().startsWith("type")) {
         types.add(typeDefinition.getText());
       }
@@ -134,7 +148,7 @@ const classDeclarationSignature = (node: ClassDeclaration) => {
     return `${signature}`;
   });
 
-  return `class ${className} ${heritageClause.length > 0 ? ` ${heritageClause.join(" ")}` : ""} {\n ${[...constructorSignatures, ...methodSignatures].join("\n  ")}}`;
+  return `class ${className} ${heritageClause.length > 0 ? ` ${heritageClause.join(" ")}` : ""} {\n ${[...constructorSignatures, ...methodSignatures].join("  ")}}`;
 };
 
 export const getImportSignature = (node: Node, identifierName: string) => {
@@ -164,6 +178,19 @@ export const getImportSignature = (node: Node, identifierName: string) => {
   }
 
   return typeSignatures.join("\n");
+};
+
+export const isImportNode = (node: Node) => {
+  if (
+    Node.isImportDeclaration(node) ||
+    Node.isNamespaceImport(node) || // import * as foo from 'bar'
+    Node.isImportClause(node) || // import foo from 'bar'
+    Node.isImportEqualsDeclaration(node) || // const foo = require('bar')
+    Node.isImportSpecifier(node)
+  ) {
+    return true;
+  }
+  return false;
 };
 
 // the performance of .getType() and .getReturnType() in ts-morph is poor, getSignature()

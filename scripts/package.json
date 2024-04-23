@@ -1,5 +1,5 @@
 {
-  "name": "@repo/bumpgen-core",
+  "name": "scripts",
   "version": "0.0.0",
   "private": true,
   "exports": {
@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@commander-js/extra-typings": "^12.0.1",
+    "@repo/bumpgen-core": "workspace:*",
     "@npmcli/package-json": "^5.0.3",
     "graphology": "^0.25.4",
     "graphology-dag": "^0.4.1",

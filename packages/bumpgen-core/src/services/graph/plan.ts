@@ -63,8 +63,10 @@ export const createPlanGraphService = () => {
         kind: "descendant" as const,
       };
 
-      graph.addNode(id, planNode);
-      graph.addEdge(parentID, id, { relationship: "referencedBy" });
+      if (!graph.hasNode(id) && !graph.hasEdge(parentID, id)) {
+        graph.addNode(id, planNode);
+        graph.addEdge(parentID, id, { relationship: "referencedBy" });
+      }
     },
     node: {
       get: (

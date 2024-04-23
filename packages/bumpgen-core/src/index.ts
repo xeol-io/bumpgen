@@ -1,3 +1,4 @@
+import { mkdirSync, writeFileSync } from "fs";
 import process from "process";
 
 import type { SupportedLanguage } from "./models";
@@ -14,6 +15,8 @@ import { injectFilesystemService } from "./services/filesystem";
 import { injectGraphService } from "./services/graph";
 import { injectLanguageService } from "./services/language";
 import { injectLLMService } from "./services/llm";
+
+export { injectGitService } from "./services/git";
 
 export type { SupportedLanguage } from "./models";
 export type { SupportedModel } from "./models/llm";
@@ -117,7 +120,10 @@ const _bumpgen = ({
             );
 
           if (affectedNodes.length === 0) {
-            console.debug("No affected nodes found for error:", err);
+            console.debug(
+              "ERROR_NO_NODES_FOR_ERROR: No affected nodes found for error - ",
+              err,
+            );
             continue;
           }
 
@@ -224,11 +230,19 @@ const _bumpgen = ({
             const fileContents = await services.filesystem.read(planNode.path);
 
             // TODO: implement the new fuzzy matcher
-            const newFileContents = replacements.reduce(
-              (acc, replacement) =>
-                acc.replace(replacement.oldCode, replacement.newCode),
-              fileContents,
-            );
+            const newFileContents = replacements.reduce((acc, replacement) => {
+              const beforeReplace = acc;
+              const afterReplace = acc.replace(
+                replacement.oldCode,
+                replacement.newCode,
+              );
+              if (beforeReplace === afterReplace) {
+                console.log(
+                  `ERROR_REPLACEMENTS: Replacement did not match - ${replacement.oldCode} -> ${replacement.newCode}`,
+                );
+              }
+              return afterReplace;
+            }, fileContents);
 
             const originalSignature = planNode.typeSignature;
 

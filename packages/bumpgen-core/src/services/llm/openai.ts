@@ -23,8 +23,8 @@ const makePlanNodeMessage = (
   return {
     role: "user" as const,
     content: [
-      `I'm upgrading ${bumpedPackage} and my code is failing. You are tasked with fixing the following code block if there is a problem with it. You might need to change the code or the imports, depending on the error message. If there is no related error message, don't make a change unless you absolutely need to!\n`,
-      `<code path="${planNode.path}" type_signature=${planNode.typeSignature}>`,
+      `I'm upgrading the package '${bumpedPackage}' and my code is failing. You might need to modify the code or the imports. Look at the errors below and think step-by-step about what the errors mean and how to fix the code.\n`,
+      `<code \n  path="${planNode.path}"\n>`,
     ]
       .concat(importMessages.length ? [...importMessages, "\n"] : [])
       .concat([`${planNode.block}`, "</code>\n"])
@@ -46,7 +46,6 @@ const makeExternalDependencyContextMessage = (
   importContext: (DependencyGraphNode & {
     typeSignature: string;
   })[],
-  bumpedPackage: string,
 ) => {
   if (importContext.length === 0) {
     return null;
@@ -60,11 +59,14 @@ const makeExternalDependencyContextMessage = (
     content: [
       ...(importContext.length > 0
         ? [
-            `Type signatures for the imports from ${bumpedPackage}:\n`,
-            ...importContext.map(
-              (imp) =>
-                `<import statement=${imp.block}>${imp.typeSignature}</import>`,
-            ),
+            `Type signatures for the imports used in the code block:\n`,
+            ...importContext.map((imp) => {
+              if (imp.typeSignature.length > 0) {
+                return `<import \n  statement="${imp.block}"\n>\n${imp.typeSignature}\n</import>`;
+              } else {
+                return "";
+              }
+            }),
           ]
         : []),
     ].join("\n"),
@@ -79,7 +81,7 @@ const makeSpatialContextMessage = (
   const relevantMessage: string[] = [];
   for (const context of spatialContext) {
     relevantMessage.push(
-      `<relevant_code type_signature="${context.typeSignature}" relationship="referencedBy" file_path="${context.path}">\n${context.block}\n</relevant_code>`,
+      `<relevant_code \n  type_signature="${context.typeSignature}" \n  relationship="referencedBy" \n  file_path="${context.path}"\n>\n${context.block}\n</relevant_code>`,
     );
   }
 
@@ -120,7 +122,7 @@ const makeTemporalContextMessage = (temporalContext: PlanGraphNode[]) => {
       }
 
       return `
-      <changed_code file_path="${node.path}">${diff.join("\n")}</changed_code>`;
+      <changed_code \n  file_path="${node.path}">${diff.join("\n")}</changed_code>`;
     })
     .filter(<T>(r: T | undefined): r is T => !!r);
 
@@ -142,44 +144,50 @@ const makeImportContextMessage = (importContext: DependencyGraphNode[]) => {
   });
 };
 
-export const fitToContext = (contextSize: number, messages: (Message | null)[]): Message[] => {
-  const remainingBudget = contextSize - messages.reduce(
-    (acc, m) => acc + (m ? m.content.length : 0), 0
-  );
-  
+export const fitToContext = (
+  contextSize: number,
+  messages: (Message | null)[],
+): Message[] => {
+  const remainingBudget =
+    contextSize -
+    messages.reduce((acc, m) => acc + (m ? m.content.length : 0), 0);
+
   if (remainingBudget < 0) {
     let charsToRemove = -remainingBudget;
-    
+
     console.debug(`messages too large, removing ${charsToRemove} characters`);
 
     // chunking priority order
     const priorityOrder = [4, 1, 2, 3];
-  
+
     for (const index of priorityOrder) {
       if (charsToRemove <= 0) break;
-  
+
       const message = messages[index];
 
-      if (!message) continue; 
+      if (!message) continue;
 
-      let currentLength = message.content.length;
-  
+      const currentLength = message.content.length;
+
       if (currentLength > charsToRemove) {
-        message.content = message.content.substring(0, currentLength - charsToRemove);
+        message.content = message.content.substring(
+          0,
+          currentLength - charsToRemove,
+        );
         charsToRemove = 0;
       } else {
         charsToRemove -= currentLength;
-        messages[index] = null
+        messages[index] = null;
       }
     }
-  
+
     if (charsToRemove > 0) {
-      throw new Error('Unable to remove enough characters to meet the budget.');
+      throw new Error("Unable to remove enough characters to meet the budget.");
     }
-  };
+  }
 
   return messages.filter(<T>(r: T | null): r is T => !!r);
-}
+};
 
 // const makeChangeReasonMessage = (planNode: PlanGraphNode) => {};
 
@@ -204,45 +212,40 @@ export const createOpenAIService = (openai: OpenAI) => {
         const systemMessage = {
           role: "system" as const,
           content: [
-            `You are an expert software engineer tasked with fixing a code block in a typescript file. We're trying to upgrade ${bumpedPackage} and the code is failing, You will be provided with a block of code-to-edit, the context of the code block, and the history of changes so far.\n`,
-            "Think through step-by-step to fix the code block if it needs to be fixed",
-            "- Do not make any behavioral changes to the code, only fix the errors while preserving existing behavior",
-            "- Do not change any hardcoded values in the code",
-            "- Do not add comments to the code",
-            "- Never explicitly cast types",
-            "- Do not change the imports unless there is an error message related to an import",
-            "- Do not change the name of any variables, functions, or classes",
-            "- You can assume that the code block is part of a larger codebase and that the code is correct except for the errors provided",
+            `You are a seasoned software engineer assigned to resolve an issue in a TypeScript file related to an '${bumpedPackage}' upgrade. You will receive a specific code block, its context, and the revision history. Your task is to correct errors in the code block under the following constraints.`,
+            "\n",
+            "- Preserve the original behavior without introducing functional changes.",
+            "- Maintain all hardcoded values as is.",
+            "- Avoid adding comments within the code.",
+            "- Refrain from using explicit type casting.",
+            "- Only show the specific lines of code that have been changed or need modification, without including unchanged surrounding code.",
+            "- Keep all existing variable, function, and class names unchanged.",
           ].join("\n"),
         };
         const finalMessage = {
           role: "user" as const,
           content:
-            "Given the above information, use the update_code function to fix the code block. If there are no changes to be made, use the update_code function to return an empty array of replacements.",
+            "First, think step-by-step about the errors given, and then use the update_code function to fix the code block.",
         };
         const spatialContextMessage = makeSpatialContextMessage(spatialContext);
-        const temporalContextMessage = makeTemporalContextMessage(temporalContext);
+        const temporalContextMessage =
+          makeTemporalContextMessage(temporalContext);
         const planNodeMessage = makePlanNodeMessage(
           currentPlanNode,
           importContext,
           bumpedPackage,
         );
-        const externalDependencyMessage = makeExternalDependencyContextMessage(
-          importContext,
-          bumpedPackage,
-        );
+        const externalDependencyMessage =
+          makeExternalDependencyContextMessage(importContext);
 
-        const messages = fitToContext(
-          LLM_CONTEXT_SIZE,
-          [
-            systemMessage,
-            spatialContextMessage,
-            temporalContextMessage,
-            planNodeMessage,
-            externalDependencyMessage,
-            finalMessage,
-          ]
-        );
+        const messages = fitToContext(LLM_CONTEXT_SIZE, [
+          systemMessage,
+          spatialContextMessage,
+          temporalContextMessage,
+          planNodeMessage,
+          externalDependencyMessage,
+          finalMessage,
+        ]);
 
         console.log("ChatGPT Message:\n", messages);
 
@@ -299,7 +302,11 @@ export const createOpenAIService = (openai: OpenAI) => {
         });
 
         if (!response.choices[0]?.message?.tool_calls?.[0]) {
-          throw new Error("No tool called in OpenAI response");
+          console.debug("No tool call in OpenAI response");
+          return {
+            replacements: [],
+            commitMessage: "No changes needed",
+          };
         }
 
         const rawJson = JSON.parse(
@@ -311,8 +318,14 @@ export const createOpenAIService = (openai: OpenAI) => {
           console.log(
             response.choices[0].message.tool_calls[0].function.arguments,
           );
-          throw new Error("Invalid response from OpenAI", parsed.error);
+          console.debug("Invalid response from OpenAI: ", parsed.error);
+          return {
+            replacements: [],
+            commitMessage: "No valid changes provided",
+          };
         }
+
+        console.log("ChatGPT Response:\n", parsed.data);
 
         return parsed.data;
       },
