@@ -2,6 +2,7 @@ import { createHash } from "crypto";
 import type {
   ClassDeclaration,
   ExportAssignment,
+  ExpressionStatement,
   FunctionDeclaration,
   Identifier,
   ImportSpecifier,
@@ -112,7 +113,8 @@ const getImportNodes = (
     | FunctionDeclaration
     | ClassDeclaration
     | VariableDeclaration
-    | ExportAssignment,
+    | ExportAssignment
+    | ExpressionStatement,
 ) => {
   const importNodes: DependencyGraphNode[] = [];
   // for all children of type identifier in the function declaration block
@@ -141,7 +143,8 @@ const getReferenceNodes = (
     | FunctionDeclaration
     | ClassDeclaration
     | VariableDeclaration
-    | ExportAssignment,
+    | ExportAssignment
+    | ExpressionStatement,
 ) => {
   const nodes: DependencyGraphNode[] = [];
   if ("findReferences" in node) {
@@ -194,10 +197,16 @@ const createTopLevelNode = (
     | FunctionDeclaration
     | ClassDeclaration
     | VariableDeclaration
-    | ExportAssignment,
+    | ExportAssignment
+    | ExpressionStatement,
 ) => {
   const kind = makeKind(n.getKind());
-  const name = "getName" in n ? n.getName() : n.getSymbol()?.getName();
+  const idName = n
+    .getFirstDescendantByKind(SyntaxKind.Identifier)
+    ?.getSymbol()
+    ?.getName();
+  const nodeName = "getName" in n ? n.getName() : n.getSymbol()?.getName();
+  const name = nodeName ?? idName;
   if (!name) {
     console.log("no name for top level item");
     return;
@@ -226,7 +235,8 @@ const processTopLevelItem = (
     | FunctionDeclaration
     | ClassDeclaration
     | VariableDeclaration
-    | ExportAssignment,
+    | ExportAssignment
+    | ExpressionStatement,
 ) => {
   const nodes: DependencyGraphNode[] = [];
   const edges: DependencyGraphEdge[] = [];
@@ -307,6 +317,14 @@ export const processSourceFile = (sourceFile: SourceFile) => {
     collectedNodes.push(...nodes);
     collectedEdges.push(...edges);
   });
+
+  sourceFile
+    .getChildrenOfKind(SyntaxKind.ExpressionStatement)
+    .forEach((expressionStatement) => {
+      const { nodes, edges } = processTopLevelItem(expressionStatement);
+      collectedNodes.push(...nodes);
+      collectedEdges.push(...edges);
+    });
 
   sourceFile.getVariableStatements().forEach((variableStatement) => {
     variableStatement
