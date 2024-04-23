@@ -28,6 +28,8 @@ const formatNewCode = (matchedIndent: number, splitNewCode: string[]) => {
   const adjustedCode = splitNewCode.map((line) => {
     if (indentDiff > 0) {
       return " ".repeat(indentDiff) + line;
+    } else {
+      return line;
     }
   });
 
@@ -98,8 +100,12 @@ export const createMatchingService = () => {
           }
 
           const result = fuse.search(line);
-          console.log(`Searching for line: ${line}`);
-          console.log(result);
+          console.log(`Searching for line: "${line}"`);
+          if (result.length > 0) {
+            console.log('\x1b[32m' + `"${result[0].item}" matching line found on line ${result[0].refIndex + 1} with score ${result[0].score}\n` + '\x1b[0m');
+          } else {
+            console.log('\x1b[31m' + "No matching lines found \n" + '\x1b[0m');
+          }
 
           const topResult = result[0];
 
@@ -107,7 +113,7 @@ export const createMatchingService = () => {
             // const match = result[0];
             const matchIndex =
               startIndex === -1
-                ? topResult.refIndex - 1
+                ? topResult.refIndex
                 : endIndex + 1 + topResult.refIndex;
 
             const firstMatchedLine = splitCode(content)[matchIndex];
@@ -130,7 +136,7 @@ export const createMatchingService = () => {
               endIndex = matchIndex;
               mismatches++;
             } else {
-              console.log("Too many mismatches, restarting search.");
+              console.log('\x1b[32m' + "Too many mismatches, restarting search.") + '\x1b[0m';
               startIndex = -1;
               endIndex = -1;
               mismatches = 0;
@@ -141,7 +147,7 @@ export const createMatchingService = () => {
               endIndex++;
             } else {
               console.log(
-                "No match found and out of tolerance, restarting search.",
+                '\x1b[32m' +  "No match found and out of tolerance, restarting search." + '\x1b[0m',
               );
               startIndex = -1;
               endIndex = -1;
@@ -150,13 +156,22 @@ export const createMatchingService = () => {
           }
         });
 
-        console.log(
-          `Match block starts at ${startIndex} and ends at ${endIndex}`,
-        );
+        const matchedLines = splitCode(content).slice(startIndex, endIndex + 1).join('\n');
+
+        console.log('\x1b[32m' + `Matched block starts at ${startIndex} and ends at ${endIndex}\n`);
+        console.log('\x1b[33m' + "=== actual matched code block");
+        console.log(matchedLines);
+        console.log("=== \n" + '\x1b[0m');
+      
         const indentedNewCode = formatNewCode(
           matchedIndent,
           splitCode(newCode),
         );
+      
+        console.log('\x1b[34m' + "=== replacing with this new code")
+        console.log(indentedNewCode.join("\n"));
+        console.log("=== \n" + '\x1b[0m');
+        
 
         if (startIndex !== -1 && endIndex !== -1) {
           const updatedContents = [
@@ -167,7 +182,7 @@ export const createMatchingService = () => {
 
           return updatedContents;
         } else {
-          console.log("No sufficiently similar block found.");
+          console.log('\x1b[32m' + 'No sufficiently similar block found.' + '\x1b[0m');
           return content;
         }
       },
