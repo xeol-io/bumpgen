@@ -137,7 +137,12 @@ export const makeTypescriptService = (
           }
         }
 
-        return items;
+        // I thought --skipLibCheck filtered out items inside node_modules
+        // but it doesn't always, so we add a manual filter to remove all
+        // items with a part in node_modules
+        return items.filter((item) => {
+          return !item.path.startsWith("node_modules/");
+        });
       },
     },
     ast: {
