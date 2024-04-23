@@ -147,11 +147,11 @@ program
 
       const errorsAfter = await bumpgen.build.getErrors();
       if (errorsAfter.length === 0) {
-        console.log("SUCCESS");
+        console.log(`SUCCESS WITH ${iterations} ITERATIONS`);
         const outcome = "SUCCESS";
         await saveOutcome(outcomePath, outcome);
       } else {
-        console.log("FAILURE");
+        console.log(`FAILURE WITH ${iterations} ITERATIONS`);
         const outcome = "FAILURE";
         await saveOutcome(outcomePath, outcome);
       }
