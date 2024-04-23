@@ -1,31 +1,21 @@
 [
   {
+    "id": "deepstreamIO__deepstream.io-ajv__^8.12.0",
+    "name": "deepstream.io",
+    "owner": "deepstreamIO",
+    "pkgManager": "npm",
+    "package": "ajv",
+    "versionTo": "^8.12.0",
+    "nodeVersion": "v20.12.2",
+    "commit": "64828ddef9222ee06b8521d37eabe18bd7a15a07"
+  },
+  {
     "id": "typeorm__typeorm-mkdirp__^3.0.1",
     "name": "typeorm",
     "owner": "typeorm",
     "pkgManager": "npm",
     "package": "mkdirp",
     "versionTo": "^3.0.1",
-    "nodeVersion": "v20.12.2",
-    "commit": "e7649d2746f907ff36b1efb600402dedd5f5a499"
-  },
-  {
-    "id": "typeorm__typeorm-del__7.1.0",
-    "name": "typeorm",
-    "owner": "typeorm",
-    "pkgManager": "npm",
-    "package": "del",
-    "versionTo": "7.1.0",
-    "nodeVersion": "v20.12.2",
-    "commit": "e7649d2746f907ff36b1efb600402dedd5f5a499"
-  },
-  {
-    "id": "typeorm__typeorm-rimraf__^5.0.5",
-    "name": "typeorm",
-    "owner": "typeorm",
-    "pkgManager": "npm",
-    "package": "rimraf",
-    "versionTo": "^5.0.5",
     "nodeVersion": "v20.12.2",
     "commit": "e7649d2746f907ff36b1efb600402dedd5f5a499"
   },
@@ -38,26 +28,6 @@
     "versionTo": "^10.2.0",
     "nodeVersion": "v20.12.2",
     "commit": "631ae2288ed1f2ce3a7a4a4b39d669acffb355f2"
-  },
-  {
-    "id": "yoavbls__pretty-ts-errors-glob__^10.3.12",
-    "name": "pretty-ts-errors",
-    "owner": "yoavbls",
-    "pkgManager": "npm",
-    "package": "glob",
-    "versionTo": "^10.3.12",
-    "nodeVersion": "v20.12.2",
-    "commit": "2531440478077fd3f3335e3e3d1b92c9679eb1bc"
-  },
-  {
-    "id": "deepstreamIO__deepstream.io-ajv__^8.12.0",
-    "name": "deepstream.io",
-    "owner": "deepstreamIO",
-    "pkgManager": "npm",
-    "package": "ajv",
-    "versionTo": "^8.12.0",
-    "nodeVersion": "v20.12.2",
-    "commit": "64828ddef9222ee06b8521d37eabe18bd7a15a07"
   },
   {
     "id": "viptvx__hosts-lru-cache__^10.2.0",
@@ -88,26 +58,6 @@
     "versionTo": "^9.0.0",
     "nodeVersion": "v20.12.2",
     "commit": "8fc5a613ef21d642df2a5e5d051862321ff69ffe"
-  },
-  {
-    "id": "gabrielvbauer__find-a-friend-api-vitest__1.5.0",
-    "name": "find-a-friend-api",
-    "owner": "gabrielvbauer",
-    "pkgManager": "npm",
-    "package": "vitest",
-    "versionTo": "1.5.0",
-    "nodeVersion": "v20.12.2",
-    "commit": "89ea57babd2139cf667df962a3abfd18199c9e0a"
-  },
-  {
-    "id": "dougkulak__libdefkit-find-up__^7.0.0",
-    "name": "libdefkit",
-    "owner": "dougkulak",
-    "pkgManager": "yarn",
-    "package": "find-up",
-    "versionTo": "^7.0.0",
-    "nodeVersion": "v20.12.2",
-    "commit": "488e44727594133233a3ce1db6e39af90b3b2236"
   },
   {
     "id": "dougkulak__libdefkit-globby__^14.0.1",

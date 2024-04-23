@@ -216,13 +216,12 @@ export const createOpenAIService = (openai: OpenAI) => {
             "- Refrain from using explicit type casting.",
             "- Only show the specific lines of code that have been changed or need modification, without including unchanged surrounding code.",
             "- Keep all existing variable, function, and class names unchanged.",
-            "- Use update_code incrementally. If you need to make changes across multiple lines, call update_code multiple times rather than returning a single large diff.",
           ].join("\n"),
         };
         const finalMessage = {
           role: "user" as const,
           content:
-            "First, think step-by-step about the errors (if they are given), and then use the update_code function to fix the code block. If there are no changes to be made, use the update_code function to return an empty array of replacements.",
+            "First, think step-by-step about the errors given, and then use the update_code function to fix the code block.",
         };
 
         const spatialContextMessage = makeSpatialContextMessage(spatialContext);
