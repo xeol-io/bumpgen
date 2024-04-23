@@ -4,12 +4,7 @@ import { writeFile } from "fs/promises";
 import { program } from "@commander-js/extra-typings";
 import { z } from "zod";
 
-import {
-  injectGitService,
-  makeBumpgen,
-  SupportedLanguages,
-  SupportedModels,
-} from "@repo/bumpgen-core";
+import { injectGitService, makeBumpgen } from "@repo/bumpgen-core";
 
 export const PredictionSchema = z.object({
   // the name of the model that generated the prediction

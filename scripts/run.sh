@@ -2,10 +2,10 @@
 
 # Define total tasks
 # tasks=$(jq '. | length' tasks.json)
-tasks=10
+tasks=1
 
 # Define concurrency level
-concurrency=3
+concurrency=1
 
 export LLM_API_KEY=$(printenv LLM_API_KEY)
 
