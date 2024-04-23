@@ -10,7 +10,6 @@ import Spinner from "ink-spinner";
 import stripAnsi from "strip-ansi";
 
 import type {
-  Bumpgen,
   BumpgenGraph,
   PlanGraph,
   PlanGraphNode,

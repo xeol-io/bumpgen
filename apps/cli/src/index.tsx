@@ -10,7 +10,7 @@ import {
   SupportedModels,
 } from "@repo/bumpgen-core";
 
-import App from "./ui";
+import App from "./app";
 
 const command = program
   .name("bumpgen")
