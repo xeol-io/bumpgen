@@ -1,25 +1,60 @@
 const { fitToContext } = require('./openai.ts');
 
 describe('fitToContext', () => {
-  it('should truncate messages in the right order to fit the specified negative remaining budget', () => {
-    
+  it('should return all messages if they fit within the budget', () => {
     const messages = [
-      { content: "Short message" },
-      { content: "A bit longer message than the first" },
-      { content: "A significantly longer message that should be truncated significantly to fit the budget" },
-      { content: "Short" },
-      { content: "An adequately sized message for testing" },
-      { content: "Some other message" },
+      { content: "systemMessage" },
+      { content: "spatialContextMessage" },
+      { content: "temporalContextMessage" },
+      { content: "planNodeMessage" },
+      { content: "externalDependencyMessage" },
+      { content: "finalMessage" },
     ];
-    
-    const originalLength = messages.reduce((acc, msg) => acc + msg.content.length, 0);
-    const remainingBudget = -50;
-    
-    fitToContext(remainingBudget, messages);
+    const result = fitToContext(1000, messages);
+    expect(result).toEqual(messages);
+    expect(result.length).toBe(6);
+  });
 
-    const totalLength = messages.reduce((acc, msg) => acc + msg.content.length, 0);
-    
-    expect(totalLength).toBe(originalLength + remainingBudget);
-    expect(messages[4]).toStrictEqual({content: ""});
+  it('should handle null values gracefully', () => {
+    const messages = [
+      { content: "systemMessage" },
+      null,
+      null,
+      null,
+      null,
+      { content: "finalMessage" },
+    ];
+    const result = fitToContext(1000, messages);
+    expect(result).toEqual([{ content: "systemMessage" }, { content: "finalMessage" }]);
+  });
+
+  it('should truncate messages when they exceed the budget', () => {
+    const messages = [
+      { content: "systemMessage" },
+      { content: "a".repeat(10) },
+      { content: "b".repeat(10) },
+      { content: "c".repeat(10) },
+      { content: "d".repeat(10) },
+      { content: "finalMessage" },
+    ];
+    const result = fitToContext(50, messages);
+    expect(result.length).toBe(5);
+    expect(result[4].content).toBe("finalMessage");
+    expect(result[3].content).toBe("c".repeat(10));
+    expect(result[1].content).toBe("a".repeat(5));
+  });
+
+  it('should handle combination of null values and exceeding messages', () => {
+    const messages = [
+      { content: "systemMessage" },
+      { content: "a".repeat(10) },
+      null,
+      { content: "b".repeat(10) },
+      null,
+      { content: "finalMessage" },
+    ];
+    const result = fitToContext(30, messages);
+    expect(result.length).toBe(3);
+    expect(result[1].content).toBe("b".repeat(5));
   });
 });
