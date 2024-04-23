@@ -1,4 +1,4 @@
-import { writeFileSync } from "fs";
+import { mkdirSync, writeFileSync } from "fs";
 import process from "process";
 
 import type { SupportedLanguage } from "./models";
@@ -15,6 +15,8 @@ import { injectFilesystemService } from "./services/filesystem";
 import { injectGraphService } from "./services/graph";
 import { injectLanguageService } from "./services/language";
 import { injectLLMService } from "./services/llm";
+
+export { injectGitService } from "./services/git";
 
 export type { SupportedLanguage } from "./models";
 export type { SupportedModel } from "./models/llm";
@@ -118,7 +120,10 @@ const _bumpgen = ({
             );
 
           if (affectedNodes.length === 0) {
-            console.debug("No affected nodes found for error:", err);
+            console.debug(
+              "ERROR_NO_NODES_FOR_ERROR: No affected nodes found for error - ",
+              err,
+            );
             continue;
           }
 
@@ -237,13 +242,14 @@ const _bumpgen = ({
                   newCode: replacement.newCode,
                   fileContents,
                 };
+                mkdirSync("/tmp/unmatched", { recursive: true });
                 writeFileSync(
                   `/tmp/unmatched/${Date.now()}.json`,
                   JSON.stringify(unmatched, null, 2),
                 );
 
-                console.warn(
-                  `Replacement did not match: ${replacement.oldCode} -> ${replacement.newCode}`,
+                console.log(
+                  `ERROR_REPLACEMENTS: Replacement did not match - ${replacement.oldCode} -> ${replacement.newCode}`,
                 );
               }
               return afterReplace;

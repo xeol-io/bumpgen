@@ -4,8 +4,12 @@ import { writeFile } from "fs/promises";
 import { program } from "@commander-js/extra-typings";
 import { z } from "zod";
 
-import { makeBumpgen } from "./index";
-import { injectGitService } from "./services/git";
+import {
+  injectGitService,
+  makeBumpgen,
+  SupportedLanguages,
+  SupportedModels,
+} from "@repo/bumpgen-core";
 
 export const PredictionSchema = z.object({
   // the name of the model that generated the prediction
@@ -84,7 +88,6 @@ program
       commit,
     } = tasks[taskNumber]!;
 
-    // const logPath = `${process.cwd()}/log/${id}.json`;
     const outputPath = `${process.cwd()}/output/${id}`;
     const outcomePath = `${outputPath}/OUTCOME`;
     const predictionPath = `${outputPath}/prediction.json`;
@@ -116,6 +119,9 @@ program
       await bumpgen.upgrade.apply();
     } catch (e) {
       console.log(`failed to apply upgrade and install, skipping ${id}`);
+      console.log(`BAD_TASK, failed to install`);
+      const outcome = "BAD_TASK";
+      await saveOutcome(outcomePath, outcome);
       process.exit(1);
     }
 
@@ -142,6 +148,9 @@ program
         console.log(
           `This task didn't have any errors after the pkg upgrade ${id}`,
         );
+        console.log(`BAD_TASK, no tsc errors after package upgrade`);
+        const outcome = "BAD_TASK";
+        await saveOutcome(outcomePath, outcome);
         process.exit(1);
       }
 
