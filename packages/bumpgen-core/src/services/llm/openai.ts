@@ -46,7 +46,6 @@ const makeExternalDependencyContextMessage = (
   importContext: (DependencyGraphNode & {
     typeSignature: string;
   })[],
-  bumpedPackage: string,
 ) => {
   if (importContext.length === 0) {
     return null;
@@ -139,50 +138,55 @@ const makeTemporalContextMessage = (temporalContext: PlanGraphNode[]) => {
   };
 };
 
-const checkBudget = (
-  messages: Message[],
-  budget: number = LLM_CONTEXT_SIZE,
-) => {
-  const remaining =
-    budget - messages.reduce((acc, m) => acc + m.content.length, 0);
-  return remaining;
-};
-
 const makeImportContextMessage = (importContext: DependencyGraphNode[]) => {
   return importContext.map((context) => {
     return context.block;
   });
 };
 
-// TODO: make it smarter based on relevance of messages
-export const fitToContext = (remainingBudget: number, messages: Message[]) => {
-  let charsToRemove = -remainingBudget;
+export const fitToContext = (
+  contextSize: number,
+  messages: (Message | null)[],
+): Message[] => {
+  const remainingBudget =
+    contextSize -
+    messages.reduce((acc, m) => acc + (m ? m.content.length : 0), 0);
 
-  // chunking priority order
-  const priorityOrder = [4, 1, 2, 3];
+  if (remainingBudget < 0) {
+    let charsToRemove = -remainingBudget;
 
-  for (const index of priorityOrder) {
-    if (charsToRemove <= 0) break;
+    console.debug(`messages too large, removing ${charsToRemove} characters`);
 
-    const message = messages[index];
-    if (!message) continue;
+    // chunking priority order
+    const priorityOrder = [4, 1, 2, 3];
 
-    const currentLength = message.content.length;
-    if (currentLength > charsToRemove) {
-      message.content = message.content.substring(
-        0,
-        currentLength - charsToRemove,
-      );
-      charsToRemove = 0;
-    } else {
-      charsToRemove -= currentLength;
-      message.content = "";
+    for (const index of priorityOrder) {
+      if (charsToRemove <= 0) break;
+
+      const message = messages[index];
+
+      if (!message) continue;
+
+      const currentLength = message.content.length;
+
+      if (currentLength > charsToRemove) {
+        message.content = message.content.substring(
+          0,
+          currentLength - charsToRemove,
+        );
+        charsToRemove = 0;
+      } else {
+        charsToRemove -= currentLength;
+        messages[index] = null;
+      }
+    }
+
+    if (charsToRemove > 0) {
+      throw new Error("Unable to remove enough characters to meet the budget.");
     }
   }
 
-  if (charsToRemove > 0) {
-    throw new Error(`Unable to remove enough characters to meet the budget`);
-  }
+  return messages.filter(<T>(r: T | null): r is T => !!r);
 };
 
 // const makeChangeReasonMessage = (planNode: PlanGraphNode) => {};
@@ -223,7 +227,6 @@ export const createOpenAIService = (openai: OpenAI) => {
           content:
             "First, think step-by-step about the errors given, and then use the update_code function to fix the code block.",
         };
-
         const spatialContextMessage = makeSpatialContextMessage(spatialContext);
         const temporalContextMessage =
           makeTemporalContextMessage(temporalContext);
@@ -232,26 +235,18 @@ export const createOpenAIService = (openai: OpenAI) => {
           importContext,
           bumpedPackage,
         );
-        const externalDependencyMessage = makeExternalDependencyContextMessage(
-          importContext,
-          bumpedPackage,
-        );
+        const externalDependencyMessage =
+          makeExternalDependencyContextMessage(importContext);
 
-        const messages = [
+        const messages = fitToContext(LLM_CONTEXT_SIZE, [
           systemMessage,
           spatialContextMessage,
           temporalContextMessage,
           planNodeMessage,
           externalDependencyMessage,
           finalMessage,
-        ].filter(<T>(r: T | null): r is T => !!r);
+        ]);
 
-        const remaining = checkBudget(messages, LLM_CONTEXT_SIZE);
-        if (remaining < 0) {
-          fitToContext(remaining, messages);
-        }
-
-        console.debug("Remaining budget", remaining);
         console.log("ChatGPT Message:\n", messages);
 
         const response = await openai.chat.completions.create({
