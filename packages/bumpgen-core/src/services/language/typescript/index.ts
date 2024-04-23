@@ -211,27 +211,15 @@ export const makeTypescriptService = (
         apply: async (projectRoot, upgrade) => {
           const { packageManager } = await findPackageManager(projectRoot);
           const packageJson = await PackageJson.load(projectRoot);
+          const existingDevDependencies = packageJson.content.devDependencies;
           const existingDependencies = packageJson.content.dependencies;
 
-          packageJson.update({
-            dependencies: {
-              ...(existingDependencies
-                ? Object.entries(existingDependencies).reduce(
-                    (acc, [key, value]) => {
-                      if (key === upgrade.packageName) {
-                        return acc;
-                      }
-                      return {
-                        ...acc,
-                        [key]: value,
-                      };
-                    },
-                    {},
-                  )
-                : {}),
-              [upgrade.packageName]: upgrade.newVersion,
-            },
-          });
+          if (existingDependencies?.[upgrade.packageName]) {
+            existingDependencies[upgrade.packageName] = upgrade.newVersion;
+          }
+          if (existingDevDependencies?.[upgrade.packageName]) {
+            existingDevDependencies[upgrade.packageName] = upgrade.newVersion;
+          }
 
           await packageJson.save();
 
@@ -331,7 +319,7 @@ export const makeTypescriptService = (
 
         if (!astNode) {
           console.log(
-            `couldn't find identifier ${name} of kind ${kind} in ${path}, something in the tree might have changed`,
+            `couldn't find ${name} of kind ${kind} in ${path}, something in the tree might have changed`,
           );
           return "";
         }
@@ -366,7 +354,9 @@ export const makeTypescriptService = (
             console.log(
               "old node not found, something in the tree changed, adding new node",
             );
-            graph.dependency.addNode(node.id, node);
+            if (!graph.dependency.hasNode(node.id)) {
+              graph.dependency.addNode(node.id, node);
+            }
             for (const edge of edges) {
               if (edge.source === node.id || edge.target === node.id) {
                 if (!graph.dependency.hasEdge(edge.source, edge.target)) {

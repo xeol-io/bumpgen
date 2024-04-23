@@ -1,6 +1,7 @@
 import { createHash } from "crypto";
 import type {
   ClassDeclaration,
+  ExportAssignment,
   FunctionDeclaration,
   Identifier,
   ImportSpecifier,
@@ -107,7 +108,11 @@ const processImportNode = (identifier: Identifier, parentNode: Node) => {
 };
 
 const getImportNodes = (
-  node: FunctionDeclaration | ClassDeclaration | VariableDeclaration,
+  node:
+    | FunctionDeclaration
+    | ClassDeclaration
+    | VariableDeclaration
+    | ExportAssignment,
 ) => {
   const importNodes: DependencyGraphNode[] = [];
   // for all children of type identifier in the function declaration block
@@ -132,57 +137,67 @@ const getImportNodes = (
 };
 
 const getReferenceNodes = (
-  node: FunctionDeclaration | ClassDeclaration | VariableDeclaration,
+  node:
+    | FunctionDeclaration
+    | ClassDeclaration
+    | VariableDeclaration
+    | ExportAssignment,
 ) => {
   const nodes: DependencyGraphNode[] = [];
-  node.findReferences().forEach((r) => {
-    r.getReferences().forEach((ref) => {
-      const referencingNode = ref.getNode();
-      if (
-        referencingNode.getSourceFile().getFilePath() ===
-          node.getSourceFile().getFilePath() &&
-        referencingNode.getStartLineNumber() === node.getStartLineNumber()
-      ) {
-        return;
-      }
+  if ("findReferences" in node) {
+    node.findReferences().forEach((r) => {
+      r.getReferences().forEach((ref) => {
+        const referencingNode = ref.getNode();
+        if (
+          referencingNode.getSourceFile().getFilePath() ===
+            node.getSourceFile().getFilePath() &&
+          referencingNode.getStartLineNumber() === node.getStartLineNumber()
+        ) {
+          return;
+        }
 
-      if (referencingNode.getSourceFile().isInNodeModules()) {
-        return;
-      }
+        if (referencingNode.getSourceFile().isInNodeModules()) {
+          return;
+        }
 
-      const surroundingBlock = getSurroundingBlock(referencingNode);
-      const topLevelNode =
-        surroundingBlock.getFirstDescendantByKind(
-          SyntaxKind.ClassDeclaration,
-        ) ??
-        surroundingBlock.getFirstDescendantByKind(
-          SyntaxKind.FunctionDeclaration,
-        ) ??
-        surroundingBlock.getFirstDescendantByKind(
-          SyntaxKind.VariableDeclaration,
-        );
-      if (!topLevelNode) {
-        // TODO(benji): we have a limitation here, we're only processing references that are
-        // in a block of these three kinds, however the referencing block might just be a naked
-        // call expression like myClass.call() which we're not handling
-        return;
-      }
+        const surroundingBlock = getSurroundingBlock(referencingNode);
+        const topLevelNode =
+          surroundingBlock.getFirstDescendantByKind(
+            SyntaxKind.ClassDeclaration,
+          ) ??
+          surroundingBlock.getFirstDescendantByKind(
+            SyntaxKind.FunctionDeclaration,
+          ) ??
+          surroundingBlock.getFirstDescendantByKind(
+            SyntaxKind.VariableDeclaration,
+          );
+        if (!topLevelNode) {
+          // TODO(benji): we have a limitation here, we're only processing references that are
+          // in a block of these three kinds, however the referencing block might just be a naked
+          // call expression like myClass.call() which we're not handling
+          return;
+        }
 
-      const refNode = createTopLevelNode(topLevelNode);
-      if (!refNode) {
-        return;
-      }
-      nodes.push(refNode);
+        const refNode = createTopLevelNode(topLevelNode);
+        if (!refNode) {
+          return;
+        }
+        nodes.push(refNode);
+      });
     });
-  });
+  }
   return nodes;
 };
 
 const createTopLevelNode = (
-  n: FunctionDeclaration | ClassDeclaration | VariableDeclaration,
+  n:
+    | FunctionDeclaration
+    | ClassDeclaration
+    | VariableDeclaration
+    | ExportAssignment,
 ) => {
   const kind = makeKind(n.getKind());
-  const name = n.getName();
+  const name = "getName" in n ? n.getName() : n.getSymbol()?.getName();
   if (!name) {
     console.log("no name for top level item");
     return;
@@ -207,7 +222,11 @@ const createTopLevelNode = (
 };
 
 const processTopLevelItem = (
-  n: FunctionDeclaration | ClassDeclaration | VariableDeclaration,
+  n:
+    | FunctionDeclaration
+    | ClassDeclaration
+    | VariableDeclaration
+    | ExportAssignment,
 ) => {
   const nodes: DependencyGraphNode[] = [];
   const edges: DependencyGraphEdge[] = [];
@@ -279,6 +298,12 @@ export const processSourceFile = (sourceFile: SourceFile) => {
 
   sourceFile.getVariableDeclarations().forEach((variableDeclaration) => {
     const { nodes, edges } = processTopLevelItem(variableDeclaration);
+    collectedNodes.push(...nodes);
+    collectedEdges.push(...edges);
+  });
+
+  sourceFile.getExportAssignments().forEach((exportAssignment) => {
+    const { nodes, edges } = processTopLevelItem(exportAssignment);
     collectedNodes.push(...nodes);
     collectedEdges.push(...edges);
   });
