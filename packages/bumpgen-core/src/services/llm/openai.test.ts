@@ -39,7 +39,8 @@ describe('fitToContext', () => {
     ];
     const result = fitToContext(50, messages);
     expect(result.length).toBe(5);
-    expect(result[4]).toStrictEqual({ content: "finalMessage" });
+    expect(result[4].content).toBe("finalMessage");
+    expect(result[3].content).toBe("c".repeat(10));
     expect(result[1].content).toBe("a".repeat(5));
   });
 

@@ -174,7 +174,7 @@ export const fitToContext = (contextSize: number, messages: (Message | null)[]):
     }
   
     if (charsToRemove > 0) {
-      console.debug('Unable to remove enough characters to meet the budget.');
+      throw new Error('Unable to remove enough characters to meet the budget.');
     }
   };
 
