@@ -1,31 +1,27 @@
 import { spawn } from "child_process";
+import type { BoxProps, DOMElement } from "ink";
+import type { ReactNode } from "react";
 import React, { useEffect, useRef, useState } from "react";
 import express from "express";
 import DirectedGraph from "graphology";
-import { Box, Text, useApp, useInput } from "ink";
-import BigText from "ink-big-text";
+import { topologicalSort } from "graphology-dag";
+import { Box, measureElement, Newline, Text, useApp, useInput } from "ink";
 import Spinner from "ink-spinner";
 import stripAnsi from "strip-ansi";
 
 import type {
   Bumpgen,
-  BumpgenEvent,
   BumpgenGraph,
   PlanGraph,
+  PlanGraphNode,
   SerializeableBumpgenEvent,
+  SupportedLanguage,
+  SupportedModel,
 } from "@repo/bumpgen-core";
 
 import { Sidebar } from "./components/sidebar";
 import { TitleText } from "./components/title-text";
 import { useStdoutDimensions } from "./use-stdout-dimensions";
-
-// import { MainPane } from "./panes/mainPane.js";
-// import { useStdoutDimensions } from "./use-stdout-dimensions.js";
-
-export interface ExecutionState {
-  state: "working" | "fail" | "success";
-  message: string;
-}
 
 const getLatestPlanGraph = (events: SerializeableBumpgenEvent[]) => {
   const planGraphs = events
@@ -60,65 +56,169 @@ const getLatestPlanGraph = (events: SerializeableBumpgenEvent[]) => {
   return latest ? graph.import(latest.plan) : null;
 };
 
+const TitleBox = (
+  props: Omit<BoxProps, "flexDirection" | "overflow"> & {
+    title: string;
+    children?: ReactNode;
+    innerRef?: React.Ref<DOMElement>;
+  },
+) => {
+  return (
+    <Box flexDirection="column" overflow="hidden" {...props}>
+      <Text bold={true}>{props.title}</Text>
+      <Box
+        borderStyle="double"
+        width="100%"
+        height="100%"
+        flexDirection="column"
+        ref={props.innerRef}
+      >
+        {props.children}
+      </Box>
+    </Box>
+  );
+};
+
+const GraphNode = ({
+  node,
+  active,
+}: {
+  node: PlanGraphNode;
+  active?: boolean;
+}) => {
+  const borderColor =
+    node.status === "pending" ? (active ? "white" : "grey") : "white";
+  const statusColor =
+    node.status === "pending" ? (active ? "yellow" : "grey") : "green";
+
+  return (
+    <Box
+      borderStyle="round"
+      borderColor={borderColor}
+      key={node.id}
+      flexDirection="column"
+    >
+      <Text wrap="end">{node.id.slice(0, 6)}</Text>
+      <Text wrap="end">{node.path.split("/").at(-1)}</Text>
+      <Box justifyContent="center">
+        <Text wrap="end" color={statusColor}>
+          {active ? "active" : node.status}
+        </Text>
+      </Box>
+    </Box>
+  );
+};
+
 const GraphView = ({ graph }: { graph: PlanGraph | null }) => {
   if (!graph) {
     return (
       <Box flexDirection="row" paddingLeft={1}>
-        <Text>Waiting for AST graph </Text>
+        <Text dimColor={true}>Waiting for AST graph </Text>
         <Spinner type="dots" />
       </Box>
     );
   }
 
-  return <Text>{JSON.stringify(graph, null, 2)}</Text>;
+  const sorted = topologicalSort(graph).map((id) =>
+    graph.getNodeAttributes(id),
+  );
+
+  const activeNodeIndex = Math.max(
+    sorted.findIndex((node) => node.status === "pending"),
+    0,
+  );
+
+  const truncated = sorted.slice(Math.max(activeNodeIndex - 1, 0));
+
+  return (
+    <Box
+      height="100%"
+      paddingLeft={1}
+      justifyContent="flex-start"
+      alignItems="center"
+      overflow="hidden"
+      flexDirection="row"
+      display="flex"
+    >
+      {truncated.map((node, index) => {
+        return (
+          <Box
+            flexShrink={0}
+            flexDirection="row"
+            alignItems="center"
+            justifyContent="center"
+            key={index}
+          >
+            <GraphNode
+              node={node}
+              active={node.id === sorted[activeNodeIndex]?.id}
+            />
+            {index < sorted.length - 1 && (
+              <Box>
+                <Text dimColor={true} wrap="end">
+                  {"➤➤➤➤"}
+                </Text>
+              </Box>
+            )}
+          </Box>
+        );
+      })}
+    </Box>
+  );
 };
 
-const App = ({ bumpgen }: { bumpgen: Bumpgen }) => {
+const App = (props: {
+  model: SupportedModel;
+  language: SupportedLanguage;
+  pkg: string;
+  version: string;
+}) => {
   const { exit } = useApp();
+
+  const { model, language, pkg, version } = props;
 
   const [columns, rows] = useStdoutDimensions();
 
-  // console.log(pkgName);
-  // console.log(version);
-  // console.log(model);
-  // console.log(language);
-  // console.log(llmApiKey);
+  const [stdoutOffset, setStdoutOffset] = useState(0);
+  const [outputDimensions, setOutputDimensions] = useState({
+    width: 0,
+    height: 0,
+  });
 
-  // const [columns, _] = useStdoutDimensions();
+  const stdoutRef = useRef<DOMElement>(null);
+
+  useEffect(() => {
+    if (!stdoutRef.current) {
+      return;
+    }
+
+    setOutputDimensions(measureElement(stdoutRef.current));
+  }, [columns, rows]);
 
   useInput((input, key) => {
-    // console.log(input, key);
     if (key.escape || input === "q" || input === "Q") {
       exit();
       process.exit(0);
     }
+    if (key.upArrow) {
+      setStdoutOffset((prev) => Math.min(prev + 1, stdout.length));
+    }
+    if (key.downArrow) {
+      setStdoutOffset((prev) => Math.max(prev - 1, 0));
+    }
   });
-
-  const [executionState, setExecutionState] = useState<ExecutionState[]>([]);
 
   const [executionHistory, setExecutionHistory] = useState<
     SerializeableBumpgenEvent[]
   >([]);
 
-  const [stdout, setStdout] = useState<string>("");
-
-  const pushExecutionState = (newState: ExecutionState) => {
-    setExecutionState((prevState) => [...prevState, newState]);
-  };
+  const [stdout, setStdout] = useState<string[]>([]);
 
   useEffect(() => {
-    pushExecutionState({
-      state: "working",
-      message: "Installing packages...",
-    });
-  }, []);
-
-  useEffect(() => {
-    // Set up an express server, that will be used to handle events from the bumpgen subprocess
+    // Set up an express server, this will be used to handle events from the bumpgen subprocess
     const server = express();
-    server.use(express.json());
+    server.use(express.json({ limit: "50mb" }));
     server.post("/data", (req, res) => {
-      // console.log("Data received:", req.body);
       const event = req.body as SerializeableBumpgenEvent;
       setExecutionHistory((prev) => [...prev, event]);
       res.status(200).send({ message: "Data received successfully" });
@@ -130,10 +230,14 @@ const App = ({ bumpgen }: { bumpgen: Bumpgen }) => {
       "node",
       [
         `${import.meta.dirname}/index.mjs`,
-        "@tanstack/react-query",
-        "5.28.14",
+        pkg,
+        version,
         "-i",
         "3000",
+        "-l",
+        language,
+        "-m",
+        model,
       ],
       {
         shell: true,
@@ -144,31 +248,23 @@ const App = ({ bumpgen }: { bumpgen: Bumpgen }) => {
     child.stdout.on("data", (data: Buffer) => {
       const lines = stripAnsi(data.toString("utf8")).split("\n");
 
-      setStdout((prev) => prev + lines.join("\n"));
+      setStdout((prev) => prev.concat(lines));
     });
 
     child.on("exit", (code) => {
-      exit();
-      process.exit(code ?? 0);
+      if (code === 0) {
+        exit();
+        process.exit(code ?? 0);
+      }
     });
-
-    // // Run the bumpgen subprocess
-    // async function runBumpgen() {
-    //   // for await (const event of bumpgen.execute()) {
-    //   //   setExecutionHistory((prev) => [...prev, event]);
-    //   //   // if (event.type === "error") {
-    //   //   //   pushExecutionState({
-    //   //   //     state: "fail",
-    //   //   //     message: event.message,
-    //   //   //   });
-    //   //   // }
-    //   // }
-    // }
-
-    // runBumpgen().catch((err) => {
-    //   throw err;
-    // });
   }, []);
+
+  const outputBoxTooltip =
+    stdoutOffset > 0 ? `offset: ${-1 * stdoutOffset}` : "use ↑ and ↓ to scroll";
+
+  const outputWindowStart =
+    -1 * stdoutOffset - (outputDimensions.height - 2) - 1;
+  const outputWindowEnd = outputWindowStart + (outputDimensions.height - 2);
 
   return (
     <Box
@@ -177,64 +273,48 @@ const App = ({ bumpgen }: { bumpgen: Bumpgen }) => {
       width="80%"
       padding={1}
       alignItems="center"
+      overflow="hidden"
     >
-      {/* <Box flexDirection="row"> */}
-      <Sidebar
-        executionState={executionState}
-        executionHistory={executionHistory}
-      />
-      <Box
-        flexDirection="column"
-        width="70%"
-        // height="80%"
-        // padding={1}
-        // borderStyle="single"
-      >
+      <Box height="100%" width="30%" paddingRight={1}>
+        <Sidebar executionHistory={executionHistory} />
+      </Box>
+      <Box flexDirection="column" width="70%" height="100%" paddingLeft={1}>
         <Box
+          flexDirection="column"
           width="100%"
           height="100%"
-          flexDirection="column"
           alignItems="center"
           display="flex"
-          // borderStyle="single"
-          justifyContent="flex-start"
+          justifyContent="space-between"
         >
           <TitleText large={columns > 111 && rows > 20} />
-          <Box
-            flexDirection="column"
+          <TitleBox
+            innerRef={stdoutRef}
             width="100%"
-            height="100%"
-            alignItems="center"
-            display="flex"
-            // borderStyle="single"
-            justifyContent="space-between"
+            height="50%"
+            title="Program Output"
           >
             <Box
-              width="100%"
-              height="70%"
-              padding={1}
-              // minHeight="20%"
-              flexDirection="column"
-              borderStyle="double"
-              overflow="hidden"
+              position="absolute"
+              marginLeft={outputDimensions.width - outputBoxTooltip.length - 3}
+              flexDirection="row-reverse"
+              justifyContent="flex-start"
             >
-              <Text>
-                {stdout
-                  .split("\n")
-                  .slice(-1 * Math.floor(0.7 * (rows - 7)))
-                  .join("\n")}
-              </Text>
+              <Text dimColor={true}>{outputBoxTooltip}</Text>
             </Box>
-            <Box
-              width="100%"
-              height="30%"
-              // minHeight="10%"
-              flexDirection="column"
-              borderStyle="single"
-            >
-              <GraphView graph={getLatestPlanGraph(executionHistory)} />
-            </Box>
-          </Box>
+            <Text wrap="end">
+              {stdout.slice(outputWindowStart, outputWindowEnd).join("\n")}
+            </Text>
+          </TitleBox>
+
+          <Newline />
+          <TitleBox
+            width="100%"
+            height="20%"
+            title="Plan Graph (topological view)"
+          >
+            <GraphView graph={getLatestPlanGraph(executionHistory)} />
+          </TitleBox>
         </Box>
       </Box>
     </Box>

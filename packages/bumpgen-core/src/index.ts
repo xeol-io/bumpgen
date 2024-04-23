@@ -26,6 +26,11 @@ export { injectGitService } from "./services/git";
 export type { SupportedLanguage } from "./models";
 export type { SupportedModel } from "./models/llm";
 export type { BumpgenGraph, PlanGraph, DependencyGraph } from "./models/graph";
+export type { PlanGraphNode, PlanGraphEdge } from "./models/graph/plan";
+export type {
+  DependencyGraphNode,
+  DependencyGraphEdge,
+} from "./models/graph/dependency";
 export { SupportedModels } from "./models/llm";
 export { SupportedLanguages } from "./models";
 
@@ -241,6 +246,8 @@ const _bumpgen = ({
               temporalContext,
               bumpedPackage: packageToUpgrade.packageName,
             });
+
+          console.log("Received replacements from LLM", replacements);
 
           if (replacements.length > 0) {
             const fileContents = await services.filesystem.read(planNode.path);

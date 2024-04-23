@@ -6,20 +6,15 @@ import ms from "ms";
 
 import type { SerializeableBumpgenEvent } from "@repo/bumpgen-core";
 
-import type { ExecutionState } from "../ui";
 import { Bold } from "../common/bold";
 
-// interface SidebarProps {
-//   executionState: ExecutionState[];
-// }
-
-const renderExecutionHistory = (
-  executionHistory: SerializeableBumpgenEvent[],
-) => {
+const ExecutionHistory = (props: {
+  executionHistory: SerializeableBumpgenEvent[];
+}) => {
   const seenIds = new Set<string>();
 
   // If we have received multiple events for the same ID, we only care about the most recent
-  const filtered = executionHistory
+  const filtered = props.executionHistory
     .toReversed()
     .filter((event) => {
       if ("id" in event && event.id) {
@@ -33,16 +28,6 @@ const renderExecutionHistory = (
       return true;
     })
     .reverse();
-
-  // for (const event of executionHistory) {
-  //   if ("id" in event && event.id) {
-  //     if (seenIds.has(event.id)) {
-  //       continue;
-  //     }
-
-  //     seenIds.add(event.id);
-  //   }
-  // }
 
   return (
     <TaskList>
@@ -152,10 +137,8 @@ const renderExecutionHistory = (
 };
 
 export const Sidebar = ({
-  executionState,
   executionHistory,
 }: {
-  executionState: ExecutionState[];
   executionHistory: SerializeableBumpgenEvent[];
 }) => {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -181,58 +164,23 @@ export const Sidebar = ({
     return `${minutes}m ${seconds}s`;
   };
 
-  // const renderExecutionState = (executionState: ExecutionState[]) => {
-  //   return executionState.map((state, index) => {
-  //     if (state.state === "working") {
-  //       return (
-  //         <Text key={index}>
-  //           <Text color="green">
-  //             <Spinner type="dots" />
-  //           </Text>
-  //           {state.message}
-  //         </Text>
-  //       );
-  //     }
-  //     if (state.state === "fail") {
-  //       return (
-  //         <Text key={index}>
-  //           {logSymbols.error} {state.message}
-  //         </Text>
-  //       );
-  //     }
-  //     if (state.state === "success") {
-  //       return (
-  //         <Text key={index}>
-  //           {logSymbols.success} {state.message}
-  //         </Text>
-  //       );
-  //     }
-  //     return null;
-  //   });
-  // };
-
   return (
     <Box
-      width="30%"
       height="100%"
-      borderStyle="single"
+      width="100%"
+      borderStyle="double"
       flexDirection="column"
       overflow="hidden"
     >
-      <Box
-        padding={1}
-        flexDirection="column"
-        // height={10}
-        minHeight={5}
-        flexShrink={0}
-      >
+      <Box padding={1} flexDirection="column" minHeight={5} flexShrink={0}>
         <Bold>State</Bold>
         <Text>Current Time: {currentTime.toLocaleTimeString()}</Text>
         <Text>Elapsed Time: {getElapsedTime()}</Text>
         <Text>Timeout: 10m</Text>
         <Bold>Execution</Bold>
-        {/* {renderExecutionState(executionState)} */}
-        {renderExecutionHistory(executionHistory)}
+        <ExecutionHistory
+          executionHistory={executionHistory}
+        ></ExecutionHistory>
       </Box>
       <Box height={17} />
     </Box>
