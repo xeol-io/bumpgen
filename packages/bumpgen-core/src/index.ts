@@ -237,17 +237,6 @@ const _bumpgen = ({
                 replacement.newCode,
               );
               if (beforeReplace === afterReplace) {
-                const unmatched = {
-                  oldCode: replacement.oldCode,
-                  newCode: replacement.newCode,
-                  fileContents,
-                };
-                mkdirSync("/tmp/unmatched", { recursive: true });
-                writeFileSync(
-                  `/tmp/unmatched/${Date.now()}.json`,
-                  JSON.stringify(unmatched, null, 2),
-                );
-
                 console.log(
                   `ERROR_REPLACEMENTS: Replacement did not match - ${replacement.oldCode} -> ${replacement.newCode}`,
                 );

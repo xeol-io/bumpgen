@@ -214,18 +214,11 @@ export const makeTypescriptService = (
           const existingDevDependencies = packageJson.content.devDependencies;
           const existingDependencies = packageJson.content.dependencies;
 
-          const typesPackageName = upgrade.packageName.includes("@")
-            ? `@types/${upgrade.packageName.split("/")[0]?.slice(1)}__${upgrade.packageName.split("/")[1]}`
-            : `@types/${upgrade.packageName}`;
-
           if (existingDependencies?.[upgrade.packageName]) {
             existingDependencies[upgrade.packageName] = upgrade.newVersion;
           }
           if (existingDevDependencies?.[upgrade.packageName]) {
             existingDevDependencies[upgrade.packageName] = upgrade.newVersion;
-          }
-          if (existingDevDependencies?.[typesPackageName]) {
-            existingDevDependencies[typesPackageName] = upgrade.newVersion;
           }
 
           await packageJson.save();
@@ -355,7 +348,6 @@ export const makeTypescriptService = (
 
         // map new nodes to existing nodes in the dependency graph
         nodes.forEach((node) => {
-          const n = graph.dependency.nodes();
           const oldNode = graph.dependency.findNode((n) => n === node.id);
           if (!oldNode) {
             console.log(
