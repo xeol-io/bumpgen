@@ -183,8 +183,9 @@ export const getImportSignature = (node: Node, identifierName: string) => {
 export const isImportNode = (node: Node) => {
   if (
     Node.isImportDeclaration(node) ||
-    Node.isImportClause(node) ||
-    Node.isImportEqualsDeclaration(node) ||
+    Node.isNamespaceImport(node) || // import * as foo from 'bar'
+    Node.isImportClause(node) || // import foo from 'bar'
+    Node.isImportEqualsDeclaration(node) || // const foo = require('bar')
     Node.isImportSpecifier(node)
   ) {
     return true;

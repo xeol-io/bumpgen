@@ -24,7 +24,7 @@ const makePlanNodeMessage = (
     role: "user" as const,
     content: [
       `I'm upgrading the package '${bumpedPackage}' and my code is failing. You might need to modify the code or the imports. Look at the errors below and think step-by-step about what the errors mean and how to fix the code.\n`,
-      `<code path="${planNode.path}">`,
+      `<code \n  path="${planNode.path}"\n>`,
     ]
       .concat(importMessages.length ? [...importMessages, "\n"] : [])
       .concat([`${planNode.block}`, "</code>\n"])
@@ -63,7 +63,7 @@ const makeExternalDependencyContextMessage = (
             `Type signatures for the imports used in the code block:\n`,
             ...importContext.map((imp) => {
               if (imp.typeSignature.length > 0) {
-                return `<import statement="${imp.block}">\n${imp.typeSignature}</import>`;
+                return `<import \n  statement="${imp.block}"\n>\n${imp.typeSignature}\n</import>`;
               } else {
                 return "";
               }
@@ -82,7 +82,7 @@ const makeSpatialContextMessage = (
   const relevantMessage: string[] = [];
   for (const context of spatialContext) {
     relevantMessage.push(
-      `<relevant_code type_signature="${context.typeSignature}" relationship="referencedBy" file_path="${context.path}">\n${context.block}\n</relevant_code>`,
+      `<relevant_code \n  type_signature="${context.typeSignature}" \n  relationship="referencedBy" \n  file_path="${context.path}"\n>\n${context.block}\n</relevant_code>`,
     );
   }
 
@@ -123,7 +123,7 @@ const makeTemporalContextMessage = (temporalContext: PlanGraphNode[]) => {
       }
 
       return `
-      <changed_code file_path="${node.path}">${diff.join("\n")}</changed_code>`;
+      <changed_code \n  file_path="${node.path}">${diff.join("\n")}</changed_code>`;
     })
     .filter(<T>(r: T | undefined): r is T => !!r);
 
@@ -216,12 +216,13 @@ export const createOpenAIService = (openai: OpenAI) => {
             "- Refrain from using explicit type casting.",
             "- Only show the specific lines of code that have been changed or need modification, without including unchanged surrounding code.",
             "- Keep all existing variable, function, and class names unchanged.",
+            "- Use update_code incrementally. If you need to make changes across multiple lines, call update_code multiple times rather than returning a single large diff.",
           ].join("\n"),
         };
         const finalMessage = {
           role: "user" as const,
           content:
-            "First, think step-by-step about the errors, and then use the update_code function to fix the code block.",
+            "First, think step-by-step about the errors (if they are given), and then use the update_code function to fix the code block. If there are no changes to be made, use the update_code function to return an empty array of replacements.",
         };
 
         const spatialContextMessage = makeSpatialContextMessage(spatialContext);
@@ -252,7 +253,6 @@ export const createOpenAIService = (openai: OpenAI) => {
         }
 
         console.debug("Remaining budget", remaining);
-
         console.log("ChatGPT Message:\n", messages);
 
         const response = await openai.chat.completions.create({
@@ -292,7 +292,7 @@ export const createOpenAIService = (openai: OpenAI) => {
                         },
                       },
                       description:
-                        "An array of code sections to update in the block.",
+                        "An array of code sections to update in the block. If there are no changes to be made, this array MUST be empty.",
                     },
                     commitMessage: {
                       type: "string",

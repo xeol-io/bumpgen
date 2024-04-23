@@ -188,6 +188,7 @@ const createTopLevelNode = (
     return;
   }
   const path = n.getSourceFile().getFilePath();
+  const surroundingBlock = getSurroundingBlock(n);
 
   return {
     id: id({
@@ -198,9 +199,9 @@ const createTopLevelNode = (
     name,
     kind,
     path,
-    block: n.getText(),
-    startLine: n.getStartLineNumber(),
-    endLine: n.getEndLineNumber(),
+    block: surroundingBlock.getText(),
+    startLine: surroundingBlock.getStartLineNumber(),
+    endLine: surroundingBlock.getEndLineNumber(),
     edits: [],
   };
 };
@@ -280,6 +281,20 @@ export const processSourceFile = (sourceFile: SourceFile) => {
     const { nodes, edges } = processTopLevelItem(variableDeclaration);
     collectedNodes.push(...nodes);
     collectedEdges.push(...edges);
+  });
+
+  sourceFile.getVariableStatements().forEach((variableStatement) => {
+    variableStatement
+      .getChildrenOfKind(SyntaxKind.VariableDeclarationList)
+      .forEach((variableDeclarationList) => {
+        variableDeclarationList
+          .getChildrenOfKind(SyntaxKind.VariableDeclaration)
+          .forEach((variableDeclaration) => {
+            const { nodes, edges } = processTopLevelItem(variableDeclaration);
+            collectedNodes.push(...nodes);
+            collectedEdges.push(...edges);
+          });
+      });
   });
 
   return {
