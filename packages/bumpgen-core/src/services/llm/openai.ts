@@ -220,7 +220,6 @@ export const createOpenAIService = (openai: OpenAI) => {
           content:
             "Given the above information, use the update_code function to fix the code block. If there are no changes to be made, use the update_code function to return an empty array of replacements.",
         };
-  
         const spatialContextMessage = makeSpatialContextMessage(spatialContext);
         const temporalContextMessage = makeTemporalContextMessage(temporalContext);
         const planNodeMessage = makePlanNodeMessage(
