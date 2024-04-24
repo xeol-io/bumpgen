@@ -207,7 +207,7 @@ const _bumpgen = ({
         },
         execute: async (
           graph: BumpgenGraph,
-          temperature = 0.2,
+          temperature: number,
         ) => {
           const { llm, graphService, language } = services;
           const { packageToUpgrade } = args;
