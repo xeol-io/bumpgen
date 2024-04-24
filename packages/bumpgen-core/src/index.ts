@@ -205,7 +205,10 @@ const _bumpgen = ({
           const { graphService } = services;
           return graphService.plan.nodes.nextPending(graph.plan) === undefined;
         },
-        execute: async (graph: BumpgenGraph) => {
+        execute: async (
+          graph: BumpgenGraph,
+          temperature = 0.2,
+        ) => {
           const { llm, graphService, language } = services;
           const { packageToUpgrade } = args;
           const planNode = graphService.plan.nodes.nextPending(graph.plan);
@@ -258,7 +261,9 @@ const _bumpgen = ({
               spatialContext,
               temporalContext,
               bumpedPackage: packageToUpgrade.packageName,
-            });
+            },
+            temperature
+          );
 
           if (replacements.length > 0) {
             let fileContents = await services.filesystem.read(planNode.path);
@@ -404,7 +409,10 @@ const _bumpgen = ({
             type: "graph.plan.execute" as const,
             status: "started" as const,
           };
-          const iterationResult = await bumpgen.graph.plan.execute(graph);
+          const iterationResult = await bumpgen.graph.plan.execute(
+            graph,
+            iteration > maxIterations / 2 ? 0.2 * Math.exp(0.3 * (iteration - maxIterations / 2)) : 0.2,
+          );
           if (!iterationResult) {
             break;
           }

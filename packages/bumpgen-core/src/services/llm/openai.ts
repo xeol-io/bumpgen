@@ -197,6 +197,7 @@ export const createOpenAIService = (openai: OpenAI) => {
     codeplan: {
       getReplacements: async (
         context: LLMContext,
+        temperature: number,
         // externalDependencyContext: {
         //   imports: DependencyGraphNode[];
         //   sourcegraph: ContextSearchResponse["getCodyContext"];
@@ -253,7 +254,7 @@ export const createOpenAIService = (openai: OpenAI) => {
         const response = await openai.chat.completions.create({
           model: "gpt-4-turbo-preview",
           messages,
-          temperature: 0.2,
+          temperature,
           tools: [
             {
               type: "function",
