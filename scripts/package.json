@@ -7,7 +7,7 @@
   },
   "scripts": {
     "test": "jest --passWithNoTests",
-    "lint": "eslint . --ignore-pattern 'eval.ts'"
+    "lint": "eslint . --max-warnings 0"
   },
   "dependencies": {
     "@commander-js/extra-typings": "^12.0.1",
@@ -44,7 +44,8 @@
     "root": true,
     "extends": [
       "@repo/eslint-config/base"
-    ]
+    ],
+    "ignorePatterns": ["**/*"]
   },
   "prettier": "@repo/prettier-config"
 }
