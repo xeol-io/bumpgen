@@ -15,6 +15,10 @@ export type DependencyGraphNode = {
     replacements: Replacement[];
     causedErrors: string[];
   }[];
+  external?: {
+    pkg: string;
+    exports: string[];
+  };
 };
 
 export type Relationship = "referencedBy" | "importDeclaration";

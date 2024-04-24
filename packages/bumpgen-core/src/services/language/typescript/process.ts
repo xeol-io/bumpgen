@@ -99,6 +99,47 @@ export const getDefinitionNodesOutsideBlock = (
 const processImportNode = (identifier: Identifier, parentNode: Node) => {
   const surroundingBlock = getSurroundingBlock(parentNode);
 
+  let exportStatements: string[] | undefined;
+
+  const firstDefinitionNode = identifier.getDefinitionNodes()[0];
+
+  if (identifier.getText().includes("execa")) {
+    console.log(identifier.getText());
+  }
+
+  if (
+    firstDefinitionNode &&
+    firstDefinitionNode.getSourceFile().isInNodeModules()
+  ) {
+    exportStatements = firstDefinitionNode
+      .getFirstChild()
+      ?.getChildren()
+      .filter((child) => {
+        return (
+          child.getKind() === SyntaxKind.ExportAssignment ||
+          child.getKind() === SyntaxKind.ExportDeclaration ||
+          child.getFirstChildByKind(SyntaxKind.ExportKeyword) !== undefined
+        );
+      })
+      .map((child) => {
+        if (
+          child.getKind() === SyntaxKind.ExportAssignment ||
+          child.getKind() === SyntaxKind.ExportDeclaration
+        ) {
+          return child.getText();
+        } else {
+          const text = child.getText();
+          const block = child.getFirstChildByKind(SyntaxKind.Block);
+
+          if (block) {
+            return text.replace(block.getText(), "");
+          }
+
+          return text;
+        }
+      });
+  }
+
   const name = identifier.getText();
   const kind = makeKind(surroundingBlock.getKind());
   const path = surroundingBlock.getSourceFile().getFilePath();
@@ -116,6 +157,12 @@ const processImportNode = (identifier: Identifier, parentNode: Node) => {
     startLine: surroundingBlock.getStartLineNumber(),
     endLine: surroundingBlock.getEndLineNumber(),
     edits: [],
+    external: exportStatements
+      ? {
+          pkg: name,
+          exports: exportStatements,
+        }
+      : undefined,
   };
 
   return node;
@@ -134,9 +181,6 @@ const getImportNodes = (node: TopLevelTypes) => {
         if (isImportNode(declaration)) {
           const parentNode = getSurroundingBlock(declaration);
           const node = processImportNode(identifier, parentNode);
-          if (!node) {
-            return;
-          }
           importNodes.push(node);
         }
       });

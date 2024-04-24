@@ -61,6 +61,10 @@ const makeExternalDependencyContextMessage = (
         ? [
             `Type signatures for the imports used in the code block:\n`,
             ...importContext.map((imp) => {
+              if (imp.name.includes("execa")) {
+                console.log(imp.name);
+              }
+
               if (imp.typeSignature.length > 0) {
                 return `<import \n  statement="${imp.block}"\n>\n${imp.typeSignature}\n</import>`;
               } else {
@@ -149,14 +153,16 @@ export const fitToContext = (
   messages: Record<string, Message | null>,
 ): Message[] => {
   let totalContentLength = 0;
-  Object.values(messages).forEach(m => {
+  Object.values(messages).forEach((m) => {
     if (m) totalContentLength += m.content.length;
   });
 
   let remainingBudget = contextSize - totalContentLength;
 
   if (remainingBudget < 0) {
-    console.debug(`messages too large, removing ${-remainingBudget} characters`);
+    console.debug(
+      `messages too large, removing ${-remainingBudget} characters`,
+    );
 
     // top of the list is least important context
     const priorityOrder = [
@@ -168,7 +174,7 @@ export const fitToContext = (
 
     for (const key of priorityOrder) {
       if (remainingBudget >= 0) break;
-      
+
       const message = messages[key];
       if (!message) continue;
 
@@ -189,7 +195,9 @@ export const fitToContext = (
     }
   }
 
-  return Object.values(messages).filter((message): message is Message => message !== null);
+  return Object.values(messages).filter(
+    (message): message is Message => message !== null,
+  );
 };
 
 export const createOpenAIService = (openai: OpenAI) => {
