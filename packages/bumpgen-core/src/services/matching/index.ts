@@ -14,9 +14,14 @@ const countIndents = (line: string) => {
   return count;
 };
 
+const splitCode = (code: string) => code.split("\n");
+
+const trimCode = (code: string) => code.split("\n").map((line) => line.trim());
+
 // TODO: account for negative indent differences, very unlikely scenario
 // TODO: remove empty lines at the beginning and end?
-const formatNewCode = (matchedIndent: number, splitNewCode: string[]) => {
+const formatNewCode = (matchedIndent: number, newCode: string) => {
+  const splitNewCode = splitCode(newCode);
   const firstLine = splitNewCode[0];
 
   if (!firstLine) {
@@ -36,11 +41,9 @@ const formatNewCode = (matchedIndent: number, splitNewCode: string[]) => {
   return adjustedCode;
 };
 
-const splitCode = (code: string) => code.split("\n");
-
-const trimCode = (code: string) => code.split("\n").map((line) => line.trim());
-
-const findSequentialMatchedLinesIndices = (allRefIndexes: number[][]): { startIndex: number, endIndex: number } => {
+const findSequentialMatchedLinesIndices = (
+  allRefIndexes: number[][]
+): { startIndex: number, endIndex: number } => {
   const isSequential = (combination: number[]): boolean => {
     combination.forEach((current, index, array) => {
       if (index < array.length - 1 && array[index + 1] !== current + 1) {
@@ -131,12 +134,13 @@ export const createMatchingService = () => {
             shouldSort: true,
           });
         
+        // find all possible matched lines then find the sequential hits
         trimCode(oldCode).forEach(line => {
           const result = fuse.search(line);
           const matchedLines = result.map(item => item.refIndex);
           allMatchedLines.push(matchedLines);
         });
-      
+  
         const { startIndex, endIndex } = findSequentialMatchedLinesIndices(allMatchedLines);
       
         if (startIndex === -1 && endIndex === -1) {
@@ -151,6 +155,7 @@ export const createMatchingService = () => {
         console.log(matchedLines);
         console.log("=== \n");
       
+        // format the replacing code accordingly then search n replace
         const firstMatchedLine = splitContent[startIndex];
         if (firstMatchedLine === undefined) {
           console.log("This is a big oopsy");
@@ -159,7 +164,7 @@ export const createMatchingService = () => {
 
         const indentedNewCode = formatNewCode(
           countIndents(firstMatchedLine),
-          splitCode(newCode)
+          newCode
         );
       
         console.log("=== replacing with this new code")
