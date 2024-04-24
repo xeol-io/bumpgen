@@ -122,6 +122,7 @@ program
 
     try {
       let iterations = 0;
+      let maxIterations = 10;
       let errors;
       do {
         errors = await bumpgen.build.getErrors();
@@ -131,13 +132,16 @@ program
         const graph = bumpgen.graph.initialize(errors);
         let iterationResult;
         do {
-          iterationResult = await bumpgen.graph.plan.execute(graph);
+          iterationResult = await bumpgen.graph.plan.execute(
+            graph,
+            Math.min(iterations > maxIterations / 2 ? 0.2 * Math.exp(0.3 * (iterations - maxIterations / 2)) : 0.2, 2),
+          );
           if (!iterationResult) {
             break;
           }
         } while (iterationResult);
         iterations += 1;
-      } while (errors.length > 0 && iterations < 10);
+      } while (errors.length > 0 && iterations < maxIterations);
 
       if (iterations === 0) {
         console.log(
