@@ -1,8 +1,10 @@
-name: Publish Package to npmjs
+name: Publish bumpgen core to npmjs
 
 on:
   push:
     branches: [main]
+    paths:
+      - 'packages/bumpgen-core/**'
 
 jobs:
   check:
@@ -64,11 +66,5 @@ jobs:
 
       - name: 🚀 Publish bumpgen-core to npm
         run: pnpm publish packages/bumpgen-core
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: 🚀 Publish bumpgen cli to npm
-        shell: bash
-        run: pnpm publish apps/cli
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
