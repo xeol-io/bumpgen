@@ -411,7 +411,7 @@ const _bumpgen = ({
           };
           const iterationResult = await bumpgen.graph.plan.execute(
             graph,
-            iteration > maxIterations / 2 ? 0.2 * Math.exp(0.3 * (iteration - maxIterations / 2)) : 0.2,
+            Math.min(iteration > maxIterations / 2 ? 0.2 * Math.exp(0.3 * (iteration - maxIterations / 2)) : 0.2, 2),
           );
           if (!iterationResult) {
             break;
