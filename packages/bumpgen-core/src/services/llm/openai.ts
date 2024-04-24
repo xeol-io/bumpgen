@@ -156,8 +156,7 @@ export const fitToContext = (
   let remainingBudget = contextSize - totalContentLength;
 
   if (remainingBudget < 0) {
-    let charsToRemove = -remainingBudget;
-    console.debug(`messages too large, removing ${charsToRemove} characters`);
+    console.debug(`messages too large, removing ${-remainingBudget} characters`);
 
     // top of the list is least important context
     const priorityOrder = [
@@ -185,7 +184,7 @@ export const fitToContext = (
       }
     }
 
-    if (charsToRemove > 0) {
+    if (remainingBudget < 0) {
       throw new Error("Unable to remove enough characters to meet the budget.");
     }
   }
