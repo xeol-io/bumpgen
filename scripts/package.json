@@ -6,7 +6,7 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "test": "jest",
+    "test": "jest --passWithNoTests",
     "lint": "eslint . --max-warnings 0"
   },
   "dependencies": {
