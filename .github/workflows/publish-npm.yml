@@ -46,7 +46,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v2
+      - uses: ./tooling/github/setup
         name: Install pnpm
         with:
           version: 8
@@ -62,7 +62,12 @@ jobs:
       - name: 📦️ Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: 🚀 Publish to npm
+      - name: 🚀 Publish bumpgen-core to npm
+        run: pnpm publish packages/bumpgen-core
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: 🚀 Publish bumpgen cli to npm
         shell: bash
         run: pnpm publish apps/cli
         env:
