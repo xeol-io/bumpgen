@@ -4,7 +4,7 @@ import { DirectedGraph } from "graphology";
 import ncu from "npm-check-updates";
 import { isObject } from "radash";
 import semver from "semver";
-import { Node, Project, SyntaxKind } from "ts-morph";
+import { Project, SyntaxKind } from "ts-morph";
 import { z } from "zod";
 
 import type { DependencyGraph } from "../../../models/graph";

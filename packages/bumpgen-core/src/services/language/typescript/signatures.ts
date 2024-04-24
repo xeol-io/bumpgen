@@ -6,6 +6,7 @@ import type {
   Identifier,
   IndexSignatureDeclaration,
   MethodDeclaration,
+  VariableDeclaration,
 } from "ts-morph";
 import { Node, SyntaxKind, TypeFormatFlags } from "ts-morph";
 
@@ -32,8 +33,8 @@ const resolveTypeReferences = (
   node: Node,
   types: Set<string> = new Set<string>(),
   seenNodes: Set<Node> = new Set<Node>(),
-  depth: number = 0,
-  maxDepth: number = 1,
+  depth = 0,
+  maxDepth = 2,
 ) => {
   // we set a somewhat arbitary depth to the fetching of type signatures from external
   // packages due to the size of type signature that could be returned
@@ -63,7 +64,10 @@ const resolveTypeReferences = (
         depth + 1,
         maxDepth,
       );
-      if (typeDefinition.getText().startsWith("type")) {
+      if (
+        typeDefinition.getText().startsWith("type") ||
+        typeDefinition.getText().startsWith("export type")
+      ) {
         types.add(typeDefinition.getText());
       }
     });
@@ -109,6 +113,11 @@ const functionDeclarationSignature = (node: FunctionDeclaration) => {
     TypeFormatFlags.UseAliasDefinedOutsideCurrentScope,
   );
   return enrichWithTypeReferences(`(${params}) => ${returnType}`, node);
+};
+
+const variableDeclarationSignature = (node: VariableDeclaration) => {
+  const typeDef = node.getText();
+  return enrichWithTypeReferences(typeDef, node);
 };
 
 const methodDeclarationSignature = (node: MethodDeclaration) => {
@@ -215,6 +224,10 @@ export const getSignature = (node: Node) => {
 
   if (Node.isClassDeclaration(node)) {
     return classDeclarationSignature(node);
+  }
+
+  if (Node.isVariableDeclaration(node)) {
+    return variableDeclarationSignature(node);
   }
 
   try {
