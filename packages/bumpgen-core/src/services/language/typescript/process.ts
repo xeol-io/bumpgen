@@ -6,7 +6,10 @@ import type {
   FunctionDeclaration,
   Identifier,
   ImportSpecifier,
+  InterfaceDeclaration,
+  ModuleDeclaration,
   SourceFile,
+  TypeAliasDeclaration,
   VariableDeclaration,
 } from "ts-morph";
 import { Node, SyntaxKind } from "ts-morph";
@@ -17,6 +20,16 @@ import type {
   Kind,
 } from "../../../models/graph/dependency";
 import { isImportNode } from "./signatures";
+
+type TopLevelTypes =
+  | ModuleDeclaration
+  | InterfaceDeclaration
+  | ClassDeclaration
+  | FunctionDeclaration
+  | VariableDeclaration
+  | ExportAssignment
+  | ExpressionStatement
+  | TypeAliasDeclaration;
 
 // walks the AST tree to find all children of the kind Identifier
 export const allChildrenOfKindIdentifier = (
@@ -108,14 +121,7 @@ const processImportNode = (identifier: Identifier, parentNode: Node) => {
   return node;
 };
 
-const getImportNodes = (
-  node:
-    | FunctionDeclaration
-    | ClassDeclaration
-    | VariableDeclaration
-    | ExportAssignment
-    | ExpressionStatement,
-) => {
+const getImportNodes = (node: TopLevelTypes) => {
   const importNodes: DependencyGraphNode[] = [];
   // for all children of type identifier in the function declaration block
   allChildrenOfKindIdentifier(node).forEach((identifier) => {
@@ -138,14 +144,7 @@ const getImportNodes = (
   return importNodes;
 };
 
-const getReferenceNodes = (
-  node:
-    | FunctionDeclaration
-    | ClassDeclaration
-    | VariableDeclaration
-    | ExportAssignment
-    | ExpressionStatement,
-) => {
+const getReferenceNodes = (node: TopLevelTypes) => {
   const nodes: DependencyGraphNode[] = [];
   if ("findReferences" in node) {
     node.findReferences().forEach((r) => {
@@ -192,14 +191,7 @@ const getReferenceNodes = (
   return nodes;
 };
 
-const createTopLevelNode = (
-  n:
-    | FunctionDeclaration
-    | ClassDeclaration
-    | VariableDeclaration
-    | ExportAssignment
-    | ExpressionStatement,
-) => {
+const createTopLevelNode = (n: TopLevelTypes) => {
   const kind = makeKind(n.getKind());
   const idName = n
     .getFirstDescendantByKind(SyntaxKind.Identifier)
@@ -208,7 +200,6 @@ const createTopLevelNode = (
   const nodeName = "getName" in n ? n.getName() : n.getSymbol()?.getName();
   const name = nodeName ?? idName;
   if (!name) {
-    console.log("no name for top level item");
     return;
   }
   const path = n.getSourceFile().getFilePath();
@@ -230,14 +221,7 @@ const createTopLevelNode = (
   };
 };
 
-const processTopLevelItem = (
-  n:
-    | FunctionDeclaration
-    | ClassDeclaration
-    | VariableDeclaration
-    | ExportAssignment
-    | ExpressionStatement,
-) => {
+const processTopLevelItem = (n: TopLevelTypes) => {
   const nodes: DependencyGraphNode[] = [];
   const edges: DependencyGraphEdge[] = [];
 
@@ -314,6 +298,24 @@ export const processSourceFile = (sourceFile: SourceFile) => {
 
   sourceFile.getExportAssignments().forEach((exportAssignment) => {
     const { nodes, edges } = processTopLevelItem(exportAssignment);
+    collectedNodes.push(...nodes);
+    collectedEdges.push(...edges);
+  });
+
+  sourceFile.getModules().forEach((moduleDeclaration) => {
+    const { nodes, edges } = processTopLevelItem(moduleDeclaration);
+    collectedNodes.push(...nodes);
+    collectedEdges.push(...edges);
+  });
+
+  sourceFile.getInterfaces().forEach((interfaceDeclaration) => {
+    const { nodes, edges } = processTopLevelItem(interfaceDeclaration);
+    collectedNodes.push(...nodes);
+    collectedEdges.push(...edges);
+  });
+
+  sourceFile.getTypeAliases().forEach((typeAliasDeclaration) => {
+    const { nodes, edges } = processTopLevelItem(typeAliasDeclaration);
     collectedNodes.push(...nodes);
     collectedEdges.push(...edges);
   });

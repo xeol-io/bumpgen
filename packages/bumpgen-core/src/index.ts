@@ -182,6 +182,8 @@ const _bumpgen = ({
           internallyCausedPlanGraphNodes.values(),
         );
 
+        // all externally caused errors should be resolved before
+        // we move on to internally caused errors
         const planGraph = graphService.plan.initialize(
           externallyCausedPlanGraphNodesArray.length > 0
             ? externallyCausedPlanGraphNodesArray
@@ -254,8 +256,6 @@ const _bumpgen = ({
               temporalContext,
               bumpedPackage: packageToUpgrade.packageName,
             });
-
-          console.log("Received replacements from LLM", replacements);
 
           if (replacements.length > 0) {
             const fileContents = await services.filesystem.read(planNode.path);
