@@ -146,7 +146,7 @@ const makeImportContextMessage = (importContext: DependencyGraphNode[]) => {
 
 export const fitToContext = (
   contextSize: number,
-  messages: { [key: string]: Message | null },
+  messages: Record<string, Message | null>,
 ): Message[] => {
   let totalContentLength = 0;
   Object.values(messages).forEach(m => {
