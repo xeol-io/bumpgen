@@ -122,7 +122,7 @@ program
 
     try {
       let iterations = 0;
-      let maxIterations = 10;
+      let maxIterations = 14;
       let errors;
       do {
         errors = await bumpgen.build.getErrors();
@@ -134,7 +134,7 @@ program
         do {
           iterationResult = await bumpgen.graph.plan.execute(
             graph,
-            Math.min(iterations > maxIterations / 2 ? 0.2 * Math.exp(0.3 * (iterations - maxIterations / 2)) : 0.2, 2),
+            Math.min(iterations > maxIterations / 2 ? 0.2 * Math.exp(0.2 * (iterations - maxIterations / 2)) : 0.2, 1),
           );
           if (!iterationResult) {
             break;
