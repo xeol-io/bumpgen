@@ -47,12 +47,11 @@ exports[`dependencyGraphService initializes 1`] = `
     "path": "/test-project/src/index.ts",
     "startLine": 1,
     "typeSignature": "class NodeRelations  {
- constructor (hasCycle: boolean) => NodeRelations
-  NodeRelations.addEdge: () => string
+ constructor (hasCycle: boolean) => NodeRelations  NodeRelations.addEdge: () => string
 }",
   },
   {
-    "block": "n = new NodeRelations(false)",
+    "block": "const n = new NodeRelations(false);",
     "edits": [],
     "endLine": 11,
     "id": "34cec79240752d0e68703dffc391168d31dddb2a",
@@ -61,6 +60,39 @@ exports[`dependencyGraphService initializes 1`] = `
     "path": "/test-project/src/index.ts",
     "startLine": 11,
     "typeSignature": "import("/Users/shihanwan/codebases/bumpgen/packages/test-project/src/utils/index").NodeRelations",
+  },
+  {
+    "block": "date().parse("19th September 2023");",
+    "edits": [],
+    "endLine": 9,
+    "id": "67d9e5a598a2b781654fb7d028e0611fa2a8b669",
+    "kind": "ExpressionStatement",
+    "name": "date",
+    "path": "/test-project/src/index.ts",
+    "startLine": 9,
+    "typeSignature": "any",
+  },
+  {
+    "block": "n.addEdge();",
+    "edits": [],
+    "endLine": 12,
+    "id": "545dfad3637711c3848655dcdfd9c5d547acc2a2",
+    "kind": "ExpressionStatement",
+    "name": "n",
+    "path": "/test-project/src/index.ts",
+    "startLine": 12,
+    "typeSignature": "any",
+  },
+  {
+    "block": "myFunction("test");",
+    "edits": [],
+    "endLine": 14,
+    "id": "45f53221ae7be1c56cc7fdec8a7342154cd24a16",
+    "kind": "ExpressionStatement",
+    "name": "myFunction",
+    "path": "/test-project/src/index.ts",
+    "startLine": 14,
+    "typeSignature": "any",
   },
   {
     "block": "import React from "react";",
@@ -100,7 +132,7 @@ exports[`dependencyGraphService initializes 1`] = `
     "name": "App",
     "path": "/test-project/src/app/index.tsx",
     "startLine": 4,
-    "typeSignature": "() => any
+    "typeSignature": "() => JSX.Element
 ",
   },
   {
@@ -114,8 +146,19 @@ exports[`dependencyGraphService initializes 1`] = `
     "name": "MyNewComponent",
     "path": "/test-project/src/app/index.tsx",
     "startLine": 13,
-    "typeSignature": "() => any
+    "typeSignature": "() => JSX.Element
 ",
+  },
+  {
+    "block": "ReactDOM.render(<App />, document.getElementById("root"));",
+    "edits": [],
+    "endLine": 17,
+    "id": "0823da766dc95043d4cd7a3e95ae3b297b1ba9ba",
+    "kind": "ExpressionStatement",
+    "name": "ReactDOM",
+    "path": "/test-project/src/app/index.tsx",
+    "startLine": 17,
+    "typeSignature": "any",
   },
   {
     "block": "import { useQuery } from "@tanstack/react-query";",
@@ -131,157 +174,10 @@ exports[`dependencyGraphService initializes 1`] = `
 type DefaultError = Register extends {
     defaultError: infer TError;
 } ? TError : Error;
-type FlatArray<Arr,Depth extends number>={done:Arr;recur:Arr extends ReadonlyArray<infer InnerArr>?FlatArray<InnerArr,[-1,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20][Depth]>:Arr;}[Depth extends-1?"done":"recur"];
 type QueryKey = ReadonlyArray<unknown>;
-type NonUndefinedGuard<T> = T extends undefined ? never : T;
 type DefinedInitialDataOptions<TQueryFnData = unknown, TError = DefaultError, TData = TQueryFnData, TQueryKey extends QueryKey = QueryKey> = UseQueryOptions<TQueryFnData, TError, TData, TQueryKey> & {
     initialData: NonUndefinedGuard<TQueryFnData> | (() => NonUndefinedGuard<TQueryFnData>);
 };
-type ShouldRetryFunction<TError = DefaultError> = (failureCount: number, error: TError) => boolean;
-type RetryValue<TError> = boolean | number | ShouldRetryFunction<TError>;
-type RetryDelayFunction<TError = DefaultError> = (failureCount: number, error: TError) => number;
-type RetryDelayValue<TError> = number | RetryDelayFunction<TError>;
-type NetworkMode = 'online' | 'always' | 'offlineFirst';
-type __EventTarget = typeof globalThis extends { onmessage: any; EventTarget: any } ? {}
-    : {
-        /**
-         * Adds a new handler for the \`type\` event. Any given \`listener\` is added only once per \`type\` and per \`capture\` option value.
-         *
-         * If the \`once\` option is true, the \`listener\` is removed after the next time a \`type\` event is dispatched.
-         *
-         * The \`capture\` option is not used by Node.js in any functional way other than tracking registered event listeners per the \`EventTarget\` specification.
-         * Specifically, the \`capture\` option is used as part of the key when registering a \`listener\`.
-         * Any individual \`listener\` may be added once with \`capture = false\`, and once with \`capture = true\`.
-         */
-        addEventListener(
-            type: string,
-            listener: EventListener | EventListenerObject,
-            options?: AddEventListenerOptions | boolean,
-        ): void;
-        /** Dispatches a synthetic event event to target and returns true if either event's cancelable attribute value is false or its preventDefault() method was not invoked, and false otherwise. */
-        dispatchEvent(event: Event): boolean;
-        /** Removes the event listener in target's event listener list with the same type, callback, and options. */
-        removeEventListener(
-            type: string,
-            listener: EventListener | EventListenerObject,
-            options?: EventListenerOptions | boolean,
-        ): void;
-    };
-type __Event = typeof globalThis extends { onmessage: any; Event: any } ? {}
-    : {
-        /** This is not used in Node.js and is provided purely for completeness. */
-        readonly bubbles: boolean;
-        /** Alias for event.stopPropagation(). This is not used in Node.js and is provided purely for completeness. */
-        cancelBubble: () => void;
-        /** True if the event was created with the cancelable option */
-        readonly cancelable: boolean;
-        /** This is not used in Node.js and is provided purely for completeness. */
-        readonly composed: boolean;
-        /** Returns an array containing the current EventTarget as the only entry or empty if the event is not being dispatched. This is not used in Node.js and is provided purely for completeness. */
-        composedPath(): [EventTarget?];
-        /** Alias for event.target. */
-        readonly currentTarget: EventTarget | null;
-        /** Is true if cancelable is true and event.preventDefault() has been called. */
-        readonly defaultPrevented: boolean;
-        /** This is not used in Node.js and is provided purely for completeness. */
-        readonly eventPhase: 0 | 2;
-        /** The \`AbortSignal\` "abort" event is emitted with \`isTrusted\` set to \`true\`. The value is \`false\` in all other cases. */
-        readonly isTrusted: boolean;
-        /** Sets the \`defaultPrevented\` property to \`true\` if \`cancelable\` is \`true\`. */
-        preventDefault(): void;
-        /** This is not used in Node.js and is provided purely for completeness. */
-        returnValue: boolean;
-        /** Alias for event.target. */
-        readonly srcElement: EventTarget | null;
-        /** Stops the invocation of event listeners after the current one completes. */
-        stopImmediatePropagation(): void;
-        /** This is not used in Node.js and is provided purely for completeness. */
-        stopPropagation(): void;
-        /** The \`EventTarget\` dispatching the event */
-        readonly target: EventTarget | null;
-        /** The millisecond timestamp when the Event object was created. */
-        readonly timeStamp: number;
-        /** Returns the type of event, e.g. "click", "hashchange", or "submit". */
-        readonly type: string;
-    };
-type EventListenerOrEventListenerObject = EventListener | EventListenerObject;
-type DOMHighResTimeStamp = number;
-type Record<K extends keyof any,T>={[P in K]:T;};
-type QueryMeta = Register extends {
-    queryMeta: infer TQueryMeta;
-} ? TQueryMeta extends Record<string, unknown> ? TQueryMeta : Record<string, unknown> : Record<string, unknown>;
-type FetchDirection = 'forward' | 'backward';
-type QueryFunctionContext<TQueryKey extends QueryKey = QueryKey, TPageParam = never> = [TPageParam] extends [never] ? {
-    queryKey: TQueryKey;
-    signal: AbortSignal;
-    meta: QueryMeta | undefined;
-    pageParam?: unknown;
-    direction?: 'forward' | 'backward';
-} : {
-    queryKey: TQueryKey;
-    signal: AbortSignal;
-    pageParam: TPageParam;
-    direction: FetchDirection;
-    meta: QueryMeta | undefined;
-};
-type IteratorResult<T,TReturn=any>=IteratorYieldResult<T>|IteratorReturnResult<TReturn>;
-type Awaited<T>=T extends null|undefined?T:T extends object&{then(onfulfilled:infer F,...args:infer _):any;}?
-F extends((value:infer V,...args:infer _)=>any)?
-Awaited<V>:never:T;
-type PromiseSettledResult<T>=PromiseFulfilledResult<T>|PromiseRejectedResult;
-type QueryFunction<T = unknown, TQueryKey extends QueryKey = QueryKey, TPageParam = never> = (context: QueryFunctionContext<TQueryKey, TPageParam>) => T | Promise<T>;
-type SkipToken = typeof skipToken;
-type QueryPersister<T = unknown, TQueryKey extends QueryKey = QueryKey, TPageParam = never> = [TPageParam] extends [never] ? (queryFn: QueryFunction<T, TQueryKey, never>, context: QueryFunctionContext<TQueryKey>, query: Query) => T | Promise<T> : (queryFn: QueryFunction<T, TQueryKey, TPageParam>, context: QueryFunctionContext<TQueryKey>, query: Query) => T | Promise<T>;
-type NoInfer<T> = [T][T extends any ? 0 : never];
-type QueryKeyHashFunction<TQueryKey extends QueryKey> = (queryKey: TQueryKey) => string;
-type InitialDataFunction<T> = () => T | undefined;
-type QueryStatus = 'pending' | 'error' | 'success';
-type FetchStatus = 'fetching' | 'paused' | 'idle';
-type Partial<T>={[P in keyof T]?:T[P];};
-type DefinedQueryObserverResult<TData = unknown, TError = DefaultError> = QueryObserverRefetchErrorResult<TData, TError> | QueryObserverSuccessResult<TData, TError>;
-type QueryObserverResult<TData = unknown, TError = DefaultError> = DefinedQueryObserverResult<TData, TError> | QueryObserverLoadingErrorResult<TData, TError> | QueryObserverLoadingResult<TData, TError> | QueryObserverPendingResult<TData, TError>;
-type QueryObserverListener<TData, TError> = (result: QueryObserverResult<TData, TError>) => void;
-type DefinedInfiniteQueryObserverResult<TData = unknown, TError = DefaultError> = InfiniteQueryObserverRefetchErrorResult<TData, TError> | InfiniteQueryObserverSuccessResult<TData, TError>;
-type InfiniteQueryObserverResult<TData = unknown, TError = DefaultError> = DefinedInfiniteQueryObserverResult<TData, TError> | InfiniteQueryObserverLoadingErrorResult<TData, TError> | InfiniteQueryObserverLoadingResult<TData, TError> | InfiniteQueryObserverPendingResult<TData, TError>;
-type NotifyOnChangeProps = Array<keyof InfiniteQueryObserverResult> | 'all' | (() => Array<keyof InfiniteQueryObserverResult> | 'all');
-type ThrowOnError<TQueryFnData, TError, TQueryData, TQueryKey extends QueryKey> = boolean | ((error: TError, query: Query<TQueryFnData, TError, TQueryData, TQueryKey>) => boolean);
-type NonFunctionGuard<T> = T extends Function ? never : T;
-type PlaceholderDataFunction<TQueryFnData = unknown, TError = DefaultError, TQueryData = TQueryFnData, TQueryKey extends QueryKey = QueryKey> = (previousData: TQueryData | undefined, previousQuery: Query<TQueryFnData, TError, TQueryData, TQueryKey> | undefined) => TQueryData | undefined;
-type WithRequired<TTarget, TKey extends keyof TTarget> = TTarget & {
-    [_ in TKey]: {};
-};
-type DefaultedQueryObserverOptions<TQueryFnData = unknown, TError = DefaultError, TData = TQueryFnData, TQueryData = TQueryFnData, TQueryKey extends QueryKey = QueryKey> = WithRequired<QueryObserverOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>, 'throwOnError' | 'refetchOnReconnect' | 'queryHash'>;
-type Action<TData, TError> = ContinueAction | ErrorAction<TError> | FailedAction<TError> | FetchAction | InvalidateAction | PauseAction | SetStateAction<TData, TError> | SuccessAction<TData>;
-type QueryCacheNotifyEvent = NotifyEventQueryAdded | NotifyEventQueryRemoved | NotifyEventQueryUpdated | NotifyEventQueryObserverAdded | NotifyEventQueryObserverRemoved | NotifyEventQueryObserverResultsUpdated | NotifyEventQueryObserverOptionsUpdated;
-type QueryCacheListener = (event: QueryCacheNotifyEvent) => void;
-type QueryTypeFilter = 'all' | 'active' | 'inactive';
-type MutationStatus = 'idle' | 'pending' | 'success' | 'error';
-type MutationFunction<TData = unknown, TVariables = unknown> = (variables: TVariables) => Promise<TData>;
-type MutationKey = ReadonlyArray<unknown>;
-type MutationMeta = Register extends {
-    mutationMeta: infer TMutationMeta;
-} ? TMutationMeta extends Record<string, unknown> ? TMutationMeta : Record<string, unknown> : Record<string, unknown>;
-type MutationObserverResult<TData = unknown, TError = DefaultError, TVariables = void, TContext = unknown> = MutationObserverIdleResult<TData, TError, TVariables, TContext> | MutationObserverLoadingResult<TData, TError, TVariables, TContext> | MutationObserverErrorResult<TData, TError, TVariables, TContext> | MutationObserverSuccessResult<TData, TError, TVariables, TContext>;
-type MutationObserverListener<TData, TError, TVariables, TContext> = (result: MutationObserverResult<TData, TError, TVariables, TContext>) => void;
-type Action$1<TData, TError, TVariables, TContext> = ContinueAction$1 | ErrorAction$1<TError> | FailedAction$1<TError> | PendingAction<TVariables, TContext> | PauseAction$1 | SuccessAction$1<TData>;
-type MutationCacheNotifyEvent = NotifyEventMutationAdded | NotifyEventMutationRemoved | NotifyEventMutationObserverAdded | NotifyEventMutationObserverRemoved | NotifyEventMutationObserverOptionsUpdated | NotifyEventMutationUpdated;
-type MutationCacheListener = (event: MutationCacheNotifyEvent) => void;
-type Pick<T,K extends keyof T>={[P in K]:T[P];};
-type Exclude<T,U>=T extends U?never:T;
-type Omit<T,K extends keyof any>=Pick<T,Exclude<keyof T,K>>;
-type OmitKeyof<TObject, TKey extends TStrictly extends 'safely' ? keyof TObject | (string & Record<never, never>) : keyof TObject, TStrictly extends 'strictly' | 'safely' = 'strictly'> = Omit<TObject, TKey>;
-type DataTag<TType, TValue> = TType & {
-    [dataTagSymbol]: TValue;
-};
-type Updater<TInput, TOutput> = TOutput | ((input: TInput) => TOutput);
-type GetNextPageParamFunction<TPageParam, TQueryFnData = unknown> = (lastPage: TQueryFnData, allPages: Array<TQueryFnData>, lastPageParam: TPageParam, allPageParams: Array<TPageParam>) => TPageParam | undefined | null;
-type FetchInfiniteQueryPages<TQueryFnData = unknown, TPageParam = unknown> = {
-    pages?: never;
-} | {
-    pages: number;
-    getNextPageParam: GetNextPageParamFunction<TPageParam, TQueryFnData>;
-};
-type FetchInfiniteQueryOptions<TQueryFnData = unknown, TError = DefaultError, TData = TQueryFnData, TQueryKey extends QueryKey = QueryKey, TPageParam = unknown> = FetchQueryOptions<TQueryFnData, TError, InfiniteData<TData, TPageParam>, TQueryKey, TPageParam> & InitialPageParam<TPageParam> & FetchInfiniteQueryPages<TQueryFnData, TPageParam>;
 type DefinedUseQueryResult<TData = unknown, TError = DefaultError> = DefinedQueryObserverResult<TData, TError>;
 
 (options: UndefinedInitialDataOptions<TQueryFnData, TError, TData, TQueryKey>, queryClient?: QueryClient) => UseQueryResult<TData, TError>
@@ -289,157 +185,10 @@ type DefinedUseQueryResult<TData = unknown, TError = DefaultError> = DefinedQuer
 type DefaultError = Register extends {
     defaultError: infer TError;
 } ? TError : Error;
-type FlatArray<Arr,Depth extends number>={done:Arr;recur:Arr extends ReadonlyArray<infer InnerArr>?FlatArray<InnerArr,[-1,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20][Depth]>:Arr;}[Depth extends-1?"done":"recur"];
 type QueryKey = ReadonlyArray<unknown>;
 type UndefinedInitialDataOptions<TQueryFnData = unknown, TError = DefaultError, TData = TQueryFnData, TQueryKey extends QueryKey = QueryKey> = UseQueryOptions<TQueryFnData, TError, TData, TQueryKey> & {
     initialData?: undefined;
 };
-type ShouldRetryFunction<TError = DefaultError> = (failureCount: number, error: TError) => boolean;
-type RetryValue<TError> = boolean | number | ShouldRetryFunction<TError>;
-type RetryDelayFunction<TError = DefaultError> = (failureCount: number, error: TError) => number;
-type RetryDelayValue<TError> = number | RetryDelayFunction<TError>;
-type NetworkMode = 'online' | 'always' | 'offlineFirst';
-type __EventTarget = typeof globalThis extends { onmessage: any; EventTarget: any } ? {}
-    : {
-        /**
-         * Adds a new handler for the \`type\` event. Any given \`listener\` is added only once per \`type\` and per \`capture\` option value.
-         *
-         * If the \`once\` option is true, the \`listener\` is removed after the next time a \`type\` event is dispatched.
-         *
-         * The \`capture\` option is not used by Node.js in any functional way other than tracking registered event listeners per the \`EventTarget\` specification.
-         * Specifically, the \`capture\` option is used as part of the key when registering a \`listener\`.
-         * Any individual \`listener\` may be added once with \`capture = false\`, and once with \`capture = true\`.
-         */
-        addEventListener(
-            type: string,
-            listener: EventListener | EventListenerObject,
-            options?: AddEventListenerOptions | boolean,
-        ): void;
-        /** Dispatches a synthetic event event to target and returns true if either event's cancelable attribute value is false or its preventDefault() method was not invoked, and false otherwise. */
-        dispatchEvent(event: Event): boolean;
-        /** Removes the event listener in target's event listener list with the same type, callback, and options. */
-        removeEventListener(
-            type: string,
-            listener: EventListener | EventListenerObject,
-            options?: EventListenerOptions | boolean,
-        ): void;
-    };
-type __Event = typeof globalThis extends { onmessage: any; Event: any } ? {}
-    : {
-        /** This is not used in Node.js and is provided purely for completeness. */
-        readonly bubbles: boolean;
-        /** Alias for event.stopPropagation(). This is not used in Node.js and is provided purely for completeness. */
-        cancelBubble: () => void;
-        /** True if the event was created with the cancelable option */
-        readonly cancelable: boolean;
-        /** This is not used in Node.js and is provided purely for completeness. */
-        readonly composed: boolean;
-        /** Returns an array containing the current EventTarget as the only entry or empty if the event is not being dispatched. This is not used in Node.js and is provided purely for completeness. */
-        composedPath(): [EventTarget?];
-        /** Alias for event.target. */
-        readonly currentTarget: EventTarget | null;
-        /** Is true if cancelable is true and event.preventDefault() has been called. */
-        readonly defaultPrevented: boolean;
-        /** This is not used in Node.js and is provided purely for completeness. */
-        readonly eventPhase: 0 | 2;
-        /** The \`AbortSignal\` "abort" event is emitted with \`isTrusted\` set to \`true\`. The value is \`false\` in all other cases. */
-        readonly isTrusted: boolean;
-        /** Sets the \`defaultPrevented\` property to \`true\` if \`cancelable\` is \`true\`. */
-        preventDefault(): void;
-        /** This is not used in Node.js and is provided purely for completeness. */
-        returnValue: boolean;
-        /** Alias for event.target. */
-        readonly srcElement: EventTarget | null;
-        /** Stops the invocation of event listeners after the current one completes. */
-        stopImmediatePropagation(): void;
-        /** This is not used in Node.js and is provided purely for completeness. */
-        stopPropagation(): void;
-        /** The \`EventTarget\` dispatching the event */
-        readonly target: EventTarget | null;
-        /** The millisecond timestamp when the Event object was created. */
-        readonly timeStamp: number;
-        /** Returns the type of event, e.g. "click", "hashchange", or "submit". */
-        readonly type: string;
-    };
-type EventListenerOrEventListenerObject = EventListener | EventListenerObject;
-type DOMHighResTimeStamp = number;
-type Record<K extends keyof any,T>={[P in K]:T;};
-type QueryMeta = Register extends {
-    queryMeta: infer TQueryMeta;
-} ? TQueryMeta extends Record<string, unknown> ? TQueryMeta : Record<string, unknown> : Record<string, unknown>;
-type FetchDirection = 'forward' | 'backward';
-type QueryFunctionContext<TQueryKey extends QueryKey = QueryKey, TPageParam = never> = [TPageParam] extends [never] ? {
-    queryKey: TQueryKey;
-    signal: AbortSignal;
-    meta: QueryMeta | undefined;
-    pageParam?: unknown;
-    direction?: 'forward' | 'backward';
-} : {
-    queryKey: TQueryKey;
-    signal: AbortSignal;
-    pageParam: TPageParam;
-    direction: FetchDirection;
-    meta: QueryMeta | undefined;
-};
-type IteratorResult<T,TReturn=any>=IteratorYieldResult<T>|IteratorReturnResult<TReturn>;
-type Awaited<T>=T extends null|undefined?T:T extends object&{then(onfulfilled:infer F,...args:infer _):any;}?
-F extends((value:infer V,...args:infer _)=>any)?
-Awaited<V>:never:T;
-type PromiseSettledResult<T>=PromiseFulfilledResult<T>|PromiseRejectedResult;
-type QueryFunction<T = unknown, TQueryKey extends QueryKey = QueryKey, TPageParam = never> = (context: QueryFunctionContext<TQueryKey, TPageParam>) => T | Promise<T>;
-type SkipToken = typeof skipToken;
-type QueryPersister<T = unknown, TQueryKey extends QueryKey = QueryKey, TPageParam = never> = [TPageParam] extends [never] ? (queryFn: QueryFunction<T, TQueryKey, never>, context: QueryFunctionContext<TQueryKey>, query: Query) => T | Promise<T> : (queryFn: QueryFunction<T, TQueryKey, TPageParam>, context: QueryFunctionContext<TQueryKey>, query: Query) => T | Promise<T>;
-type NoInfer<T> = [T][T extends any ? 0 : never];
-type QueryKeyHashFunction<TQueryKey extends QueryKey> = (queryKey: TQueryKey) => string;
-type InitialDataFunction<T> = () => T | undefined;
-type QueryStatus = 'pending' | 'error' | 'success';
-type FetchStatus = 'fetching' | 'paused' | 'idle';
-type Partial<T>={[P in keyof T]?:T[P];};
-type DefinedQueryObserverResult<TData = unknown, TError = DefaultError> = QueryObserverRefetchErrorResult<TData, TError> | QueryObserverSuccessResult<TData, TError>;
-type QueryObserverResult<TData = unknown, TError = DefaultError> = DefinedQueryObserverResult<TData, TError> | QueryObserverLoadingErrorResult<TData, TError> | QueryObserverLoadingResult<TData, TError> | QueryObserverPendingResult<TData, TError>;
-type QueryObserverListener<TData, TError> = (result: QueryObserverResult<TData, TError>) => void;
-type DefinedInfiniteQueryObserverResult<TData = unknown, TError = DefaultError> = InfiniteQueryObserverRefetchErrorResult<TData, TError> | InfiniteQueryObserverSuccessResult<TData, TError>;
-type InfiniteQueryObserverResult<TData = unknown, TError = DefaultError> = DefinedInfiniteQueryObserverResult<TData, TError> | InfiniteQueryObserverLoadingErrorResult<TData, TError> | InfiniteQueryObserverLoadingResult<TData, TError> | InfiniteQueryObserverPendingResult<TData, TError>;
-type NotifyOnChangeProps = Array<keyof InfiniteQueryObserverResult> | 'all' | (() => Array<keyof InfiniteQueryObserverResult> | 'all');
-type ThrowOnError<TQueryFnData, TError, TQueryData, TQueryKey extends QueryKey> = boolean | ((error: TError, query: Query<TQueryFnData, TError, TQueryData, TQueryKey>) => boolean);
-type NonFunctionGuard<T> = T extends Function ? never : T;
-type PlaceholderDataFunction<TQueryFnData = unknown, TError = DefaultError, TQueryData = TQueryFnData, TQueryKey extends QueryKey = QueryKey> = (previousData: TQueryData | undefined, previousQuery: Query<TQueryFnData, TError, TQueryData, TQueryKey> | undefined) => TQueryData | undefined;
-type WithRequired<TTarget, TKey extends keyof TTarget> = TTarget & {
-    [_ in TKey]: {};
-};
-type DefaultedQueryObserverOptions<TQueryFnData = unknown, TError = DefaultError, TData = TQueryFnData, TQueryData = TQueryFnData, TQueryKey extends QueryKey = QueryKey> = WithRequired<QueryObserverOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>, 'throwOnError' | 'refetchOnReconnect' | 'queryHash'>;
-type Action<TData, TError> = ContinueAction | ErrorAction<TError> | FailedAction<TError> | FetchAction | InvalidateAction | PauseAction | SetStateAction<TData, TError> | SuccessAction<TData>;
-type QueryCacheNotifyEvent = NotifyEventQueryAdded | NotifyEventQueryRemoved | NotifyEventQueryUpdated | NotifyEventQueryObserverAdded | NotifyEventQueryObserverRemoved | NotifyEventQueryObserverResultsUpdated | NotifyEventQueryObserverOptionsUpdated;
-type QueryCacheListener = (event: QueryCacheNotifyEvent) => void;
-type QueryTypeFilter = 'all' | 'active' | 'inactive';
-type MutationStatus = 'idle' | 'pending' | 'success' | 'error';
-type MutationFunction<TData = unknown, TVariables = unknown> = (variables: TVariables) => Promise<TData>;
-type MutationKey = ReadonlyArray<unknown>;
-type MutationMeta = Register extends {
-    mutationMeta: infer TMutationMeta;
-} ? TMutationMeta extends Record<string, unknown> ? TMutationMeta : Record<string, unknown> : Record<string, unknown>;
-type MutationObserverResult<TData = unknown, TError = DefaultError, TVariables = void, TContext = unknown> = MutationObserverIdleResult<TData, TError, TVariables, TContext> | MutationObserverLoadingResult<TData, TError, TVariables, TContext> | MutationObserverErrorResult<TData, TError, TVariables, TContext> | MutationObserverSuccessResult<TData, TError, TVariables, TContext>;
-type MutationObserverListener<TData, TError, TVariables, TContext> = (result: MutationObserverResult<TData, TError, TVariables, TContext>) => void;
-type Action$1<TData, TError, TVariables, TContext> = ContinueAction$1 | ErrorAction$1<TError> | FailedAction$1<TError> | PendingAction<TVariables, TContext> | PauseAction$1 | SuccessAction$1<TData>;
-type MutationCacheNotifyEvent = NotifyEventMutationAdded | NotifyEventMutationRemoved | NotifyEventMutationObserverAdded | NotifyEventMutationObserverRemoved | NotifyEventMutationObserverOptionsUpdated | NotifyEventMutationUpdated;
-type MutationCacheListener = (event: MutationCacheNotifyEvent) => void;
-type Pick<T,K extends keyof T>={[P in K]:T[P];};
-type Exclude<T,U>=T extends U?never:T;
-type Omit<T,K extends keyof any>=Pick<T,Exclude<keyof T,K>>;
-type OmitKeyof<TObject, TKey extends TStrictly extends 'safely' ? keyof TObject | (string & Record<never, never>) : keyof TObject, TStrictly extends 'strictly' | 'safely' = 'strictly'> = Omit<TObject, TKey>;
-type DataTag<TType, TValue> = TType & {
-    [dataTagSymbol]: TValue;
-};
-type Updater<TInput, TOutput> = TOutput | ((input: TInput) => TOutput);
-type GetNextPageParamFunction<TPageParam, TQueryFnData = unknown> = (lastPage: TQueryFnData, allPages: Array<TQueryFnData>, lastPageParam: TPageParam, allPageParams: Array<TPageParam>) => TPageParam | undefined | null;
-type FetchInfiniteQueryPages<TQueryFnData = unknown, TPageParam = unknown> = {
-    pages?: never;
-} | {
-    pages: number;
-    getNextPageParam: GetNextPageParamFunction<TPageParam, TQueryFnData>;
-};
-type FetchInfiniteQueryOptions<TQueryFnData = unknown, TError = DefaultError, TData = TQueryFnData, TQueryKey extends QueryKey = QueryKey, TPageParam = unknown> = FetchQueryOptions<TQueryFnData, TError, InfiniteData<TData, TPageParam>, TQueryKey, TPageParam> & InitialPageParam<TPageParam> & FetchInfiniteQueryPages<TQueryFnData, TPageParam>;
-type UseBaseQueryResult<TData = unknown, TError = DefaultError> = QueryObserverResult<TData, TError>;
 type UseQueryResult<TData = unknown, TError = DefaultError> = UseBaseQueryResult<TData, TError>;
 
 (options: UseQueryOptions<TQueryFnData, TError, TData, TQueryKey>, queryClient?: QueryClient) => UseQueryResult<TData, TError>
@@ -447,154 +196,7 @@ type UseQueryResult<TData = unknown, TError = DefaultError> = UseBaseQueryResult
 type DefaultError = Register extends {
     defaultError: infer TError;
 } ? TError : Error;
-type FlatArray<Arr,Depth extends number>={done:Arr;recur:Arr extends ReadonlyArray<infer InnerArr>?FlatArray<InnerArr,[-1,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20][Depth]>:Arr;}[Depth extends-1?"done":"recur"];
 type QueryKey = ReadonlyArray<unknown>;
-type ShouldRetryFunction<TError = DefaultError> = (failureCount: number, error: TError) => boolean;
-type RetryValue<TError> = boolean | number | ShouldRetryFunction<TError>;
-type RetryDelayFunction<TError = DefaultError> = (failureCount: number, error: TError) => number;
-type RetryDelayValue<TError> = number | RetryDelayFunction<TError>;
-type NetworkMode = 'online' | 'always' | 'offlineFirst';
-type __EventTarget = typeof globalThis extends { onmessage: any; EventTarget: any } ? {}
-    : {
-        /**
-         * Adds a new handler for the \`type\` event. Any given \`listener\` is added only once per \`type\` and per \`capture\` option value.
-         *
-         * If the \`once\` option is true, the \`listener\` is removed after the next time a \`type\` event is dispatched.
-         *
-         * The \`capture\` option is not used by Node.js in any functional way other than tracking registered event listeners per the \`EventTarget\` specification.
-         * Specifically, the \`capture\` option is used as part of the key when registering a \`listener\`.
-         * Any individual \`listener\` may be added once with \`capture = false\`, and once with \`capture = true\`.
-         */
-        addEventListener(
-            type: string,
-            listener: EventListener | EventListenerObject,
-            options?: AddEventListenerOptions | boolean,
-        ): void;
-        /** Dispatches a synthetic event event to target and returns true if either event's cancelable attribute value is false or its preventDefault() method was not invoked, and false otherwise. */
-        dispatchEvent(event: Event): boolean;
-        /** Removes the event listener in target's event listener list with the same type, callback, and options. */
-        removeEventListener(
-            type: string,
-            listener: EventListener | EventListenerObject,
-            options?: EventListenerOptions | boolean,
-        ): void;
-    };
-type __Event = typeof globalThis extends { onmessage: any; Event: any } ? {}
-    : {
-        /** This is not used in Node.js and is provided purely for completeness. */
-        readonly bubbles: boolean;
-        /** Alias for event.stopPropagation(). This is not used in Node.js and is provided purely for completeness. */
-        cancelBubble: () => void;
-        /** True if the event was created with the cancelable option */
-        readonly cancelable: boolean;
-        /** This is not used in Node.js and is provided purely for completeness. */
-        readonly composed: boolean;
-        /** Returns an array containing the current EventTarget as the only entry or empty if the event is not being dispatched. This is not used in Node.js and is provided purely for completeness. */
-        composedPath(): [EventTarget?];
-        /** Alias for event.target. */
-        readonly currentTarget: EventTarget | null;
-        /** Is true if cancelable is true and event.preventDefault() has been called. */
-        readonly defaultPrevented: boolean;
-        /** This is not used in Node.js and is provided purely for completeness. */
-        readonly eventPhase: 0 | 2;
-        /** The \`AbortSignal\` "abort" event is emitted with \`isTrusted\` set to \`true\`. The value is \`false\` in all other cases. */
-        readonly isTrusted: boolean;
-        /** Sets the \`defaultPrevented\` property to \`true\` if \`cancelable\` is \`true\`. */
-        preventDefault(): void;
-        /** This is not used in Node.js and is provided purely for completeness. */
-        returnValue: boolean;
-        /** Alias for event.target. */
-        readonly srcElement: EventTarget | null;
-        /** Stops the invocation of event listeners after the current one completes. */
-        stopImmediatePropagation(): void;
-        /** This is not used in Node.js and is provided purely for completeness. */
-        stopPropagation(): void;
-        /** The \`EventTarget\` dispatching the event */
-        readonly target: EventTarget | null;
-        /** The millisecond timestamp when the Event object was created. */
-        readonly timeStamp: number;
-        /** Returns the type of event, e.g. "click", "hashchange", or "submit". */
-        readonly type: string;
-    };
-type EventListenerOrEventListenerObject = EventListener | EventListenerObject;
-type DOMHighResTimeStamp = number;
-type Record<K extends keyof any,T>={[P in K]:T;};
-type QueryMeta = Register extends {
-    queryMeta: infer TQueryMeta;
-} ? TQueryMeta extends Record<string, unknown> ? TQueryMeta : Record<string, unknown> : Record<string, unknown>;
-type FetchDirection = 'forward' | 'backward';
-type QueryFunctionContext<TQueryKey extends QueryKey = QueryKey, TPageParam = never> = [TPageParam] extends [never] ? {
-    queryKey: TQueryKey;
-    signal: AbortSignal;
-    meta: QueryMeta | undefined;
-    pageParam?: unknown;
-    direction?: 'forward' | 'backward';
-} : {
-    queryKey: TQueryKey;
-    signal: AbortSignal;
-    pageParam: TPageParam;
-    direction: FetchDirection;
-    meta: QueryMeta | undefined;
-};
-type IteratorResult<T,TReturn=any>=IteratorYieldResult<T>|IteratorReturnResult<TReturn>;
-type Awaited<T>=T extends null|undefined?T:T extends object&{then(onfulfilled:infer F,...args:infer _):any;}?
-F extends((value:infer V,...args:infer _)=>any)?
-Awaited<V>:never:T;
-type PromiseSettledResult<T>=PromiseFulfilledResult<T>|PromiseRejectedResult;
-type QueryFunction<T = unknown, TQueryKey extends QueryKey = QueryKey, TPageParam = never> = (context: QueryFunctionContext<TQueryKey, TPageParam>) => T | Promise<T>;
-type SkipToken = typeof skipToken;
-type QueryPersister<T = unknown, TQueryKey extends QueryKey = QueryKey, TPageParam = never> = [TPageParam] extends [never] ? (queryFn: QueryFunction<T, TQueryKey, never>, context: QueryFunctionContext<TQueryKey>, query: Query) => T | Promise<T> : (queryFn: QueryFunction<T, TQueryKey, TPageParam>, context: QueryFunctionContext<TQueryKey>, query: Query) => T | Promise<T>;
-type NoInfer<T> = [T][T extends any ? 0 : never];
-type QueryKeyHashFunction<TQueryKey extends QueryKey> = (queryKey: TQueryKey) => string;
-type InitialDataFunction<T> = () => T | undefined;
-type QueryStatus = 'pending' | 'error' | 'success';
-type FetchStatus = 'fetching' | 'paused' | 'idle';
-type Partial<T>={[P in keyof T]?:T[P];};
-type DefinedQueryObserverResult<TData = unknown, TError = DefaultError> = QueryObserverRefetchErrorResult<TData, TError> | QueryObserverSuccessResult<TData, TError>;
-type QueryObserverResult<TData = unknown, TError = DefaultError> = DefinedQueryObserverResult<TData, TError> | QueryObserverLoadingErrorResult<TData, TError> | QueryObserverLoadingResult<TData, TError> | QueryObserverPendingResult<TData, TError>;
-type QueryObserverListener<TData, TError> = (result: QueryObserverResult<TData, TError>) => void;
-type DefinedInfiniteQueryObserverResult<TData = unknown, TError = DefaultError> = InfiniteQueryObserverRefetchErrorResult<TData, TError> | InfiniteQueryObserverSuccessResult<TData, TError>;
-type InfiniteQueryObserverResult<TData = unknown, TError = DefaultError> = DefinedInfiniteQueryObserverResult<TData, TError> | InfiniteQueryObserverLoadingErrorResult<TData, TError> | InfiniteQueryObserverLoadingResult<TData, TError> | InfiniteQueryObserverPendingResult<TData, TError>;
-type NotifyOnChangeProps = Array<keyof InfiniteQueryObserverResult> | 'all' | (() => Array<keyof InfiniteQueryObserverResult> | 'all');
-type ThrowOnError<TQueryFnData, TError, TQueryData, TQueryKey extends QueryKey> = boolean | ((error: TError, query: Query<TQueryFnData, TError, TQueryData, TQueryKey>) => boolean);
-type NonFunctionGuard<T> = T extends Function ? never : T;
-type PlaceholderDataFunction<TQueryFnData = unknown, TError = DefaultError, TQueryData = TQueryFnData, TQueryKey extends QueryKey = QueryKey> = (previousData: TQueryData | undefined, previousQuery: Query<TQueryFnData, TError, TQueryData, TQueryKey> | undefined) => TQueryData | undefined;
-type WithRequired<TTarget, TKey extends keyof TTarget> = TTarget & {
-    [_ in TKey]: {};
-};
-type DefaultedQueryObserverOptions<TQueryFnData = unknown, TError = DefaultError, TData = TQueryFnData, TQueryData = TQueryFnData, TQueryKey extends QueryKey = QueryKey> = WithRequired<QueryObserverOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>, 'throwOnError' | 'refetchOnReconnect' | 'queryHash'>;
-type Action<TData, TError> = ContinueAction | ErrorAction<TError> | FailedAction<TError> | FetchAction | InvalidateAction | PauseAction | SetStateAction<TData, TError> | SuccessAction<TData>;
-type QueryCacheNotifyEvent = NotifyEventQueryAdded | NotifyEventQueryRemoved | NotifyEventQueryUpdated | NotifyEventQueryObserverAdded | NotifyEventQueryObserverRemoved | NotifyEventQueryObserverResultsUpdated | NotifyEventQueryObserverOptionsUpdated;
-type QueryCacheListener = (event: QueryCacheNotifyEvent) => void;
-type QueryTypeFilter = 'all' | 'active' | 'inactive';
-type MutationStatus = 'idle' | 'pending' | 'success' | 'error';
-type MutationFunction<TData = unknown, TVariables = unknown> = (variables: TVariables) => Promise<TData>;
-type MutationKey = ReadonlyArray<unknown>;
-type MutationMeta = Register extends {
-    mutationMeta: infer TMutationMeta;
-} ? TMutationMeta extends Record<string, unknown> ? TMutationMeta : Record<string, unknown> : Record<string, unknown>;
-type MutationObserverResult<TData = unknown, TError = DefaultError, TVariables = void, TContext = unknown> = MutationObserverIdleResult<TData, TError, TVariables, TContext> | MutationObserverLoadingResult<TData, TError, TVariables, TContext> | MutationObserverErrorResult<TData, TError, TVariables, TContext> | MutationObserverSuccessResult<TData, TError, TVariables, TContext>;
-type MutationObserverListener<TData, TError, TVariables, TContext> = (result: MutationObserverResult<TData, TError, TVariables, TContext>) => void;
-type Action$1<TData, TError, TVariables, TContext> = ContinueAction$1 | ErrorAction$1<TError> | FailedAction$1<TError> | PendingAction<TVariables, TContext> | PauseAction$1 | SuccessAction$1<TData>;
-type MutationCacheNotifyEvent = NotifyEventMutationAdded | NotifyEventMutationRemoved | NotifyEventMutationObserverAdded | NotifyEventMutationObserverRemoved | NotifyEventMutationObserverOptionsUpdated | NotifyEventMutationUpdated;
-type MutationCacheListener = (event: MutationCacheNotifyEvent) => void;
-type Pick<T,K extends keyof T>={[P in K]:T[P];};
-type Exclude<T,U>=T extends U?never:T;
-type Omit<T,K extends keyof any>=Pick<T,Exclude<keyof T,K>>;
-type OmitKeyof<TObject, TKey extends TStrictly extends 'safely' ? keyof TObject | (string & Record<never, never>) : keyof TObject, TStrictly extends 'strictly' | 'safely' = 'strictly'> = Omit<TObject, TKey>;
-type DataTag<TType, TValue> = TType & {
-    [dataTagSymbol]: TValue;
-};
-type Updater<TInput, TOutput> = TOutput | ((input: TInput) => TOutput);
-type GetNextPageParamFunction<TPageParam, TQueryFnData = unknown> = (lastPage: TQueryFnData, allPages: Array<TQueryFnData>, lastPageParam: TPageParam, allPageParams: Array<TPageParam>) => TPageParam | undefined | null;
-type FetchInfiniteQueryPages<TQueryFnData = unknown, TPageParam = unknown> = {
-    pages?: never;
-} | {
-    pages: number;
-    getNextPageParam: GetNextPageParamFunction<TPageParam, TQueryFnData>;
-};
-type FetchInfiniteQueryOptions<TQueryFnData = unknown, TError = DefaultError, TData = TQueryFnData, TQueryKey extends QueryKey = QueryKey, TPageParam = unknown> = FetchQueryOptions<TQueryFnData, TError, InfiniteData<TData, TPageParam>, TQueryKey, TPageParam> & InitialPageParam<TPageParam> & FetchInfiniteQueryPages<TQueryFnData, TPageParam>;
-type UseBaseQueryResult<TData = unknown, TError = DefaultError> = QueryObserverResult<TData, TError>;
 type UseQueryResult<TData = unknown, TError = DefaultError> = UseBaseQueryResult<TData, TError>;
 ",
   },
@@ -631,8 +233,7 @@ type UseQueryResult<TData = unknown, TError = DefaultError> = UseBaseQueryResult
     "path": "/test-project/src/utils/index.ts",
     "startLine": 14,
     "typeSignature": "class NodeRelations  {
- constructor (hasCycle: boolean) => NodeRelations
-  NodeRelations.addEdge: () => string
+ constructor (hasCycle: boolean) => NodeRelations  NodeRelations.addEdge: () => string
 }",
   },
   {
@@ -652,14 +253,14 @@ type UseQueryResult<TData = unknown, TError = DefaultError> = UseBaseQueryResult
 ",
   },
   {
-    "block": "useQueryFn = () => {
+    "block": "const useQueryFn = () => {
   useQuery({
     queryKey: ["key"],
     queryFn: () => {
       return "data";
     },
   });
-}",
+};",
     "edits": [],
     "endLine": 12,
     "id": "55140aacf123f8fb20c5c9ae0e4be62d549f73fb",
@@ -670,11 +271,11 @@ type UseQueryResult<TData = unknown, TError = DefaultError> = UseBaseQueryResult
     "typeSignature": "() => void",
   },
   {
-    "block": "date = () =>
+    "block": "export const date = () =>
   z.string().transform((v) => {
     const date = v.replace(/(\\\\d+)(st|nd|rd|th)/, "$1");
     return isNaN(new Date(date).getTime()) ? undefined : new Date(date);
-  })",
+  });",
     "edits": [],
     "endLine": 32,
     "id": "e3024873a67e2b94ce7f812b0c6898d14280fc37",
@@ -697,6 +298,33 @@ exports[`dependencyGraphService initializes 2`] = `
     },
     "source": "34cec79240752d0e68703dffc391168d31dddb2a",
     "target": "9426ab874a095279cb571d3792483aaa1082706f",
+  },
+  {
+    "attributes": {
+      "relationship": "importDeclaration",
+      "source": "67d9e5a598a2b781654fb7d028e0611fa2a8b669",
+      "target": "ca6ac441362a909d9e82c82014210eacf83a93aa",
+    },
+    "source": "67d9e5a598a2b781654fb7d028e0611fa2a8b669",
+    "target": "ca6ac441362a909d9e82c82014210eacf83a93aa",
+  },
+  {
+    "attributes": {
+      "relationship": "importDeclaration",
+      "source": "45f53221ae7be1c56cc7fdec8a7342154cd24a16",
+      "target": "ed75bbca46cb2f8a01f9fbe0bfd5a13cbe258238",
+    },
+    "source": "45f53221ae7be1c56cc7fdec8a7342154cd24a16",
+    "target": "ed75bbca46cb2f8a01f9fbe0bfd5a13cbe258238",
+  },
+  {
+    "attributes": {
+      "relationship": "importDeclaration",
+      "source": "0823da766dc95043d4cd7a3e95ae3b297b1ba9ba",
+      "target": "673b2f54790b51f30862450e88ccaca795d61a4e",
+    },
+    "source": "0823da766dc95043d4cd7a3e95ae3b297b1ba9ba",
+    "target": "673b2f54790b51f30862450e88ccaca795d61a4e",
   },
   {
     "attributes": {
