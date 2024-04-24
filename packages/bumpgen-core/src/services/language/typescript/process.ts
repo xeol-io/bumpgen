@@ -95,6 +95,25 @@ export const getDefinitionNodesOutsideBlock = (
   return definitionNodes;
 };
 
+const isExportableType = (
+  node: Node,
+): node is
+  | ModuleDeclaration
+  | InterfaceDeclaration
+  | ClassDeclaration
+  | FunctionDeclaration
+  | VariableDeclaration
+  | TypeAliasDeclaration => {
+  return (
+    node.getKind() === SyntaxKind.ModuleDeclaration ||
+    node.getKind() === SyntaxKind.InterfaceDeclaration ||
+    node.getKind() === SyntaxKind.ClassDeclaration ||
+    node.getKind() === SyntaxKind.FunctionDeclaration ||
+    node.getKind() === SyntaxKind.VariableDeclaration ||
+    node.getKind() === SyntaxKind.TypeAliasDeclaration
+  );
+};
+
 // process an import node. e.g 'import {x} from "y"'
 const processImportNode = (identifier: Identifier, parentNode: Node) => {
   const surroundingBlock = getSurroundingBlock(parentNode);
@@ -103,22 +122,18 @@ const processImportNode = (identifier: Identifier, parentNode: Node) => {
 
   const firstDefinitionNode = identifier.getDefinitionNodes()[0];
 
-  if (identifier.getText().includes("execa")) {
-    console.log(identifier.getText());
-  }
-
   if (
     firstDefinitionNode &&
     firstDefinitionNode.getSourceFile().isInNodeModules()
   ) {
     exportStatements = firstDefinitionNode
-      .getFirstChild()
+      .getFirstChildByKind(SyntaxKind.SyntaxList)
       ?.getChildren()
       .filter((child) => {
         return (
           child.getKind() === SyntaxKind.ExportAssignment ||
           child.getKind() === SyntaxKind.ExportDeclaration ||
-          child.getFirstChildByKind(SyntaxKind.ExportKeyword) !== undefined
+          (isExportableType(child) && child.getExportKeyword() !== undefined)
         );
       })
       .map((child) => {
