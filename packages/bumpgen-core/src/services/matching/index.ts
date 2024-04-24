@@ -40,9 +40,74 @@ const splitCode = (code: string) => code.split("\n");
 
 const trimCode = (code: string) => code.split("\n").map((line) => line.trim());
 
+const findSequentialMatchedLinesIndices = (allRefIndexes: number[][]): { startIndex: number, endIndex: number } => {
+  const isSequential = (combination: number[]): boolean => {
+    combination.forEach((current, index, array) => {
+      if (index < array.length - 1 && array[index + 1] !== current + 1) {
+        return false;
+      }
+    });
+    return true;
+  }
+
+  // recursion black magic
+  const getAllCombinations = (
+    currentIndex: number, 
+    currentCombination: number[],
+    bestCombination: { startIndex: number, endIndex: number }
+  ): { startIndex: number, endIndex: number } => {
+    const indexList = allRefIndexes[currentIndex];
+    const firstIndex = currentCombination[0];
+    const lastIndex = currentCombination[currentCombination.length - 1];
+
+    if (currentIndex === allRefIndexes.length) {
+
+      if (isSequential(currentCombination) &&
+        firstIndex &&
+        lastIndex &&
+        currentCombination.length > 0 && 
+        (currentCombination.length > bestCombination.endIndex - bestCombination.startIndex + 1)
+      ) {
+        return { startIndex: firstIndex, endIndex: lastIndex };
+
+      }    
+      return bestCombination;
+    }
+
+    let updatedBestCombination = bestCombination;
+
+    indexList && indexList.forEach(element => {
+      if (currentCombination.length === 0 ||
+        lastIndex &&
+        element === lastIndex + 1
+      ) {
+        currentCombination.push(element);
+        updatedBestCombination = getAllCombinations(
+          currentIndex + 1,
+          currentCombination,
+          updatedBestCombination
+        );
+        currentCombination.pop();
+      }
+    });
+
+    return updatedBestCombination;
+  }
+
+  if (allRefIndexes.length === 1 &&
+    allRefIndexes[0] && 
+    allRefIndexes[0].length > 0 &&
+    allRefIndexes[0][0]
+  ) {
+    return { startIndex: allRefIndexes[0][0], endIndex: allRefIndexes[0][0] };
+  }
+
+  return getAllCombinations(0, [], { startIndex: -1, endIndex: -1 });
+}
+
 export const createMatchingService = () => {
   return {
-    replacements: {
+    replacements: { 
       fuzzy: ({
         content,
         oldCode,
@@ -52,139 +117,62 @@ export const createMatchingService = () => {
         oldCode: string;
         newCode: string;
       }) => {
-        const trimmedFileContents = trimCode(content);
-        const trimmedOldCode = trimCode(oldCode);
+        const splitContent = splitCode(content);
+        const allMatchedLines: number[][] = [];
 
-        console.log("trimmedFileContents:", trimmedFileContents);
-        console.log("trimmedOldCode:", trimmedOldCode);
-        console.log("newCode:", newCode);
-
-        /* 
-        TODO: finetune threshold, 0 > 1 where 0 is exact match
+        const fuse = new Fuse(
+          trimCode(content),
+          {
+            includeScore: true,
+            includeMatches: true,
+            threshold: 0.2,
+            findAllMatches: false,
+            isCaseSensitive: true,
+            shouldSort: true,
+          });
         
-        NOTE: 
-        0.3 accounts for variance like different quotes, slight spelling differences.
-        0.3 does not account for line reordering.
-        */
-        const fuseOptions = {
-          includeScore: true,
-          includeMatches: true,
-          threshold: 0.3,
-          findAllMatches: false,
-        };
-
-        // finetune tolerance where 0 is no tolerance for mismatched lines in a block.
-        // We could remove this all together if we think the LLM will not return extra lines that are not comments
-        const mismatchTolerance = Math.floor(trimmedOldCode.length * 0.75);
-
-        const fuse = new Fuse(trimmedFileContents, fuseOptions);
-
-        let startIndex = -1;
-        let endIndex = -1;
-        let mismatches = 0;
-        let matchedIndent = 0;
-
-        trimmedOldCode.forEach((line: string) => {
-          // this only covers js comments for now and we will need to add support for other languages
-          // this does not account for 2+ line js comments for now
-          const isComment =
-            line.startsWith("//") ||
-            line.startsWith("/*") ||
-            line.endsWith("*/") ||
-            line.startsWith("*");
-
-          if (startIndex === -1) {
-            fuse.setCollection(trimmedFileContents);
-          } else {
-            fuse.setCollection(trimmedFileContents.slice(endIndex + 1));
-          }
-
+        trimCode(oldCode).forEach(line => {
           const result = fuse.search(line);
-          console.log(`Searching for line: "${line}"`);
-          if (result.length > 0) {
-            console.log('\x1b[32m' + `"${result[0].item}" matching line found on line ${result[0].refIndex + 1} with score ${result[0].score}\n` + '\x1b[0m');
-          } else {
-            console.log('\x1b[31m' + "No matching lines found \n" + '\x1b[0m');
-          }
-
-          const topResult = result[0];
-
-          if (!isComment && topResult) {
-            // const match = result[0];
-            const matchIndex =
-              startIndex === -1
-                ? topResult.refIndex
-                : endIndex + 1 + topResult.refIndex;
-
-            const firstMatchedLine = splitCode(content)[matchIndex];
-
-            if (firstMatchedLine === undefined) {
-              throw new Error(
-                "No matched line found. This should not have matched.",
-              );
-            }
-
-            matchedIndent = countIndents(firstMatchedLine);
-
-            if (startIndex === -1) {
-              startIndex = matchIndex;
-              endIndex = matchIndex;
-            } else if (matchIndex === endIndex + 1) {
-              endIndex = matchIndex;
-              mismatches = 0;
-            } else if (mismatches < mismatchTolerance) {
-              endIndex = matchIndex;
-              mismatches++;
-            } else {
-              console.log('\x1b[32m' + "Too many mismatches, restarting search.") + '\x1b[0m';
-              startIndex = -1;
-              endIndex = -1;
-              mismatches = 0;
-            }
-          } else if (!isComment) {
-            if (mismatches < mismatchTolerance) {
-              mismatches++;
-              endIndex++;
-            } else {
-              console.log(
-                '\x1b[32m' +  "No match found and out of tolerance, restarting search." + '\x1b[0m',
-              );
-              startIndex = -1;
-              endIndex = -1;
-              mismatches = 0;
-            }
-          }
+          const matchedLines = result.map(item => item.refIndex);
+          allMatchedLines.push(matchedLines);
         });
-
-        const matchedLines = splitCode(content).slice(startIndex, endIndex + 1).join('\n');
-
-        console.log('\x1b[32m' + `Matched block starts at ${startIndex} and ends at ${endIndex}\n`);
-        console.log('\x1b[33m' + "=== actual matched code block");
-        console.log(matchedLines);
-        console.log("=== \n" + '\x1b[0m');
       
-        const indentedNewCode = formatNewCode(
-          matchedIndent,
-          splitCode(newCode),
-        );
+        const { startIndex, endIndex } = findSequentialMatchedLinesIndices(allMatchedLines);
       
-        console.log('\x1b[34m' + "=== replacing with this new code")
-        console.log(indentedNewCode.join("\n"));
-        console.log("=== \n" + '\x1b[0m');
-        
-
-        if (startIndex !== -1 && endIndex !== -1) {
-          const updatedContents = [
-            ...splitCode(content).slice(0, startIndex),
-            ...indentedNewCode,
-            ...splitCode(content).slice(endIndex + 1),
-          ].join("\n");
-
-          return updatedContents;
-        } else {
-          console.log('\x1b[32m' + 'No sufficiently similar block found.' + '\x1b[0m');
+        if (startIndex === -1 && endIndex === -1) {
+          console.log("No matching block found");
           return content;
         }
+      
+        const matchedLines = splitContent.slice(startIndex, endIndex + 1).join('\n');
+      
+        console.log(`Matched block starts at ${startIndex} and ends at ${endIndex}\n`);
+        console.log("=== actual matched code block");
+        console.log(matchedLines);
+        console.log("=== \n");
+      
+        const firstMatchedLine = splitContent[startIndex];
+        if (firstMatchedLine === undefined) {
+          console.log("This is a big oopsy");
+          return content;
+        }
+
+        const indentedNewCode = formatNewCode(
+          countIndents(firstMatchedLine),
+          splitCode(newCode)
+        );
+      
+        console.log("=== replacing with this new code")
+        console.log(indentedNewCode.join("\n"));
+        console.log("=== \n");
+      
+        const updatedContents = [
+          ...splitContent.slice(0, startIndex),
+          ...indentedNewCode,
+          ...splitContent.slice(endIndex + 1)
+        ].join("\n");
+      
+        return updatedContents;
       },
     },
   };
