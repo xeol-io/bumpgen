@@ -17,10 +17,12 @@ import type { FilesystemService } from "./services/filesystem";
 import type { GraphService } from "./services/graph";
 import type { BumpgenLanguageService } from "./services/language/types";
 import type { LLMService } from "./services/llm/types";
+import type { MatchingService } from "./services/matching";
 import { injectFilesystemService } from "./services/filesystem";
 import { injectGraphService } from "./services/graph";
 import { injectLanguageService } from "./services/language";
 import { injectLLMService } from "./services/llm";
+import { injectMatchingService } from "./services/matching";
 
 export { injectGitService } from "./services/git";
 
@@ -54,6 +56,7 @@ const _bumpgen = ({
     language: BumpgenLanguageService;
     graphService: GraphService;
     filesystem: FilesystemService;
+    matching: MatchingService;
   };
   args: {
     projectRoot: string;
@@ -258,26 +261,30 @@ const _bumpgen = ({
           console.log("Received replacements from LLM", replacements);
 
           if (replacements.length > 0) {
-            const fileContents = await services.filesystem.read(planNode.path);
+            let fileContents = await services.filesystem.read(planNode.path);
 
-            // TODO: implement the new fuzzy matcher
-            const newFileContents = replacements.reduce((acc, replacement) => {
-              const beforeReplace = acc;
-              const afterReplace = acc.replace(
-                replacement.oldCode,
+            for (const replacement of replacements) {
+              // this accounts for interline replacements but not formatting
+              let newFileContents = fileContents.replace(
+                replacement.oldCode.trim(),
                 replacement.newCode,
               );
-              if (beforeReplace === afterReplace) {
-                console.log(
-                  `ERROR_REPLACEMENTS: Replacement did not match - ${replacement.oldCode} -> ${replacement.newCode}`,
-                );
+
+              // this accounts for formatting but not interline replacements
+              if (newFileContents === fileContents) {
+                newFileContents = services.matching.replacements.fuzzy({
+                  content: fileContents,
+                  oldCode: replacement.oldCode,
+                  newCode: replacement.newCode,
+                });
               }
-              return afterReplace;
-            }, fileContents);
+
+              fileContents = newFileContents;
+            }
 
             const originalSignature = planNode.typeSignature;
 
-            await services.filesystem.write(planNode.path, newFileContents);
+            await services.filesystem.write(planNode.path, fileContents);
 
             services.language.graph.recomputeGraphAfterChange(
               graph,
@@ -500,9 +507,16 @@ export const makeBumpgen = ({
   const llm = injectLLMService({ llmApiKey, model })();
   const graphService = injectGraphService();
   const filesystem = injectFilesystemService();
+  const matching = injectMatchingService();
 
   return _bumpgen({
-    services: { llm, language: languageService, graphService, filesystem },
+    services: {
+      llm,
+      language: languageService,
+      graphService,
+      filesystem,
+      matching,
+    },
     args: { projectRoot, packageToUpgrade },
   });
 };
