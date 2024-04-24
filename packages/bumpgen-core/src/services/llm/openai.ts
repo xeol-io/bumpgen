@@ -1,4 +1,5 @@
 import type { OpenAI } from "openai";
+import { unique } from "radash";
 
 // import type { ContextSearchResponse } from "../../clients/sourcegraph/responses";
 import type { DependencyGraphNode } from "../../models/graph/dependency";
@@ -43,6 +44,7 @@ const makePlanNodeMessage = (
 };
 
 const makeExternalDependencyContextMessage = (
+  pkg: string,
   importContext: (DependencyGraphNode & {
     typeSignature: string;
   })[],
@@ -59,18 +61,27 @@ const makeExternalDependencyContextMessage = (
     content: [
       ...(importContext.length > 0
         ? [
-            `Type signatures for the imports used in the code block:\n`,
-            ...importContext.map((imp) => {
-              if (imp.name.includes("execa")) {
-                console.log(imp.name);
-              }
-
-              if (imp.typeSignature.length > 0) {
+            `Type signatures for the ${pkg} imports used in the code block:\n`,
+            ...importContext
+              .filter((imp) => imp.typeSignature !== "")
+              .map((imp) => {
                 return `<import \n  statement="${imp.block}"\n>\n${imp.typeSignature}\n</import>`;
-              } else {
-                return "";
-              }
-            }),
+              }),
+            `The imported module(s) also contain the following exports:`,
+            ...importContext
+              .filter(
+                (
+                  imp,
+                ): imp is DependencyGraphNode & {
+                  typeSignature: string;
+                  external: NonNullable<DependencyGraphNode["external"]>;
+                } => !!imp.external,
+              )
+              .flatMap((imp) => {
+                return imp.external.exports.map((exp) => {
+                  return `<export \n  module="${imp.external?.importedFrom}"\n>${exp}</export>`;
+                });
+              }),
           ]
         : []),
     ].join("\n"),
@@ -143,9 +154,11 @@ const makeTemporalContextMessage = (temporalContext: PlanGraphNode[]) => {
 };
 
 const makeImportContextMessage = (importContext: DependencyGraphNode[]) => {
-  return importContext.map((context) => {
-    return context.block;
-  });
+  return unique(
+    importContext.map((context) => {
+      return context.block;
+    }),
+  );
 };
 
 export const fitToContext = (
@@ -244,8 +257,10 @@ export const createOpenAIService = (openai: OpenAI) => {
           importContext,
           bumpedPackage,
         );
-        const externalDependencyMessage =
-          makeExternalDependencyContextMessage(importContext);
+        const externalDependencyMessage = makeExternalDependencyContextMessage(
+          bumpedPackage,
+          importContext,
+        );
 
         const messages = fitToContext(LLM_CONTEXT_SIZE, {
           systemMessage: systemMessage,
@@ -256,7 +271,7 @@ export const createOpenAIService = (openai: OpenAI) => {
           finalMessage: finalMessage,
         });
 
-        console.log("ChatGPT Message:\n", messages);
+        console.log("OpenAI Messages:\n", messages);
 
         const response = await openai.chat.completions.create({
           model: "gpt-4-turbo-preview",

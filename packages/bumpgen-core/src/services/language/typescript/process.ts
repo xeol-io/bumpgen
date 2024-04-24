@@ -158,6 +158,9 @@ const processImportNode = (identifier: Identifier, parentNode: Node) => {
   const name = identifier.getText();
   const kind = makeKind(surroundingBlock.getKind());
   const path = surroundingBlock.getSourceFile().getFilePath();
+  const moduleName = surroundingBlock
+    .getFirstChildByKind(SyntaxKind.StringLiteral)
+    ?.getText();
 
   const node = {
     id: id({
@@ -172,12 +175,13 @@ const processImportNode = (identifier: Identifier, parentNode: Node) => {
     startLine: surroundingBlock.getStartLineNumber(),
     endLine: surroundingBlock.getEndLineNumber(),
     edits: [],
-    external: exportStatements
-      ? {
-          pkg: name,
-          exports: exportStatements,
-        }
-      : undefined,
+    external:
+      exportStatements && moduleName
+        ? {
+            importedFrom: moduleName,
+            exports: exportStatements,
+          }
+        : undefined,
   };
 
   return node;

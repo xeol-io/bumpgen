@@ -1,5 +1,4 @@
 import process from "process";
-import { unique } from "radash";
 import { serializeError } from "serialize-error";
 import { v4 } from "uuid";
 
@@ -233,23 +232,24 @@ const _bumpgen = ({
             },
           );
 
-          const importContext = unique(
-            graphService.dependency
-              .getReferencingNodes(graph.dependency, {
-                id: planNode.id,
-                relationships: ["importDeclaration"],
-              })
-              .map((node) => {
-                return {
-                  ...node,
-                  typeSignature: language.graph.getTypeSignature(
-                    graph.ast,
-                    node,
-                  ),
-                };
-              }),
-            (f) => f.block,
-          );
+          const importContext = graphService.dependency
+            .getReferencingNodes(graph.dependency, {
+              id: planNode.id,
+              relationships: ["importDeclaration"],
+            })
+            .filter(
+              (node) =>
+                node.external?.importedFrom &&
+                node.external.importedFrom.startsWith(
+                  packageToUpgrade.packageName,
+                ),
+            )
+            .map((node) => {
+              return {
+                ...node,
+                typeSignature: language.graph.getTypeSignature(graph.ast, node),
+              };
+            });
 
           const { replacements, commitMessage } =
             await llm.codeplan.getReplacements({

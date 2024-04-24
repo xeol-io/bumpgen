@@ -16,7 +16,7 @@ export type DependencyGraphNode = {
     causedErrors: string[];
   }[];
   external?: {
-    pkg: string;
+    importedFrom: string;
     exports: string[];
   };
 };
