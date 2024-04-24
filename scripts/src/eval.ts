@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { exec } from "child_process";
 import { existsSync, readFileSync } from "fs";
 import { writeFile } from "fs/promises";

@@ -54,4 +54,4 @@ jobs:
         uses: ./tooling/github/setup
 
       - name: Test
-        run: pnpm test -- --update-snapshot
+        run: pnpm test
