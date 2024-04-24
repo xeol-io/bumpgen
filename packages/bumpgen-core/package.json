@@ -7,7 +7,7 @@
   "scripts": {
     "test": "jest",
     "build": "tsup src/index.ts --format esm,cjs --dts --sourcemap",
-    "dev": "tsup src/index.ts --format esm,cjs --dts --watch",
+    "dev": "tsup src/index.ts --format esm,cjs --dts --watch --sourcemap",
     "lint": "eslint . --max-warnings 0"
   },
   "dependencies": {
