@@ -146,38 +146,42 @@ const makeImportContextMessage = (importContext: DependencyGraphNode[]) => {
 
 export const fitToContext = (
   contextSize: number,
-  messages: (Message | null)[],
+  messages: { [key: string]: Message | null },
 ): Message[] => {
-  const remainingBudget =
-    contextSize -
-    messages.reduce((acc, m) => acc + (m ? m.content.length : 0), 0);
+  let totalContentLength = 0;
+  Object.values(messages).forEach(m => {
+    if (m) totalContentLength += m.content.length;
+  });
+
+  let remainingBudget = contextSize - totalContentLength;
 
   if (remainingBudget < 0) {
     let charsToRemove = -remainingBudget;
-
     console.debug(`messages too large, removing ${charsToRemove} characters`);
 
-    // chunking priority order
-    const priorityOrder = [4, 1, 2, 3];
+    // top of the list is least important context
+    const priorityOrder = [
+      "externalDependencyMessage",
+      "temporalContextMessage",
+      "spatialContextMessage",
+      "planNodeMessage",
+    ];
 
-    for (const index of priorityOrder) {
-      if (charsToRemove <= 0) break;
-
-      const message = messages[index];
-
+    for (const key of priorityOrder) {
+      if (remainingBudget >= 0) break;
+      
+      const message = messages[key];
       if (!message) continue;
 
-      const currentLength = message.content.length;
+      const lines = message.content.split("\n");
+      while (lines.length > 0 && remainingBudget < 0) {
+        const lastLine = lines.pop();
+        remainingBudget += lastLine ? lastLine.length + 1 : 0;
+      }
 
-      if (currentLength > charsToRemove) {
-        message.content = message.content.substring(
-          0,
-          currentLength - charsToRemove,
-        );
-        charsToRemove = 0;
-      } else {
-        charsToRemove -= currentLength;
-        messages[index] = null;
+      message.content = lines.join("\n");
+      if (message.content.length === 0) {
+        messages[key] = null;
       }
     }
 
@@ -186,10 +190,8 @@ export const fitToContext = (
     }
   }
 
-  return messages.filter(<T>(r: T | null): r is T => !!r);
+  return Object.values(messages).filter((message): message is Message => message !== null);
 };
-
-// const makeChangeReasonMessage = (planNode: PlanGraphNode) => {};
 
 export const createOpenAIService = (openai: OpenAI) => {
   return {
@@ -227,7 +229,6 @@ export const createOpenAIService = (openai: OpenAI) => {
           content:
             "First, think step-by-step about the errors given, and then use the update_code function to fix the code block.",
         };
-
         const spatialContextMessage = makeSpatialContextMessage(spatialContext);
         const temporalContextMessage =
           makeTemporalContextMessage(temporalContext);
@@ -239,14 +240,14 @@ export const createOpenAIService = (openai: OpenAI) => {
         const externalDependencyMessage =
           makeExternalDependencyContextMessage(importContext);
 
-        const messages = fitToContext(LLM_CONTEXT_SIZE, [
-          systemMessage,
-          spatialContextMessage,
-          temporalContextMessage,
-          planNodeMessage,
-          externalDependencyMessage,
-          finalMessage,
-        ]);
+        const messages = fitToContext(LLM_CONTEXT_SIZE, {
+          systemMessage: systemMessage,
+          spatialContextMessage: spatialContextMessage,
+          temporalContextMessage: temporalContextMessage,
+          planNodeMessage: planNodeMessage,
+          externalDependencyMessage: externalDependencyMessage,
+          finalMessage: finalMessage,
+        });
 
         console.log("ChatGPT Message:\n", messages);
 
