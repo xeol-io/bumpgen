@@ -108,6 +108,93 @@ const findSequentialMatchedLinesIndices = (
   return getAllCombinations(0, [], { startIndex: -1, endIndex: -1 });
 }
 
+const splitMultiImportOldCode = (code: string): string[] => {
+  // Regular expression to match import statements, including multiline imports
+  const importRegex = /import\s+[\s\S]+?from\s+['"][^'"]+['"]\s*;|import\s+['"][^'"]+['"]\s*;/g;
+
+  let imports: string[] = [];
+
+  let match: RegExpExecArray | null;
+  while ((match = importRegex.exec(code)) !== null) {
+    imports.push(match[0]);
+  }
+
+  const codeWithoutImports = code.replace(importRegex, '').trim();
+
+  let remainingCodeSections: string[] = [];
+
+  if (codeWithoutImports.length > 0) {
+    remainingCodeSections.push(codeWithoutImports);
+  }
+
+  return [...imports, ...remainingCodeSections];
+}
+
+const searchNReplace = (
+  content: string,
+  oldCode: string,
+  newCode: string,
+) => {
+  const splitContent = splitCode(content);
+  const allMatchedLines: number[][] = [];
+
+  const fuse = new Fuse(
+    trimCode(content),
+    {
+      includeScore: true,
+      includeMatches: true,
+      threshold: 0.2,
+      findAllMatches: false,
+      isCaseSensitive: true,
+      shouldSort: true,
+    });
+  
+  // find all possible matched lines then find the sequential hits
+  trimCode(oldCode).forEach(line => {
+    const result = fuse.search(line);
+    const matchedLines = result.map(item => item.refIndex);
+    allMatchedLines.push(matchedLines);
+  });
+
+  const { startIndex, endIndex } = findSequentialMatchedLinesIndices(allMatchedLines);
+
+  if (startIndex === -1 && endIndex === -1) {
+    console.log("No matching block found");
+    return content;
+  }
+
+  const matchedLines = splitContent.slice(startIndex, endIndex + 1).join('\n');
+
+  console.log(`Matched block starts at ${startIndex} and ends at ${endIndex}\n`);
+  console.log("=== actual matched code block");
+  console.log(matchedLines);
+  console.log("=== \n");
+
+  // format the replacing code accordingly then search n replace
+  const firstMatchedLine = splitContent[startIndex];
+  if (firstMatchedLine === undefined) {
+    console.log("This is a big oopsy");
+    return content;
+  }
+
+  const indentedNewCode = formatNewCode(
+    countIndents(firstMatchedLine),
+    newCode
+  );
+
+  console.log("=== replacing with this new code")
+  console.log(indentedNewCode.join("\n"));
+  console.log("=== \n");
+
+  const updatedContents = [
+    ...splitContent.slice(0, startIndex),
+    ...indentedNewCode,
+    ...splitContent.slice(endIndex + 1)
+  ].join("\n");
+
+  return updatedContents;
+};
+
 export const createMatchingService = () => {
   return {
     replacements: { 
@@ -120,64 +207,17 @@ export const createMatchingService = () => {
         oldCode: string;
         newCode: string;
       }) => {
-        const splitContent = splitCode(content);
-        const allMatchedLines: number[][] = [];
+        const multiImportOldCode = splitMultiImportOldCode(oldCode);
 
-        const fuse = new Fuse(
-          trimCode(content),
-          {
-            includeScore: true,
-            includeMatches: true,
-            threshold: 0.2,
-            findAllMatches: false,
-            isCaseSensitive: true,
-            shouldSort: true,
-          });
-        
-        // find all possible matched lines then find the sequential hits
-        trimCode(oldCode).forEach(line => {
-          const result = fuse.search(line);
-          const matchedLines = result.map(item => item.refIndex);
-          allMatchedLines.push(matchedLines);
-        });
-  
-        const { startIndex, endIndex } = findSequentialMatchedLinesIndices(allMatchedLines);
-      
-        if (startIndex === -1 && endIndex === -1) {
-          console.log("No matching block found");
-          return content;
-        }
-      
-        const matchedLines = splitContent.slice(startIndex, endIndex + 1).join('\n');
-      
-        console.log(`Matched block starts at ${startIndex} and ends at ${endIndex}\n`);
-        console.log("=== actual matched code block");
-        console.log(matchedLines);
-        console.log("=== \n");
-      
-        // format the replacing code accordingly then search n replace
-        const firstMatchedLine = splitContent[startIndex];
-        if (firstMatchedLine === undefined) {
-          console.log("This is a big oopsy");
-          return content;
+        if (multiImportOldCode.length > 1) {
+          multiImportOldCode.forEach((line: string) => {
+            content = searchNReplace(content, line, newCode);
+          });      
+        } else {
+          content = searchNReplace(content, content, newCode);
         }
 
-        const indentedNewCode = formatNewCode(
-          countIndents(firstMatchedLine),
-          newCode
-        );
-      
-        console.log("=== replacing with this new code")
-        console.log(indentedNewCode.join("\n"));
-        console.log("=== \n");
-      
-        const updatedContents = [
-          ...splitContent.slice(0, startIndex),
-          ...indentedNewCode,
-          ...splitContent.slice(endIndex + 1)
-        ].join("\n");
-      
-        return updatedContents;
+        return content;
       },
     },
   };
