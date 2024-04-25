@@ -280,18 +280,10 @@ export const makeTypescriptService = (
           );
           return graph;
         },
-        checkImportsForPackage: (graph, node, packageName) => {
-          const referencedImports = graphService.dependency.getReferencingNodes(
-            graph,
-            {
-              id: node.id,
-              relationships: ["importDeclaration"],
-            },
-          );
-
-          return (
-            referencedImports.filter((n) => n.block.includes(packageName))
-              .length > 0 || node.external !== undefined
+        isImportedFromExternalPackage: (node, packageName) => {
+          return !!(
+            node.external?.importedFrom &&
+            node.external.importedFrom.startsWith(packageName)
           );
         },
       },

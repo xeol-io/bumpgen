@@ -152,9 +152,20 @@ const _bumpgen = ({
           }
 
           for (const node of affectedNodes) {
+            const referencedImports =
+              graphService.dependency.getReferencingNodes(dependencyGraph, {
+                id: node.id,
+                relationships: ["importDeclaration"],
+              });
+
             if (
-              language.graph.dependency.checkImportsForPackage(
-                dependencyGraph,
+              referencedImports.some((n) =>
+                language.graph.dependency.isImportedFromExternalPackage(
+                  n,
+                  packageToUpgrade.packageName,
+                ),
+              ) ||
+              language.graph.dependency.isImportedFromExternalPackage(
                 node,
                 packageToUpgrade.packageName,
               )
@@ -247,11 +258,9 @@ const _bumpgen = ({
               ): node is DependencyGraphNode & {
                 external: NonNullable<DependencyGraphNode["external"]>;
               } =>
-                !!(
-                  node.external?.importedFrom &&
-                  node.external.importedFrom.startsWith(
-                    packageToUpgrade.packageName,
-                  )
+                language.graph.dependency.isImportedFromExternalPackage(
+                  node,
+                  packageToUpgrade.packageName,
                 ),
             )
             .map((node) => {

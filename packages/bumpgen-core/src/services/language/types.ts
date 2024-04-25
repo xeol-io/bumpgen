@@ -37,8 +37,7 @@ export type BumpgenLanguageService<TAst = any> = {
   graph: {
     dependency: {
       initialize: (ast: AbstractSyntaxTree<TAst>) => DependencyGraph;
-      checkImportsForPackage: (
-        graph: DependencyGraph,
+      isImportedFromExternalPackage: (
         node: DependencyGraphNode,
         packageName: string,
       ) => boolean;
