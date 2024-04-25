@@ -153,7 +153,7 @@ const searchAndReplace = (
     {
       threshold: threshold,
       ignoreLocation: true,
-      includeScore: true,
+      includeScore: true, 
       includeMatches: true,
       findAllMatches: true,
       isCaseSensitive: true,
@@ -164,8 +164,9 @@ const searchAndReplace = (
   trimCode(oldCode).forEach(line => {
     const result = fuse.search(line);
     console.log(result);
+  
     const matchedLines = result
-      .filter((item: any) => item.score <= threshold * 1.5)
+      .filter(item => item.score !== undefined && item.score <= threshold * 1.5)
       .map(item => item.refIndex);
   
     if (matchedLines.length > 0) {

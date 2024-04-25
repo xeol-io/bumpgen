@@ -54,7 +54,7 @@ const isRegexParsed = (value: unknown): value is ErrorRegexParsed => {
 export const makeTypescriptService = (
   filesystem: FilesystemService,
   subprocess: SubprocessService,
-  graphService: GraphService,
+  _graphService: GraphService,
 ) => {
   const findPackageManager = async (projectRoot: string) => {
     let currentDir = projectRoot;
