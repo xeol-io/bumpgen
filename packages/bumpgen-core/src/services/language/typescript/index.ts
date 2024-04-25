@@ -354,13 +354,18 @@ export const makeTypescriptService = (
               graph.dependency.addNode(node.id, node);
             }
             for (const edge of edges) {
-              if (edge.source === node.id || edge.target === node.id) {
-                if (!graph.dependency.hasEdge(edge.source, edge.target)) {
-                  graph.dependency.addDirectedEdge(
-                    edge.source,
-                    edge.target,
-                    edge,
-                  );
+              if (
+                graph.dependency.hasNode(edge.source) &&
+                graph.dependency.hasNode(edge.target)
+              ) {
+                if (edge.source === node.id || edge.target === node.id) {
+                  if (!graph.dependency.hasEdge(edge.source, edge.target)) {
+                    graph.dependency.addDirectedEdge(
+                      edge.source,
+                      edge.target,
+                      edge,
+                    );
+                  }
                 }
               }
             }
