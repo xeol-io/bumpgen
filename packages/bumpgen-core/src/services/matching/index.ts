@@ -109,19 +109,23 @@ const findSequentialMatchedLinesIndices = (
 }
 
 const splitMultiImportOldCode = (code: string): string[] => {
-  // Regular expression to match import statements, including multiline imports
-  const importRegex = /import\s+[\s\S]+?from\s+['"][^'"]+['"]\s*;|import\s+['"][^'"]+['"]\s*;/g;
+  const importRegex = /import\s+(['"]([^'"]+)['"]|[\s\S]+?from\s+['"]([^'"]+)['"])\s*;/g;
+  const requireRegex = /const\s+[a-zA-Z_$][0-9a-zA-Z_$]*\s*=\s*(await\s+)?(require\(['"][^'"]+['"]\)|import\(['"][^'"]+['"]\))\s*;?/g;
 
-  let imports: string[] = [];
+  const imports: string[] = [];
 
   let match: RegExpExecArray | null;
   while ((match = importRegex.exec(code)) !== null) {
     imports.push(match[0]);
   }
+  let codeWithoutImports = code.replace(importRegex, '').trim();
 
-  const codeWithoutImports = code.replace(importRegex, '').trim();
+  while ((match = requireRegex.exec(code)) !== null) {
+    imports.push(match[0]);
+  }
+  codeWithoutImports = codeWithoutImports.replace(requireRegex, '').trim();
 
-  let remainingCodeSections: string[] = [];
+  const remainingCodeSections: string[] = [];
 
   if (codeWithoutImports.length > 0) {
     remainingCodeSections.push(codeWithoutImports);
@@ -130,21 +134,23 @@ const splitMultiImportOldCode = (code: string): string[] => {
   return [...imports, ...remainingCodeSections];
 }
 
-const searchNReplace = (
+const searchAndReplace = (
   content: string,
   oldCode: string,
   newCode: string,
 ) => {
   const splitContent = splitCode(content);
   const allMatchedLines: number[][] = [];
+  const threshold = 0.2;
 
   const fuse = new Fuse(
     trimCode(content),
     {
+      threshold: threshold,
+      ignoreLocation: true,
       includeScore: true,
       includeMatches: true,
-      threshold: 0.2,
-      findAllMatches: false,
+      findAllMatches: true,
       isCaseSensitive: true,
       shouldSort: true,
     });
@@ -152,20 +158,34 @@ const searchNReplace = (
   // find all possible matched lines then find the sequential hits
   trimCode(oldCode).forEach(line => {
     const result = fuse.search(line);
-    const matchedLines = result.map(item => item.refIndex);
-    allMatchedLines.push(matchedLines);
+    console.log(result);
+    const matchedLines = result
+      .filter((item: any) => item.score <= threshold * 1.5)
+      .map(item => item.refIndex);
+  
+    if (matchedLines.length > 0) {
+      allMatchedLines.push(matchedLines);
+    }
   });
 
   const { startIndex, endIndex } = findSequentialMatchedLinesIndices(allMatchedLines);
 
+  console.log(`Looking for this code:`);
+  console.log("=====");
+  console.log(oldCode);
+  console.log("=====");
+  console.log(`In this file:`);
+  console.log("=====");
+  console.log(content);
+  console.log("=====");
+  console.log(`And found the following:`);
+  console.log("=====");
+  console.log("Matched indexes:", allMatchedLines);
   if (startIndex === -1 && endIndex === -1) {
     console.log("ERROR: No matching block found");
-    console.log("allMatchedLines:", allMatchedLines);
-    console.log("=====");
-    console.log(content);
-    console.log("=====");
     return content;
   }
+  console.log("=====");
 
   const matchedLines = splitContent.slice(startIndex, endIndex + 1).join('\n');
 
@@ -215,10 +235,10 @@ export const createMatchingService = () => {
 
         if (multiImportOldCode.length > 1) {
           multiImportOldCode.forEach((line: string) => {
-            content = searchNReplace(content, line, newCode);
+            content = searchAndReplace(content, line, newCode);
           });      
         } else {
-          content = searchNReplace(content, content, newCode);
+          content = searchAndReplace(content, content, newCode);
         }
 
         return content;
