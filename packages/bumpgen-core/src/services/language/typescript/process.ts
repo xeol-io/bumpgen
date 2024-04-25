@@ -95,13 +95,73 @@ export const getDefinitionNodesOutsideBlock = (
   return definitionNodes;
 };
 
+const isExportableType = (
+  node: Node,
+): node is
+  | ModuleDeclaration
+  | InterfaceDeclaration
+  | ClassDeclaration
+  | FunctionDeclaration
+  | VariableDeclaration
+  | TypeAliasDeclaration => {
+  return (
+    node.getKind() === SyntaxKind.ModuleDeclaration ||
+    node.getKind() === SyntaxKind.InterfaceDeclaration ||
+    node.getKind() === SyntaxKind.ClassDeclaration ||
+    node.getKind() === SyntaxKind.FunctionDeclaration ||
+    node.getKind() === SyntaxKind.VariableDeclaration ||
+    node.getKind() === SyntaxKind.TypeAliasDeclaration
+  );
+};
+
 // process an import node. e.g 'import {x} from "y"'
 const processImportNode = (identifier: Identifier, parentNode: Node) => {
   const surroundingBlock = getSurroundingBlock(parentNode);
 
+  let exportStatements: string[] | undefined;
+
+  const firstDefinitionNode = identifier.getDefinitionNodes()[0];
+
+  if (
+    firstDefinitionNode &&
+    firstDefinitionNode.getSourceFile().isInNodeModules()
+  ) {
+    exportStatements = firstDefinitionNode
+      .getFirstChildByKind(SyntaxKind.SyntaxList)
+      ?.getChildren()
+      .filter((child) => {
+        return (
+          child.getKind() === SyntaxKind.ExportAssignment ||
+          child.getKind() === SyntaxKind.ExportDeclaration ||
+          (isExportableType(child) && child.getExportKeyword() !== undefined)
+        );
+      })
+      .map((child) => {
+        if (
+          child.getKind() === SyntaxKind.ExportAssignment ||
+          child.getKind() === SyntaxKind.ExportDeclaration
+        ) {
+          return child.getText();
+        } else {
+          const text = child.getText();
+          const block = child.getFirstChildByKind(SyntaxKind.Block);
+
+          if (block) {
+            return text.replace(block.getText(), "");
+          }
+
+          return text;
+        }
+      });
+  }
+
   const name = identifier.getText();
   const kind = makeKind(surroundingBlock.getKind());
   const path = surroundingBlock.getSourceFile().getFilePath();
+  const moduleName = surroundingBlock
+    .getFirstChildByKind(SyntaxKind.StringLiteral)
+    ?.getText()
+    .replace(/^['"]|['"]$/g, "");
 
   const node = {
     id: id({
@@ -116,6 +176,13 @@ const processImportNode = (identifier: Identifier, parentNode: Node) => {
     startLine: surroundingBlock.getStartLineNumber(),
     endLine: surroundingBlock.getEndLineNumber(),
     edits: [],
+    external:
+      exportStatements && moduleName
+        ? {
+            importedFrom: moduleName,
+            exports: exportStatements,
+          }
+        : undefined,
   };
 
   return node;
@@ -134,9 +201,6 @@ const getImportNodes = (node: TopLevelTypes) => {
         if (isImportNode(declaration)) {
           const parentNode = getSurroundingBlock(declaration);
           const node = processImportNode(identifier, parentNode);
-          if (!node) {
-            return;
-          }
           importNodes.push(node);
         }
       });
