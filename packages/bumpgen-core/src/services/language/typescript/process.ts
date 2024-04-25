@@ -160,7 +160,8 @@ const processImportNode = (identifier: Identifier, parentNode: Node) => {
   const path = surroundingBlock.getSourceFile().getFilePath();
   const moduleName = surroundingBlock
     .getFirstChildByKind(SyntaxKind.StringLiteral)
-    ?.getText();
+    ?.getText()
+    .replace(/^['"]|['"]$/g, "");
 
   const node = {
     id: id({

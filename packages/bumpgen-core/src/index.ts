@@ -232,16 +232,26 @@ const _bumpgen = ({
             },
           );
 
-          const importContext = graphService.dependency
-            .getReferencingNodes(graph.dependency, {
+          const importContext = graphService.dependency.getReferencingNodes(
+            graph.dependency,
+            {
               id: planNode.id,
               relationships: ["importDeclaration"],
-            })
+            },
+          );
+
+          const externalImportContext = importContext
             .filter(
-              (node) =>
-                node.external?.importedFrom &&
-                node.external.importedFrom.startsWith(
-                  packageToUpgrade.packageName,
+              (
+                node,
+              ): node is DependencyGraphNode & {
+                external: NonNullable<DependencyGraphNode["external"]>;
+              } =>
+                !!(
+                  node.external?.importedFrom &&
+                  node.external.importedFrom.startsWith(
+                    packageToUpgrade.packageName,
+                  )
                 ),
             )
             .map((node) => {
@@ -255,6 +265,7 @@ const _bumpgen = ({
             await llm.codeplan.getReplacements({
               currentPlanNode: planNode,
               importContext,
+              externalImportContext,
               spatialContext,
               temporalContext,
               bumpedPackage: packageToUpgrade.packageName,

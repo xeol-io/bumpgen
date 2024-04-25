@@ -49,39 +49,44 @@ const makeExternalDependencyContextMessage = (
     typeSignature: string;
   })[],
 ) => {
-  if (importContext.length === 0) {
-    return null;
-  }
-  if (importContext.map((imp) => imp.typeSignature).join("") === "") {
+  const typeSignatures = importContext
+    .filter((imp) => imp.typeSignature !== "")
+    .map((imp) => {
+      return `<import \n  statement="${imp.block}"\n>\n${imp.typeSignature}\n</import>`;
+    });
+
+  const exports = importContext
+    .filter(
+      (
+        imp,
+      ): imp is DependencyGraphNode & {
+        typeSignature: string;
+        external: NonNullable<DependencyGraphNode["external"]>;
+      } => !!imp.external,
+    )
+    .flatMap((imp) => {
+      return imp.external.exports.map((exp) => {
+        return `<export \n  module="${imp.external?.importedFrom}"\n>${exp}</export>`;
+      });
+    });
+
+  if (typeSignatures.length === 0 && exports.length === 0) {
     return null;
   }
 
   return {
     role: "user" as const,
     content: [
-      ...(importContext.length > 0
+      ...(typeSignatures.length > 0
         ? [
             `Type signatures for the ${pkg} imports used in the code block:\n`,
-            ...importContext
-              .filter((imp) => imp.typeSignature !== "")
-              .map((imp) => {
-                return `<import \n  statement="${imp.block}"\n>\n${imp.typeSignature}\n</import>`;
-              }),
-            `The imported module(s) also contain the following exports:`,
-            ...importContext
-              .filter(
-                (
-                  imp,
-                ): imp is DependencyGraphNode & {
-                  typeSignature: string;
-                  external: NonNullable<DependencyGraphNode["external"]>;
-                } => !!imp.external,
-              )
-              .flatMap((imp) => {
-                return imp.external.exports.map((exp) => {
-                  return `<export \n  module="${imp.external?.importedFrom}"\n>${exp}</export>`;
-                });
-              }),
+            ...typeSignatures,
+          ]
+        : []),
+      ...(exports.length > 0
+        ? [
+            `The imported ${pkg} module(s) contain the following exports:`,
+            ...exports,
           ]
         : []),
     ].join("\n"),
@@ -228,6 +233,7 @@ export const createOpenAIService = (openai: OpenAI) => {
           temporalContext,
           currentPlanNode,
           importContext,
+          externalImportContext,
           bumpedPackage,
         } = context;
 
@@ -259,7 +265,7 @@ export const createOpenAIService = (openai: OpenAI) => {
         );
         const externalDependencyMessage = makeExternalDependencyContextMessage(
           bumpedPackage,
-          importContext,
+          externalImportContext,
         );
 
         const messages = fitToContext(LLM_CONTEXT_SIZE, {

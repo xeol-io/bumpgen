@@ -15,8 +15,10 @@ export const ReplacementSchema = z.object({
 
 export type LLMContext = {
   bumpedPackage: string;
-  importContext: (DependencyGraphNode & {
+  importContext: DependencyGraphNode[];
+  externalImportContext: (DependencyGraphNode & {
     typeSignature: string;
+    external: NonNullable<DependencyGraphNode["external"]>;
   })[];
   spatialContext: (DependencyGraphNode & {
     typeSignature: string;

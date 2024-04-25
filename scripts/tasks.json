@@ -1,5 +1,15 @@
 [
   {
+    "id": "che-incubator__chectl-execa__^8.0.1",
+    "name": "chectl",
+    "owner": "che-incubator",
+    "pkgManager": "yarn",
+    "package": "execa",
+    "versionTo": "^8.0.1",
+    "nodeVersion": "v20.12.2",
+    "commit": "5e809d2ae21a35bca1a74782fc824fd4dde05b58"
+  },
+  {
     "id": "JoinColony__colonySDK-@urql-slash-core__^5.0.1",
     "name": "colonySDK",
     "owner": "JoinColony",
@@ -1036,16 +1046,6 @@
     "pkgManager": "yarn",
     "package": "axios",
     "versionTo": "^1.6.8",
-    "nodeVersion": "v20.12.2",
-    "commit": "5e809d2ae21a35bca1a74782fc824fd4dde05b58"
-  },
-  {
-    "id": "che-incubator__chectl-execa__^8.0.1",
-    "name": "chectl",
-    "owner": "che-incubator",
-    "pkgManager": "yarn",
-    "package": "execa",
-    "versionTo": "^8.0.1",
     "nodeVersion": "v20.12.2",
     "commit": "5e809d2ae21a35bca1a74782fc824fd4dde05b58"
   },
