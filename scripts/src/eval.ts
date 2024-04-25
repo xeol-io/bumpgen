@@ -122,22 +122,25 @@ program
 
     try {
       let iterations = 0;
+      let maxIterations = 14;
       let errors;
       do {
         errors = await bumpgen.build.getErrors();
-        if (errors.length === 0) {
-          break;
-        }
+        if (errors.length === 0) break;
+
         const graph = bumpgen.graph.initialize(errors);
+        const temperature = Math.min(iterations > maxIterations / 2 ? 0.2 * Math.exp(0.15 * (iterations - maxIterations / 2)) : 0.2, 1);
+        console.log(`ITERATION ${iterations} of ${maxIterations} with temperation ${temperature}`);
+        
         let iterationResult;
+
         do {
-          iterationResult = await bumpgen.graph.plan.execute(graph);
-          if (!iterationResult) {
-            break;
-          }
+          iterationResult = await bumpgen.graph.plan.execute(graph, temperature);
+          if (!iterationResult) break;
         } while (iterationResult);
+
         iterations += 1;
-      } while (errors.length > 0 && iterations < 10);
+      } while (errors.length > 0 && iterations < maxIterations);
 
       if (iterations === 0) {
         console.log(
