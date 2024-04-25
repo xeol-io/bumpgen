@@ -257,9 +257,11 @@ const _bumpgen = ({
               relationships: ["importDeclaration"],
             },
           );
-          importContext.push(depGraphNode);
 
           const externalImportContext = importContext
+            // we add the depGraph node since it might itself be an import node
+            // and we need it as external context
+            .concat(depGraphNode)
             .filter(
               (
                 node,
