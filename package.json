@@ -1,11 +1,12 @@
 {
   "name": "bumpgen",
-  "private": true,
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
     "lint": "turbo lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "test": "turbo test",
+    "typecheck": "turbo typecheck"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",

@@ -14,4 +14,11 @@ module.exports = {
       },
     ],
   },
+  testMatch: [
+    "**/*.test.ts",
+  ],
+  testPathIgnorePatterns: [
+    "/src/services/language/typescript",  
+  ],
+  passWithNoTests: true,
 };

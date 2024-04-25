@@ -1,0 +1,70 @@
+name: Publish bumpgen core to npmjs
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'packages/bumpgen-core/**'
+
+jobs:
+  check:
+    name: 'Check if release is needed'
+    runs-on: 'ubuntu-latest'
+    outputs:
+      exists: ${{ steps.check-tag.outputs.exists }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: martinbeentjes/npm-get-version-action@main
+        id: get-version
+      - uses: mukunku/tag-exists-action@v1.1.0
+        id: check-tag
+        with:
+          tag: v${{ steps.get-version.outputs.current-version }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  release:
+    name: 'Release'
+    needs: check
+    if: needs.check.outputs.exists == 'false'
+    runs-on: 'ubuntu-latest'
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v3
+      - uses: martinbeentjes/npm-get-version-action@main
+        id: get-version
+      - uses: actions/create-release@v1
+        id: create-release
+        with:
+          draft: false
+          prerelease: false
+          release_name: v${{ steps.get-version.outputs.current-version}}
+          tag_name: v${{ steps.get-version.outputs.current-version}}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - uses: ./tooling/github/setup
+        name: Install pnpm
+        with:
+          version: 8
+          run_install: false
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: ".nvmrc"
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+
+      - name: 📦️ Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 🚀 Publish bumpgen-core to npm
+        run: pnpm publish packages/bumpgen-core
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

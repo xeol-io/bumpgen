@@ -6,8 +6,6 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "test": "jest",
-    "lint": "eslint . --max-warnings 0"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.29.2",
