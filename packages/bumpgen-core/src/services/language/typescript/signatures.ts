@@ -102,17 +102,8 @@ const indexSignatureDeclarationSignature = (
 };
 
 const functionDeclarationSignature = (node: FunctionDeclaration) => {
-  // ref: https://github.com/dsherret/ts-morph/issues/907
-  const params = node
-    .getParameters()
-    .map((parameter) => parameter.getText())
-    .join(", ");
-  const returnType = node.getReturnType().getText(
-    node,
-    // https://github.com/dsherret/ts-morph/issues/453#issuecomment-667578386
-    TypeFormatFlags.UseAliasDefinedOutsideCurrentScope,
-  );
-  return enrichWithTypeReferences(`(${params}) => ${returnType}`, node);
+  const typeDef = node.getText();
+  return enrichWithTypeReferences(typeDef, node);
 };
 
 const variableDeclarationSignature = (node: VariableDeclaration) => {
@@ -121,13 +112,8 @@ const variableDeclarationSignature = (node: VariableDeclaration) => {
 };
 
 const methodDeclarationSignature = (node: MethodDeclaration) => {
-  // ref: https://github.com/dsherret/ts-morph/issues/907
-  const params = node
-    .getParameters()
-    .map((parameter) => parameter.getText())
-    .join(", ");
-  const returnType = node.getReturnType().getText();
-  return enrichWithTypeReferences(`(${params}) => ${returnType}`, node);
+  const typeDef = node.getText();
+  return enrichWithTypeReferences(typeDef, node);
 };
 
 const heritageClauseSignature = (node: HeritageClause) => {
