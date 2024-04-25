@@ -14,12 +14,14 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: main
+
       - uses: martinbeentjes/npm-get-version-action@main
         with:
           path: apps/cli
         id: main-version
 
       - uses: actions/checkout@v4
+
       - uses: martinbeentjes/npm-get-version-action@main
         with:
           path: apps/cli
@@ -28,6 +30,7 @@ jobs:
       - name: Setup
         uses: ./tooling/github/setup
         with:
+          node-version: 20
           registry-url: 'https://registry.npmjs.org'
 
       - uses: actions/github-script@v6
