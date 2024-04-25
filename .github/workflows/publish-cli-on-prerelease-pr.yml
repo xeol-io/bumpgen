@@ -44,4 +44,4 @@ jobs:
       - run: pnpm --filter=bumpgen run build
       - run: pnpm --filter=bumpgen publish --tag next --access public --no-git-checks
         env:
-          NODE_AUTH_TOKEN: "${{ secrets.NPM_TOKEN }}"
+          NPM_AUTH_TOKEN: "${{ secrets.NPM_TOKEN }}"
