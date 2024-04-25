@@ -208,19 +208,16 @@ export const searchAndReplace = (
     return content;
   }
 
-  const indentedNewCode = formatNewCode(
-    countIndents(firstMatchedLine),
-    newCode,
-  );
+  const formattedNewCode = formatNewCode(firstMatchedLine, newCode);
 
-  console.log("=== replacing with this new code");
-  console.log(indentedNewCode.join("\n"));
+  console.log("=== replacing with this new code")
+  console.log(formattedNewCode.join("\n"));
   console.log("=== \n");
 
   const updatedContents = [
     ...splitContent.slice(0, startIndex),
-    ...indentedNewCode,
-    ...splitContent.slice(endIndex + 1),
+    ...formattedNewCode,
+    ...splitContent.slice(endIndex + 1)
   ].join("\n");
 
   return updatedContents;
