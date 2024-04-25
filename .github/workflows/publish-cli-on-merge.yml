@@ -1,36 +1,39 @@
-name: Publish bumpgen cli to npmjs
+name: Release to Npm
 
 on:
   push:
     branches: [main]
     paths:
-      - 'apps/cli/**'
+      - "apps/cli/**"
 
 jobs:
   check:
-    name: 'Check if release is needed'
-    runs-on: 'ubuntu-latest'
+    name: "Check if release is needed"
+    runs-on: "ubuntu-latest"
     outputs:
       exists: ${{ steps.check-tag.outputs.exists }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      # retrieves the version from package.json
       - uses: martinbeentjes/npm-get-version-action@main
         id: get-version
+      # check if the tag exists on the repo
       - uses: mukunku/tag-exists-action@v1.1.0
         id: check-tag
         with:
           tag: v${{ steps.get-version.outputs.current-version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   release:
-    name: 'Release'
+    name: "Release"
     needs: check
     if: needs.check.outputs.exists == 'false'
-    runs-on: 'ubuntu-latest'
+    runs-on: "ubuntu-latest"
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: martinbeentjes/npm-get-version-action@main
         id: get-version
       - uses: actions/create-release@v1
@@ -48,18 +51,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - uses: ./tooling/github/setup
-        name: Install pnpm
-        with:
-          version: 8
-          run_install: false
-
-      - name: Install Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version-file: ".nvmrc"
-          cache: pnpm
-          registry-url: https://registry.npmjs.org
+      - name: Setup
+        uses: ./tooling/github/setup
 
       - name: 📦️ Install dependencies
         run: pnpm install --frozen-lockfile
