@@ -152,9 +152,20 @@ const _bumpgen = ({
           }
 
           for (const node of affectedNodes) {
+            const referencedImports =
+              graphService.dependency.getReferencingNodes(dependencyGraph, {
+                id: node.id,
+                relationships: ["importDeclaration"],
+              });
+
             if (
-              language.graph.dependency.checkImportsForPackage(
-                dependencyGraph,
+              referencedImports.some((n) =>
+                language.graph.dependency.isImportedFromExternalPackage(
+                  n,
+                  packageToUpgrade.packageName,
+                ),
+              ) ||
+              language.graph.dependency.isImportedFromExternalPackage(
                 node,
                 packageToUpgrade.packageName,
               )
@@ -204,10 +215,7 @@ const _bumpgen = ({
           const { graphService } = services;
           return graphService.plan.nodes.nextPending(graph.plan) === undefined;
         },
-        execute: async (
-          graph: BumpgenGraph,
-          temperature: number,
-        ) => {
+        execute: async (graph: BumpgenGraph, temperature: number) => {
           const { llm, graphService, language } = services;
           const { packageToUpgrade } = args;
           const planNode = graphService.plan.nodes.nextPending(graph.plan);
@@ -250,11 +258,9 @@ const _bumpgen = ({
               ): node is DependencyGraphNode & {
                 external: NonNullable<DependencyGraphNode["external"]>;
               } =>
-                !!(
-                  node.external?.importedFrom &&
-                  node.external.importedFrom.startsWith(
-                    packageToUpgrade.packageName,
-                  )
+                language.graph.dependency.isImportedFromExternalPackage(
+                  node,
+                  packageToUpgrade.packageName,
                 ),
             )
             .map((node) => {
@@ -265,16 +271,17 @@ const _bumpgen = ({
             });
 
           const { replacements, commitMessage } =
-            await llm.codeplan.getReplacements({
-              currentPlanNode: planNode,
-              importContext,
-              externalImportContext,
-              spatialContext,
-              temporalContext,
-              bumpedPackage: packageToUpgrade.packageName,
-            },
-            temperature
-          );
+            await llm.codeplan.getReplacements(
+              {
+                currentPlanNode: planNode,
+                importContext,
+                externalImportContext,
+                spatialContext,
+                temporalContext,
+                bumpedPackage: packageToUpgrade.packageName,
+              },
+              temperature,
+            );
 
           if (replacements.length > 0) {
             let fileContents = await services.filesystem.read(planNode.path);
@@ -422,7 +429,12 @@ const _bumpgen = ({
           };
           const iterationResult = await bumpgen.graph.plan.execute(
             graph,
-            Math.min(iteration > maxIterations / 2 ? 0.2 * Math.exp(0.3 * (iteration - maxIterations / 2)) : 0.2, 2),
+            Math.min(
+              iteration > maxIterations / 2
+                ? 0.2 * Math.exp(0.3 * (iteration - maxIterations / 2))
+                : 0.2,
+              2,
+            ),
           );
           if (!iterationResult) {
             break;

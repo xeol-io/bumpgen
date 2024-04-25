@@ -253,6 +253,12 @@ export const makeTypescriptService = (
           >();
           const sourceFiles = ast.tree.getSourceFiles();
 
+          if (sourceFiles.length === 0) {
+            throw new Error(
+              "No source files found in this project, cannot build dependency graph",
+            );
+          }
+
           const start = Date.now();
           sourceFiles.forEach((sourceFile) => {
             const { nodes, edges } = processSourceFile(sourceFile);
@@ -274,18 +280,10 @@ export const makeTypescriptService = (
           );
           return graph;
         },
-        checkImportsForPackage: (graph, node, packageName) => {
-          const referencedImports = graphService.dependency.getReferencingNodes(
-            graph,
-            {
-              id: node.id,
-              relationships: ["importDeclaration"],
-            },
-          );
-
-          return (
-            referencedImports.filter((n) => n.block.includes(packageName))
-              .length > 0
+        isImportedFromExternalPackage: (node, packageName) => {
+          return !!(
+            node.external?.importedFrom &&
+            node.external.importedFrom.startsWith(packageName)
           );
         },
       },
@@ -354,14 +352,17 @@ export const makeTypescriptService = (
               graph.dependency.addNode(node.id, node);
             }
             for (const edge of edges) {
-              if (edge.source === node.id || edge.target === node.id) {
-                if (!graph.dependency.hasEdge(edge.source, edge.target)) {
-                  graph.dependency.addDirectedEdge(
-                    edge.source,
-                    edge.target,
-                    edge,
-                  );
-                }
+              if (
+                graph.dependency.hasNode(edge.source) &&
+                graph.dependency.hasNode(edge.target) &&
+                !graph.dependency.hasEdge(edge.source, edge.target) &&
+                (edge.source !== node.id || edge.target !== node.id)
+              ) {
+                graph.dependency.addDirectedEdge(
+                  edge.source,
+                  edge.target,
+                  edge,
+                );
               }
             }
             return;
