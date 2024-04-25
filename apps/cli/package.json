@@ -1,5 +1,5 @@
 {
-  "name": "bumpgen-cli",
+  "name": "bumpgen",
   "version": "0.0.3-rc1",
   "scripts": {
     "build": "tsup src/index.tsx --format esm",
