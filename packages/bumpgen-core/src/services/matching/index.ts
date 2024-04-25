@@ -1,11 +1,10 @@
 import Fuse from "fuse.js";
 
-// TODO: account for tabbing as well
 const countIndents = (line: string) => {
   let count = 0;
   // eslint-disable-next-line @typescript-eslint/prefer-for-of
   for (let i = 0; i < line.length; i++) {
-    if (line[i] === " ") {
+    if (line[i] === " " || line[i] === "\t") {
       count++;
     } else {
       break;
@@ -18,27 +17,25 @@ const splitCode = (code: string) => code.split("\n");
 
 const trimCode = (code: string) => code.split("\n").map((line) => line.trim());
 
-// TODO: account for negative indent differences, very unlikely scenario
-// TODO: remove empty lines at the beginning and end?
-const formatNewCode = (matchedIndent: number, newCode: string) => {
+const formatNewCode = (firstMatchedLine: string, newCode: string) => {
   const splitNewCode = splitCode(newCode);
-  const firstLine = splitNewCode[0];
+  const firstNewCodeLine = splitNewCode[0];
 
-  if (!firstLine) {
-    return [];
-  }
+  if (!firstNewCodeLine) return splitNewCode;
 
-  const indentDiff = matchedIndent - countIndents(firstLine);
+  const indentDiff = countIndents(firstMatchedLine) - countIndents(firstNewCodeLine);
 
-  const adjustedCode = splitNewCode.map((line) => {
+  const formattedCode = splitNewCode.map((line) => {
     if (indentDiff > 0) {
-      return " ".repeat(indentDiff) + line;
+      return firstMatchedLine[0]?.repeat(indentDiff) + line;
+    } else if (indentDiff < 0) {
+      return line.substring(-indentDiff);
     } else {
       return line;
     }
   });
 
-  return adjustedCode;
+  return formattedCode;
 };
 
 const findSequentialMatchedLinesIndices = (
