@@ -20,7 +20,11 @@ const makePlanNodeMessage = (
   importContext: DependencyGraphNode[],
   bumpedPackage: string,
 ) => {
-  const importMessages = makeImportContextMessage(importContext);
+  const importMessages = unique(
+    importContext.map((context) => {
+      return context.block;
+    }),
+  );
   return {
     role: "user" as const,
     content: [
@@ -66,7 +70,7 @@ const makeExternalDependencyContextMessage = (
     )
     .flatMap((imp) => {
       return imp.external.exports.map((exp) => {
-        return `<export \n  module="${imp.external?.importedFrom}"\n>${exp}</export>`;
+        return exp;
       });
     });
 
@@ -86,7 +90,7 @@ const makeExternalDependencyContextMessage = (
       ...(exports.length > 0
         ? [
             `The imported ${pkg} module(s) contain the following exports:`,
-            ...exports,
+            `<exports>\n${exports.join("\n")}\n</exports>`,
           ]
         : []),
     ].join("\n"),
@@ -99,9 +103,10 @@ const makeSpatialContextMessage = (
   })[],
 ) => {
   const relevantMessage: string[] = [];
+
   for (const context of spatialContext) {
     relevantMessage.push(
-      `<relevant_code \n  type_signature="${context.typeSignature}" \n  relationship="referencedBy" \n  file_path="${context.path}"\n>\n${context.block}\n</relevant_code>`,
+      `<relevant_code \n  typeSignature="${context.typeSignature} \n  "relationship="references" \n  file_path="${context.path}"\n>\n${context.block}\n</relevant_code>`,
     );
   }
 
@@ -111,7 +116,7 @@ const makeSpatialContextMessage = (
 
   return {
     role: "user" as const,
-    content: `The code-to-edit is referenced by these files:\n${relevantMessage.join(
+    content: `The code-to-edit makes reference to these other code blocks:\n${relevantMessage.join(
       "\n",
     )}`,
   };
@@ -156,14 +161,6 @@ const makeTemporalContextMessage = (temporalContext: PlanGraphNode[]) => {
       "\n",
     )}`,
   };
-};
-
-const makeImportContextMessage = (importContext: DependencyGraphNode[]) => {
-  return unique(
-    importContext.map((context) => {
-      return context.block;
-    }),
-  );
 };
 
 export const fitToContext = (

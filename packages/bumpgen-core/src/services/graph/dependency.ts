@@ -1,4 +1,5 @@
 import path from "path";
+import { unique } from "radash";
 
 import type { DependencyGraph } from "../../models/graph";
 import type { Relationship } from "../../models/graph/dependency";
@@ -27,13 +28,19 @@ export const createDependencyGraphService = () => {
       graph: DependencyGraph,
       { id, relationships }: { id: string; relationships: Relationship[] },
     ) => {
-      return Array.from(graph.inEdgeEntries(id))
-        .filter((edge) => {
-          return relationships.includes(edge.attributes.relationship);
-        })
-        .map((edge) => {
-          return graph.getNodeAttributes(edge.target);
-        });
+      return unique(
+        Array.from(graph.inEdgeEntries(id))
+          .filter((edge) => {
+            return relationships.includes(edge.attributes.relationship);
+          })
+          .filter((edge) => {
+            return edge.source === edge.target;
+          })
+          .map((edge) => {
+            return graph.getNodeAttributes(edge.target);
+          }),
+        (s) => s.block,
+      );
     },
     getNodeById: (graph: DependencyGraph, { id }: { id: string }) => {
       return graph.getNodeAttributes(id);
