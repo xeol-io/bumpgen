@@ -4,7 +4,7 @@
 
 <p align="center">
     <a href="https://www.xeol.io/">
-        <img src="https://img.shields.io/badge/Beta Sign Up-FCAE00?logo=googlechrome&logoColor=black&style=for-the-badge"/>
+        <img src="https://img.shields.io/badge/Github App Sign Up-FCAE00?logo=googlechrome&logoColor=black&style=for-the-badge"/>
     </a>
     <a href="https://github.com/xeol-io/bumpgen?tab=MIT-1-ov-file">
         <img src="https://img.shields.io/badge/License-MIT-FCAE00.svg?style=for-the-badge">
@@ -17,23 +17,18 @@
     </a>
     <img src="https://img.shields.io/github/downloads/xeol-io/bumpgen/total.svg?color=FCAE00&style=for-the-badge"/>
     <a href="https://discord.gg/bsWQjHMKPy">
-        <img src="https://img.shields.io/discord/1131312915748753549?logo=discord&label=discord&color=5865F2&style=for-the-badge"/>
+        <img src="https://img.shields.io/discord/1233126412785815613?logo=discord&label=discord&color=5865F2&style=for-the-badge"/>
     </a>
 </p>
 
----
+## 📝 Summary
+Dependabot but fixes the breaking changes for you as well.
+
 <p align="center">
     <video controls>
         <source src="https://www.loom.com/share/e9893c1dde3a4895a7b9116bda1cfe39?sid=083bbc07-4e63-4383-9060-efbb45a9cbae" type="video/mp4">
     </video>
 </p>
-
----
-
-## ✍️ Beta Sign Up
-```
-TODO
-```
 
 ## 🏙️ Architecture
 ```
@@ -129,14 +124,12 @@ OPEN_AI="gpt4_key"
 > bumpgen @tanstack/react-query 5.28.14 
 ```
 
----
+## 🎁 Contributing
 <p align="center">
     <img src="https://s3.amazonaws.com/static.xeol.io/memes/rm-meme.jpeg" alt="logo"/>
 </p>
 
----
-
-## 🦾 Roadmap
+#### Roadmap
 - [x] codeplan
 - [x] Typescript support
 - [ ] `bumpgen` GitHub app 
@@ -144,10 +137,6 @@ OPEN_AI="gpt4_key"
 - [ ] C# support
 - [ ] Java support
 - [ ] Go support
-- [ ] Static breaking change detection
 - [ ] Python support
 
-## 🎁 Contributing
-All contributions are welcomed. There are still a lot of improvements before we can make bad version bumps a thing of the past.
-
-[![Star History Chart](https://api.star-history.com/svg?repos=xeol-io/xeol&type=Date)](https://star-history.com/#xeol-io/xeol&Date)
+[Join](https://img.shields.io/discord/1233126412785815613) our Discord community to contribute, learn more, ask questions! 
