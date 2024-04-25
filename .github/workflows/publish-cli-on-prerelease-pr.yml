@@ -1,0 +1,42 @@
+name: Publish Prerelease
+on:
+  pull_request:
+    branches: [main]
+    types: [labeled, unlabeled, opened, synchronize]
+    paths:
+      - "apps/cli/**"
+
+jobs:
+  publish-prerelease:
+    if: contains(github.event.pull_request.labels.*.name, 'prerelease')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: martinbeentjes/npm-get-version-action@main
+        with:
+          path: apps/cli
+        id: main-version
+
+      - uses: actions/checkout@v4
+      - uses: martinbeentjes/npm-get-version-action@main
+        with:
+          path: apps/cli
+        id: pr-version
+
+      - name: Setup
+        uses: ./tooling/github/setup
+
+      - uses: actions/github-script@v6
+        env:
+          PR_VERSION: ${{steps.pr-version.outputs.current-version}}
+          MAIN_VERSION: ${{steps.main-version.outputs.current-version}}
+        with:
+          script: require('./.github/versioning.js').verify({ github, context, core })
+
+      - run: pnpm i
+      - run: pnpm --filter=bumpgen run build
+      - run: pnpm --filter=bumpgen publish --tag next --access public
+        env:
+          NODE_AUTH_TOKEN: "${{ secrets.NPM_TOKEN }}"

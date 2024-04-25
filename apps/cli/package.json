@@ -1,6 +1,6 @@
 {
   "name": "bumpgen",
-  "version": "0.1.0",
+  "version": "0.0.3-rc1",
   "scripts": {
     "build": "tsup src/index.tsx --format esm",
     "dev": "tsup src/index.tsx --format esm --watch",
