@@ -243,6 +243,13 @@ const _bumpgen = ({
             },
           );
 
+          const depGraphNode = graphService.dependency.getNodeById(
+            graph.dependency,
+            {
+              id: planNode.id,
+            },
+          );
+
           const importContext = graphService.dependency.getReferencingNodes(
             graph.dependency,
             {
@@ -250,13 +257,7 @@ const _bumpgen = ({
               relationships: ["importDeclaration"],
             },
           );
-
-          const depGraphNode = graphService.dependency.getNodeById(
-            graph.dependency,
-            {
-              id: planNode.id,
-            },
-          );
+          importContext.push(depGraphNode);
 
           const externalImportContext = importContext
             .filter(
@@ -282,20 +283,7 @@ const _bumpgen = ({
               {
                 currentPlanNode: planNode,
                 importContext,
-                externalImportContext: externalImportContext.length
-                  ? externalImportContext
-                  : ([
-                      {
-                        ...depGraphNode,
-                        typeSignature: language.graph.getTypeSignature(
-                          graph.ast,
-                          depGraphNode,
-                        ),
-                      },
-                    ] as (DependencyGraphNode & {
-                      typeSignature: string;
-                      external: NonNullable<DependencyGraphNode["external"]>;
-                    })[]),
+                externalImportContext,
                 spatialContext,
                 temporalContext,
                 bumpedPackage: packageToUpgrade.packageName,
