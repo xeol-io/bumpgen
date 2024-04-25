@@ -291,7 +291,7 @@ export const makeTypescriptService = (
 
           return (
             referencedImports.filter((n) => n.block.includes(packageName))
-              .length > 0
+              .length > 0 || node.external !== undefined
           );
         },
       },

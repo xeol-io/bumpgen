@@ -120,13 +120,21 @@ const processImportNode = (identifier: Identifier, parentNode: Node) => {
 
   let exportStatements: string[] | undefined;
 
-  const firstDefinitionNode = identifier.getDefinitionNodes()[0];
+  const moduleName = surroundingBlock
+    .getFirstChildByKind(SyntaxKind.StringLiteral)
+    ?.getText()
+    .replace(/^['"]|['"]$/g, "");
 
-  if (
-    firstDefinitionNode &&
-    firstDefinitionNode.getSourceFile().isInNodeModules()
-  ) {
-    exportStatements = firstDefinitionNode
+  // we need to do this rather then using identifier.getDefinitionNodes
+  // where identifier is something like { Thing } from x because Thing might not exist in x
+  // and getDefinitionNodes will not resolve
+  const externalFile = surroundingBlock
+    .getSourceFile()
+    .getReferencedSourceFiles()
+    .find((file) => file.getFilePath().includes(`node_modules/${moduleName}`));
+
+  if (externalFile) {
+    exportStatements = externalFile
       .getFirstChildByKind(SyntaxKind.SyntaxList)
       ?.getChildren()
       .filter((child) => {
@@ -158,10 +166,6 @@ const processImportNode = (identifier: Identifier, parentNode: Node) => {
   const name = identifier.getText();
   const kind = makeKind(surroundingBlock.getKind());
   const path = surroundingBlock.getSourceFile().getFilePath();
-  const moduleName = surroundingBlock
-    .getFirstChildByKind(SyntaxKind.StringLiteral)
-    ?.getText()
-    .replace(/^['"]|['"]$/g, "");
 
   const node = {
     id: id({
