@@ -3,6 +3,9 @@ on:
   pull_request:
     branches: [main]
     types: [labeled, unlabeled, opened, synchronize]
+    paths:
+      - "packages/bumpgen-core/**"
+
 jobs:
   verify-version:
     runs-on: ubuntu-latest
@@ -12,18 +15,21 @@ jobs:
         with:
           ref: main
       - uses: martinbeentjes/npm-get-version-action@main
+        with:
+          path: packages/bumpgen-core
         id: main-version
 
       # get pr version
       - uses: actions/checkout@v4
       - uses: martinbeentjes/npm-get-version-action@main
+        with:
+          path: packages/bumpgen-core
         id: pr-version
 
       - name: Setup
         uses: ./tooling/github/setup
 
       - run: pnpm add semver
-
       - uses: actions/github-script@v6
         env:
           PR_VERSION: ${{steps.pr-version.outputs.current-version}}
