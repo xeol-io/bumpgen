@@ -159,7 +159,11 @@ const searchNReplace = (
   const { startIndex, endIndex } = findSequentialMatchedLinesIndices(allMatchedLines);
 
   if (startIndex === -1 && endIndex === -1) {
-    console.log("No matching block found");
+    console.log("ERROR: No matching block found");
+    console.log("allMatchedLines:", allMatchedLines);
+    console.log("=====");
+    console.log(content);
+    console.log("=====");
     return content;
   }
 
