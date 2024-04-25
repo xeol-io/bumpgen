@@ -29,7 +29,7 @@ jobs:
       - name: Setup
         uses: ./tooling/github/setup
 
-      - run: pnpm add semver
+      - run: cd apps/cli && pnpm add semver
 
       - uses: actions/github-script@v6
         env:
