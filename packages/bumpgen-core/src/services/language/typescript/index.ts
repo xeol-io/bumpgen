@@ -362,17 +362,15 @@ export const makeTypescriptService = (
             for (const edge of edges) {
               if (
                 graph.dependency.hasNode(edge.source) &&
-                graph.dependency.hasNode(edge.target)
+                graph.dependency.hasNode(edge.target) &&
+                !graph.dependency.hasEdge(edge.source, edge.target) &&
+                (edge.source !== node.id || edge.target !== node.id)
               ) {
-                if (edge.source === node.id || edge.target === node.id) {
-                  if (!graph.dependency.hasEdge(edge.source, edge.target)) {
-                    graph.dependency.addDirectedEdge(
-                      edge.source,
-                      edge.target,
-                      edge,
-                    );
-                  }
-                }
+                graph.dependency.addDirectedEdge(
+                  edge.source,
+                  edge.target,
+                  edge,
+                );
               }
             }
             return;
