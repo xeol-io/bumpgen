@@ -29,7 +29,6 @@ jobs:
       - name: Setup
         uses: ./tooling/github/setup
 
-      - run: cd packages/bumpgen-core && pnpm add semver
       - uses: actions/github-script@v6
         env:
           PR_VERSION: ${{steps.pr-version.outputs.current-version}}

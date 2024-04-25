@@ -17,5 +17,8 @@
   "packageManager": "pnpm@9.0.6",
   "engines": {
     "node": ">=21"
+  },
+  "dependencies": {
+    "semver": "^7.6.0"
   }
 }
