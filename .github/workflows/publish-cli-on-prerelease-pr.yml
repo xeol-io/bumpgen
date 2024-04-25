@@ -27,6 +27,8 @@ jobs:
 
       - name: Setup
         uses: ./tooling/github/setup
+        with:
+          registry-url: 'https://registry.npmjs.org'
 
       - uses: actions/github-script@v6
         env:
