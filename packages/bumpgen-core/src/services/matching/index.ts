@@ -109,21 +109,26 @@ const findSequentialMatchedLinesIndices = (
 }
 
 const splitMultiImportOldCode = (code: string): string[] => {
-  const importRegex = /import\s+(['"]([^'"]+)['"]|[\s\S]+?from\s+['"]([^'"]+)['"])\s*;/g;
-  const requireRegex = /const\s+[a-zA-Z_$][0-9a-zA-Z_$]*\s*=\s*(await\s+)?(require\(['"][^'"]+['"]\)|import\(['"][^'"]+['"]\))\s*;?/g;
+  const regexes = [
+    /import\s+([a-zA-Z_$][0-9a-zA-Z_$]*)\s*=\s*require\(['"]([^'"]+)['"]\)(\.[a-zA-Z_$][0-9a-zA-Z_$]*)?\s*(;|\n|$)/g,
+    /import\s+(['"]([^'"]+)['"]|[\s\S]+?from\s+['"]([^'"]+)['"])\s*(;|\n|$)/g,
+    /const\s+[a-zA-Z_$][0-9a-zA-Z_$]*\s*=\s*(await\s+)?(require\(['"][^'"]+['"]\)|import\(['"][^'"]+['"]\))\s*(;|\n|$)/g
+  ];
 
   const imports: string[] = [];
+  let codeWithoutImports = code.trim();
 
-  let match: RegExpExecArray | null;
-  while ((match = importRegex.exec(code)) !== null) {
-    imports.push(match[0]);
-  }
-  let codeWithoutImports = code.replace(importRegex, '').trim();
+  for (const regex of regexes) {
+    console.log("=== multi import split");
 
-  while ((match = requireRegex.exec(code)) !== null) {
-    imports.push(match[0]);
+    let match: RegExpExecArray | null;
+    while ((match = regex.exec(codeWithoutImports)) !== null) {
+      imports.push(match[0]);
+      console.log(match[0]);
+    }
+    codeWithoutImports = codeWithoutImports.replace(regex, '').trim();
+    console.log("===");
   }
-  codeWithoutImports = codeWithoutImports.replace(requireRegex, '').trim();
 
   const remainingCodeSections: string[] = [];
 
