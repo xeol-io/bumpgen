@@ -108,6 +108,122 @@ const findSequentialMatchedLinesIndices = (
   return getAllCombinations(0, [], { startIndex: -1, endIndex: -1 });
 }
 
+const splitMultiImportOldCode = (code: string): string[] => {
+  const regexes = [
+    /import\s+([a-zA-Z_$][0-9a-zA-Z_$]*)\s*=\s*require\(['"]([^'"]+)['"]\)(\.[a-zA-Z_$][0-9a-zA-Z_$]*)?\s*(;|\n|$)/g,
+    /import\s+(['"]([^'"]+)['"]|[\s\S]+?from\s+['"]([^'"]+)['"])\s*(;|\n|$)/g,
+    /const\s+[a-zA-Z_$][0-9a-zA-Z_$]*\s*=\s*(await\s+)?(require\(['"][^'"]+['"]\)|import\(['"][^'"]+['"]\))\s*(;|\n|$)/g
+  ];
+
+  const imports: string[] = [];
+  let codeWithoutImports = code.trim();
+
+  for (const regex of regexes) {
+    console.log("=== multi import split");
+
+    let match: RegExpExecArray | null;
+    while ((match = regex.exec(codeWithoutImports)) !== null) {
+      imports.push(match[0]);
+      console.log(match[0]);
+    }
+    codeWithoutImports = codeWithoutImports.replace(regex, '').trim();
+    console.log("===");
+  }
+
+  const remainingCodeSections: string[] = [];
+
+  if (codeWithoutImports.length > 0) {
+    remainingCodeSections.push(codeWithoutImports);
+  }
+
+  return [...imports, ...remainingCodeSections];
+}
+
+const searchAndReplace = (
+  content: string,
+  oldCode: string,
+  newCode: string,
+) => {
+  const splitContent = splitCode(content);
+  const allMatchedLines: number[][] = [];
+  const threshold = 0.2;
+
+  const fuse = new Fuse(
+    trimCode(content),
+    {
+      threshold: threshold,
+      ignoreLocation: true,
+      includeScore: true,
+      includeMatches: true,
+      findAllMatches: true,
+      isCaseSensitive: true,
+      shouldSort: true,
+    });
+  
+  // find all possible matched lines then find the sequential hits
+  trimCode(oldCode).forEach(line => {
+    const result = fuse.search(line);
+    console.log(result);
+    const matchedLines = result
+      .filter((item: any) => item.score <= threshold * 1.5)
+      .map(item => item.refIndex);
+  
+    if (matchedLines.length > 0) {
+      allMatchedLines.push(matchedLines);
+    }
+  });
+
+  const { startIndex, endIndex } = findSequentialMatchedLinesIndices(allMatchedLines);
+
+  console.log(`Looking for this code:`);
+  console.log("=====");
+  console.log(oldCode);
+  console.log("=====");
+  console.log(`In this file:`);
+  console.log("=====");
+  console.log(content);
+  console.log("=====");
+  console.log(`And found the following:`);
+  console.log("=====");
+  console.log("Matched indexes:", allMatchedLines);
+  if (startIndex === -1 && endIndex === -1) {
+    console.log("ERROR: No matching block found");
+    return content;
+  }
+  console.log("=====");
+
+  const matchedLines = splitContent.slice(startIndex, endIndex + 1).join('\n');
+
+  console.log(`Matched block starts at ${startIndex} and ends at ${endIndex}\n`);
+  console.log("=== actual matched code block");
+  console.log(matchedLines);
+  console.log("=== \n");
+
+  // format the replacing code accordingly then search n replace
+  const firstMatchedLine = splitContent[startIndex];
+  if (firstMatchedLine === undefined) {
+    console.log("This is a big oopsy");
+    return content;
+  }
+
+  const indentedNewCode = formatNewCode(
+    countIndents(firstMatchedLine),
+    newCode
+  );
+
+  console.log("=== replacing with this new code")
+  console.log(indentedNewCode.join("\n"));
+  console.log("=== \n");
+
+  const updatedContents = [
+    ...splitContent.slice(0, startIndex),
+    ...indentedNewCode,
+    ...splitContent.slice(endIndex + 1)
+  ].join("\n");
+
+  return updatedContents;
+};
+
 export const createMatchingService = () => {
   return {
     replacements: { 
@@ -120,64 +236,17 @@ export const createMatchingService = () => {
         oldCode: string;
         newCode: string;
       }) => {
-        const splitContent = splitCode(content);
-        const allMatchedLines: number[][] = [];
+        const multiImportOldCode = splitMultiImportOldCode(oldCode);
 
-        const fuse = new Fuse(
-          trimCode(content),
-          {
-            includeScore: true,
-            includeMatches: true,
-            threshold: 0.2,
-            findAllMatches: false,
-            isCaseSensitive: true,
-            shouldSort: true,
-          });
-        
-        // find all possible matched lines then find the sequential hits
-        trimCode(oldCode).forEach(line => {
-          const result = fuse.search(line);
-          const matchedLines = result.map(item => item.refIndex);
-          allMatchedLines.push(matchedLines);
-        });
-  
-        const { startIndex, endIndex } = findSequentialMatchedLinesIndices(allMatchedLines);
-      
-        if (startIndex === -1 && endIndex === -1) {
-          console.log("No matching block found");
-          return content;
-        }
-      
-        const matchedLines = splitContent.slice(startIndex, endIndex + 1).join('\n');
-      
-        console.log(`Matched block starts at ${startIndex} and ends at ${endIndex}\n`);
-        console.log("=== actual matched code block");
-        console.log(matchedLines);
-        console.log("=== \n");
-      
-        // format the replacing code accordingly then search n replace
-        const firstMatchedLine = splitContent[startIndex];
-        if (firstMatchedLine === undefined) {
-          console.log("This is a big oopsy");
-          return content;
+        if (multiImportOldCode.length > 1) {
+          multiImportOldCode.forEach((line: string) => {
+            content = searchAndReplace(content, line, newCode);
+          });      
+        } else {
+          content = searchAndReplace(content, content, newCode);
         }
 
-        const indentedNewCode = formatNewCode(
-          countIndents(firstMatchedLine),
-          newCode
-        );
-      
-        console.log("=== replacing with this new code")
-        console.log(indentedNewCode.join("\n"));
-        console.log("=== \n");
-      
-        const updatedContents = [
-          ...splitContent.slice(0, startIndex),
-          ...indentedNewCode,
-          ...splitContent.slice(endIndex + 1)
-        ].join("\n");
-      
-        return updatedContents;
+        return content;
       },
     },
   };
