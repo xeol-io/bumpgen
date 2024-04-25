@@ -253,6 +253,12 @@ export const makeTypescriptService = (
           >();
           const sourceFiles = ast.tree.getSourceFiles();
 
+          if (sourceFiles.length === 0) {
+            throw new Error(
+              "No source files found in this project, cannot build dependency graph",
+            );
+          }
+
           const start = Date.now();
           sourceFiles.forEach((sourceFile) => {
             const { nodes, edges } = processSourceFile(sourceFile);
