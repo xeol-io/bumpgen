@@ -260,7 +260,8 @@ const _bumpgen = ({
 
           const externalImportContext = importContext
             // we add the depGraph node since it might itself be an import node
-            // and we need it as external context
+            // and we need it as external context, if it's not an import node
+            // it will be filtered out here
             .concat(depGraphNode)
             .filter(
               (
