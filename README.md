@@ -93,15 +93,16 @@ We pass the plan graph, the error, and the actual file with the breaking change 
 The backend model we use to fix the breaking changes. We use gpt4-turbo having the best results. (Future) Swap the model baesd on preference and security needs.
 
 #### Core Loop
-1. Bump package version up
-2. Build to see breaking changes
-3. Look at a breaking change and understand its related functions
-4. Attempt to fix the breaking change
-5. Perpetuate the fix to related functions
-6. Build to validate the fix
-7. Rinse and repeat until all build errors are fixed
-8. Create Pull Request and trigger existing build and test 
-
+```
+1. Bump package version up                                        <-----
+2. Build to see breaking changes                                       |
+3. Look at a breaking change and understand its related functions      |
+4. Attempt to fix the breaking change                                  |
+5. Perpetuate the fix to related functions                             |
+6. Build to validate the fix                                           |
+7. Rinse and repeat until all build errors are fixed                   |
+8. Create Pull Request and trigger existing build and test         -----
+```
 
 ## ⏱️ Benchmark
 ```
