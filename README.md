@@ -24,9 +24,7 @@
 ## 📝 Summary
 Dependabot but fixes the breaking changes for you as well.
 
-<p align="center">
-    <img src="https://s3.amazonaws.com/static.xeol.io/mkdirp.gif"/>
-</p>
+![demo](https://s3.amazonaws.com/static.xeol.io/mkdirp.gif)
 
 ## 🏙️ Architecture
 ```
