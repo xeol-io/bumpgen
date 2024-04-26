@@ -24,7 +24,7 @@
 ## 📝 Summary
 Dependabot but fixes the breaking changes for you as well.
 
-![demo](https://s3.amazonaws.com/static.xeol.io/mkdirp.gif)
+![demo](https://compote.slate.com/images/697b023b-64a5-49a0-8059-27b963453fb1.gif)
 
 ## 🏙️ Architecture
 ```
