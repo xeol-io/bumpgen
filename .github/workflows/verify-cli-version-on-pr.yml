@@ -1,4 +1,4 @@
-name: Verify Version
+name: verify version of bumpgen cli
 on:
   pull_request:
     branches: [main]

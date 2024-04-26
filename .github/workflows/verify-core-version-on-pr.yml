@@ -1,4 +1,4 @@
-name: Verify Version
+name: verify version of @xeol/bumpgen-core on PR
 on:
   pull_request:
     branches: [main]
