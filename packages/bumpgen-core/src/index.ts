@@ -27,7 +27,12 @@ export { injectGitService } from "./services/git";
 
 export type { SupportedLanguage } from "./models";
 export type { SupportedModel } from "./models/llm";
-export type { BumpgenGraph, PlanGraph, DependencyGraph } from "./models/graph";
+export type {
+  BumpgenGraph,
+  PlanGraph,
+  DependencyGraph,
+  SerializeableBumpgenGraph,
+} from "./models/graph";
 export type { PlanGraphNode, PlanGraphEdge } from "./models/graph/plan";
 export type {
   DependencyGraphNode,

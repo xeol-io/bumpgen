@@ -53,19 +53,21 @@ if (simple) {
   }
 } else if (ipc) {
   console.log("Running in IPC mode");
+
   for await (const event of bumpgen.executeSerializeable()) {
     console.log("event", event);
     try {
-      const data = {
+      const options = {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(event),
       };
-      await fetch(`http://localhost:${ipc}/data`, data);
+      await fetch(`http://localhost:${ipc}/data`, options);
     } catch (error) {
       console.log("error", serializeError(error));
+      process.exit(1);
     }
     if (event.type === "error") {
       process.exit(1);
