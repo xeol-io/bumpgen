@@ -109,6 +109,7 @@ export const findSequentialMatchedLinesIndices = (
     }
     return true;
   };
+  
 
   // recursion black magic
   const getAllCombinations = (
