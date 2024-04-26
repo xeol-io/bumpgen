@@ -59,12 +59,9 @@ importers:
       ink-spinner:
         specifier: ^5.0.0
         version: 5.0.0(ink@4.4.1(@types/react@18.2.79)(react@18.2.0))(react@18.2.0)
-      ink-task-list:
+      is-unicode-supported:
         specifier: ^2.0.0
-        version: 2.0.0(ink@4.4.1(@types/react@18.2.79)(react@18.2.0))(react@18.2.0)
-      ink-use-stdout-dimensions:
-        specifier: ^1.0.5
-        version: 1.0.5(ink@4.4.1(@types/react@18.2.79)(react@18.2.0))(react@18.2.0)
+        version: 2.0.0
       log-symbols:
         specifier: ^6.0.0
         version: 6.0.0
@@ -2487,18 +2484,6 @@ packages:
       ink: '>=4.0.0'
       react: '>=18.0.0'
 
-  ink-task-list@2.0.0:
-    resolution: {integrity: sha512-+WadfalLGUrYT/5D4cHeShN73t5urEsI5VOwFYw3qNWdOL+GQVTLbTS0tCZkzIcBcL+dfZcQAtuoW56ZBZV+Bg==}
-    peerDependencies:
-      ink: '>=3.0.0'
-      react: '>=16.8.0'
-
-  ink-use-stdout-dimensions@1.0.5:
-    resolution: {integrity: sha512-rVsqnw4tQEAJUoknU09+zHdDf30GJdkumkHr0iz/TOYMYEZJkYqziQSGJAM+Z+M603EDfO89+Nxyn/Ko2Zknfw==}
-    peerDependencies:
-      ink: '>=2.0.0'
-      react: '>=16.0.0'
-
   ink@4.4.1:
     resolution: {integrity: sha512-rXckvqPBB0Krifk5rn/5LvQGmyXwCUpBfmTwbkQNBY9JY8RSl3b8OftBNEYxg4+SWUhEKcPifgope28uL9inlA==}
     engines: {node: '>=14.16'}
@@ -2675,6 +2660,10 @@ packages:
   is-unicode-supported@1.3.0:
     resolution: {integrity: sha512-43r2mRvz+8JRIKnWJ+3j8JtjRKZ6GmjzfaE/qiBJnikNnYv/6bagRJ1kUhNk8R5EX/GkobD+r+sfxCPJsiKBLQ==}
     engines: {node: '>=12'}
+
+  is-unicode-supported@2.0.0:
+    resolution: {integrity: sha512-FRdAyx5lusK1iHG0TWpVtk9+1i+GjrzRffhDg4ovQ7mcidMQ6mj+MhKPmvh7Xwyv5gIS06ns49CA7Sqg7lC22Q==}
+    engines: {node: '>=18'}
 
   is-upper-case@2.0.2:
     resolution: {integrity: sha512-44pxmxAvnnAOwBg4tHPnkfvgjPwbc5QIsSstNU+YcJ1ovxVzCWpSGosPJOZh/a1tdl81fbgnLc9LLv+x2ywbPQ==}
@@ -6700,16 +6689,6 @@ snapshots:
       ink: 4.4.1(@types/react@18.2.79)(react@18.2.0)
       react: 18.2.0
 
-  ink-task-list@2.0.0(ink@4.4.1(@types/react@18.2.79)(react@18.2.0))(react@18.2.0):
-    dependencies:
-      ink: 4.4.1(@types/react@18.2.79)(react@18.2.0)
-      react: 18.2.0
-
-  ink-use-stdout-dimensions@1.0.5(ink@4.4.1(@types/react@18.2.79)(react@18.2.0))(react@18.2.0):
-    dependencies:
-      ink: 4.4.1(@types/react@18.2.79)(react@18.2.0)
-      react: 18.2.0
-
   ink@4.4.1(@types/react@18.2.79)(react@18.2.0):
     dependencies:
       '@alcalzone/ansi-tokenize': 0.1.3
@@ -6890,6 +6869,8 @@ snapshots:
   is-typedarray@1.0.0: {}
 
   is-unicode-supported@1.3.0: {}
+
+  is-unicode-supported@2.0.0: {}
 
   is-upper-case@2.0.2:
     dependencies:

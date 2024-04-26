@@ -7,19 +7,20 @@ import DirectedGraph from "graphology";
 import { topologicalSort } from "graphology-dag";
 import { Box, measureElement, Newline, Text, useApp, useInput } from "ink";
 import Spinner from "ink-spinner";
+import { omit } from "radash";
 import stripAnsi from "strip-ansi";
 
 import type {
   BumpgenGraph,
-  PlanGraph,
   PlanGraphNode,
   SerializeableBumpgenEvent,
+  SerializeableBumpgenGraph,
   SupportedLanguage,
   SupportedModel,
 } from "@repo/bumpgen-core";
 
-import { Sidebar } from "./components/sidebar";
-import { TitleText } from "./components/title-text";
+import { Sidebar } from "./components/Sidebar";
+import { TitleText } from "./components/TitleText";
 import { useStdoutDimensions } from "./use-stdout-dimensions";
 
 const getLatestPlanGraph = (events: SerializeableBumpgenEvent[]) => {
@@ -39,20 +40,15 @@ const getLatestPlanGraph = (events: SerializeableBumpgenEvent[]) => {
     )
     .map((event) => {
       if (event.type === "graph.initialize") {
-        return event.data;
+        return event.data.plan;
       } else {
-        return event.data.graph;
+        return event.data.graph.plan;
       }
     });
 
-  const graph = new DirectedGraph<
-    ReturnType<BumpgenGraph["plan"]["getNodeAttributes"]>,
-    ReturnType<BumpgenGraph["plan"]["getEdgeAttributes"]>
-  >();
-
   const latest = planGraphs.at(-1);
 
-  return latest ? graph.import(latest.plan) : null;
+  return latest ?? null;
 };
 
 const TitleBox = (
@@ -63,7 +59,11 @@ const TitleBox = (
   },
 ) => {
   return (
-    <Box flexDirection="column" overflow="hidden" {...props}>
+    <Box
+      flexDirection="column"
+      overflow="hidden"
+      {...omit(props, ["children"])}
+    >
       <Text bold={true}>{props.title}</Text>
       <Box
         borderStyle="double"
@@ -96,6 +96,8 @@ const GraphNode = ({
       borderColor={borderColor}
       key={node.id}
       flexDirection="column"
+      paddingLeft={1}
+      paddingRight={1}
     >
       <Text wrap="end">{node.id.slice(0, 6)}</Text>
       <Text wrap="end">{node.path.split("/").at(-1)}</Text>
@@ -108,7 +110,11 @@ const GraphNode = ({
   );
 };
 
-const GraphView = ({ graph }: { graph: PlanGraph | null }) => {
+const GraphView = ({
+  graph,
+}: {
+  graph: SerializeableBumpgenGraph["plan"] | null;
+}) => {
   if (!graph) {
     return (
       <Box flexDirection="row" paddingLeft={1}>
@@ -118,14 +124,18 @@ const GraphView = ({ graph }: { graph: PlanGraph | null }) => {
     );
   }
 
-  const sorted = topologicalSort(graph).map((id) =>
-    graph.getNodeAttributes(id),
+  const directedGraph = new DirectedGraph<
+    ReturnType<BumpgenGraph["plan"]["getNodeAttributes"]>,
+    ReturnType<BumpgenGraph["plan"]["getEdgeAttributes"]>
+  >();
+
+  directedGraph.import(graph);
+
+  const sorted = topologicalSort(directedGraph).map((id) =>
+    directedGraph.getNodeAttributes(id),
   );
 
-  const activeNodeIndex = Math.max(
-    sorted.findIndex((node) => node.status === "pending"),
-    0,
-  );
+  const activeNodeIndex = sorted.findIndex((node) => node.status === "pending");
 
   const truncated = sorted.slice(Math.max(activeNodeIndex - 1, 0));
 
@@ -150,7 +160,9 @@ const GraphView = ({ graph }: { graph: PlanGraph | null }) => {
           >
             <GraphNode
               node={node}
-              active={node.id === sorted[activeNodeIndex]?.id}
+              active={
+                activeNodeIndex >= 0 && node.id === sorted[activeNodeIndex]?.id
+              }
             />
             {index < sorted.length - 1 && (
               <Box>
@@ -178,20 +190,21 @@ const App = (props: {
 
   const [columns, rows] = useStdoutDimensions();
 
-  const [stdoutOffset, setStdoutOffset] = useState(0);
+  const [outputOffset, setOutputOffset] = useState(0);
+
   const [outputDimensions, setOutputDimensions] = useState({
     width: 0,
     height: 0,
   });
 
-  const stdoutRef = useRef<DOMElement>(null);
+  const outputRef = useRef<DOMElement>(null);
 
   useEffect(() => {
-    if (!stdoutRef.current) {
+    if (!outputRef.current) {
       return;
     }
 
-    setOutputDimensions(measureElement(stdoutRef.current));
+    setOutputDimensions(measureElement(outputRef.current));
   }, [columns, rows]);
 
   useInput((input, key) => {
@@ -200,10 +213,10 @@ const App = (props: {
       process.exit(0);
     }
     if (key.upArrow) {
-      setStdoutOffset((prev) => Math.min(prev + 1, stdout.length));
+      setOutputOffset((prev) => Math.min(prev + 1, output.length));
     }
     if (key.downArrow) {
-      setStdoutOffset((prev) => Math.max(prev - 1, 0));
+      setOutputOffset((prev) => Math.max(prev - 1, 0));
     }
   });
 
@@ -211,19 +224,20 @@ const App = (props: {
     SerializeableBumpgenEvent[]
   >([]);
 
-  const [stdout, setStdout] = useState<string[]>([]);
+  const [output, setOutput] = useState<string[]>([]);
 
   useEffect(() => {
     // Set up an express server, this will be used to handle events from the bumpgen subprocess
-    const server = express();
-    server.use(express.json({ limit: "50mb" }));
-    server.post("/data", (req, res) => {
+    const app = express();
+    app.use(express.json({ limit: "50mb" }));
+    app.post("/data", (req, res) => {
       const event = req.body as SerializeableBumpgenEvent;
       setExecutionHistory((prev) => [...prev, event]);
+      res.setHeader("Connection", "close");
       res.status(200).send({ message: "Data received successfully" });
     });
 
-    server.listen(3000);
+    const server = app.listen(3000);
 
     const child = spawn(
       "node",
@@ -247,35 +261,45 @@ const App = (props: {
     child.stdout.on("data", (data: Buffer) => {
       const lines = stripAnsi(data.toString("utf8")).split("\n");
 
-      setStdout((prev) => prev.concat(lines));
+      setOutput((prev) => prev.concat(lines));
     });
 
     child.on("exit", (code) => {
+      server.close();
       if (code === 0) {
         exit();
         process.exit(code ?? 0);
+      } else {
+        setExecutionHistory((prev) => [
+          ...prev,
+          {
+            type: "error",
+
+            data: { message: `Child process exited with code ${code}` },
+          },
+        ]);
       }
     });
   }, []);
 
   const outputBoxTooltip =
-    stdoutOffset > 0 ? `offset: ${-1 * stdoutOffset}` : "use ↑ and ↓ to scroll";
+    outputOffset > 0 ? `offset: ${-1 * outputOffset}` : "use ↑ and ↓ to scroll";
 
   const outputWindowStart =
-    -1 * stdoutOffset - (outputDimensions.height - 2) - 1;
+    -1 * outputOffset - (outputDimensions.height - 2) - 1;
   const outputWindowEnd = outputWindowStart + (outputDimensions.height - 2);
 
   return (
     <Box
       flexDirection="row"
       height={rows - 1}
-      width="80%"
+      width={columns}
       padding={1}
       alignItems="center"
       overflow="hidden"
     >
-      <Box height="100%" width="30%" paddingRight={1}>
-        <Sidebar executionHistory={executionHistory} />
+      <Box width="30%" height="100%" paddingRight={1}>
+        <Sidebar width="100%" executionHistory={executionHistory} />
       </Box>
       <Box flexDirection="column" width="70%" height="100%" paddingLeft={1}>
         <Box
@@ -286,11 +310,11 @@ const App = (props: {
           display="flex"
           justifyContent="space-between"
         >
-          <TitleText large={columns > 111 && rows > 20} />
+          <TitleText height="20%" width="100%" title="bumpgen" />
           <TitleBox
-            innerRef={stdoutRef}
+            innerRef={outputRef}
             width="100%"
-            height="50%"
+            height="60%"
             title="Program Output"
           >
             <Box
@@ -302,7 +326,7 @@ const App = (props: {
               <Text dimColor={true}>{outputBoxTooltip}</Text>
             </Box>
             <Text wrap="end">
-              {stdout.slice(outputWindowStart, outputWindowEnd).join("\n")}
+              {output.slice(outputWindowStart, outputWindowEnd).join("\n")}
             </Text>
           </TitleBox>
 
