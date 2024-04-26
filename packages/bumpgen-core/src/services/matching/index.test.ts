@@ -38,7 +38,7 @@ describe("searchAndReplace", () => {
 });
 
 describe("splitMultiImportOldCode", () => {
-  it("splitMultiImportOldCode", () => {
+  it("should split cold code with imports", () => {
     const oldCode =
       "import * as rawGlob from 'glob';\n\n\nconst glob = promisify(rawGlob);";
 
@@ -48,6 +48,59 @@ describe("splitMultiImportOldCode", () => {
       "import * as rawGlob from 'glob';",
       "const glob = promisify(rawGlob);",
     ]);
+  });
+  it("should split cold code with complex imports", () => {
+    const oldCode =`import * as Sentry from "@sentry/react";
+      const module = await import('my-module');
+      import 'my-module';
+      import Tool from "openai"
+      import * as X from "openai";
+      
+      import { 
+        ScopeContext,
+        ScopeContext2,
+        ScopeContext3,
+      } from "@sentry/types/types/scope";
+      import packageInfo from "../package.json";
+      import { Injectable, Inject } from '@graphql-modules/di';
+      const hello = require('./hello');
+      import myDefault, { myExport1, myExport2 } from 'my-module';
+      import express = require('express');
+      import x = require('x').default
+      import { myExport as myRenamedExport } from 'my-module';
+      
+      import type { MyType } from 'my-module';
+      
+      interface BoostProps {
+        boost: BoostModel;
+      }`;
+
+    const result = splitMultiImportOldCode(oldCode);
+    const expectedResult = [
+      `import * as Sentry from "@sentry/react";`,
+      `import 'my-module';`,
+      `import Tool from "openai"`,
+      `import * as X from "openai";`,
+      `import { 
+        ScopeContext,
+        ScopeContext2,
+        ScopeContext3,
+      } from "@sentry/types/types/scope";`,
+      `import packageInfo from "../package.json";`,
+      `import { Injectable, Inject } from '@graphql-modules/di';`,
+      `import myDefault, { myExport1, myExport2 } from 'my-module';`,
+      `import express = require('express');`,
+      `import x = require('x').default`,
+      `import { myExport as myRenamedExport } from 'my-module';`,
+      `import type { MyType } from 'my-module';`,
+      `const hello = require('./hello');`,
+      `const module = await import('my-module');`,
+      `interface BoostProps {
+        boost: BoostModel;
+      }`
+    ];
+
+    expectedResult.forEach(line => expect(result).toContain(line));
   });
 });
 

@@ -121,7 +121,7 @@ export const splitMultiImportOldCode = (code: string): string[] => {
   for (const regex of regexes) {
     let match: RegExpExecArray | null;
     while ((match = regex.exec(codeWithoutImports)) !== null) {
-      imports.push(match[0]);
+      imports.push(match[0].trim());
       console.log("line:", match[0]);
     }
     codeWithoutImports = codeWithoutImports.replace(regex, "").trim();
