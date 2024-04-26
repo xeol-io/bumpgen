@@ -38,17 +38,44 @@ export const formatNewCode = (firstMatchedLine: string, newCode: string) => {
   return formattedCode;
 };
 
+const getAllCombinations = (allRefIndexes: number[][]) => {
+  if (allRefIndexes.length === 1 && allRefIndexes[0]) {
+    return allRefIndexes[0].map(element => [element]);
+  }
+
+  const restCombinations = getAllCombinations(allRefIndexes.slice(1));
+  const allCombinations: number[][] = [];
+
+  if (allRefIndexes[0]) {
+    allRefIndexes[0].forEach(element => {
+      restCombinations.forEach(combination => {
+        allCombinations.push([element, ...combination]);
+      });
+    });
+  }
+
+  return allCombinations;
+};
+
 export const findSequentialMatchedLinesIndices = (
   allRefIndexes: number[][],
 ): { startIndex: number; endIndex: number } => {
   const isSequential = (combination: number[]): boolean => {
-    combination.forEach((current, index, array) => {
-      if (index < array.length - 1 && array[index + 1] !== current + 1) {
+    for (let i = 0; i < combination.length - 1; i++) {
+      const current = combination[i];
+      const next = combination[i + 1];
+  
+      if (current === undefined || next === undefined) {
+        continue;
+      }
+  
+      if (next !== current + 1 && current !== -1 && next !== -1) {
         return false;
       }
-    });
+    }
     return true;
   };
+  
 
   // recursion black magic
   const getAllCombinations = (
@@ -167,6 +194,8 @@ export const searchAndReplace = (
         (item) => item.score !== undefined && item.score <= threshold * 1.5,
       )
       .map((item) => item.refIndex);
+
+    if (line === "") matchedLines.push(-1);
 
     allMatchedLines.push(matchedLines);
   });
