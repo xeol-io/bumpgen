@@ -15,25 +15,67 @@
     <a href="https://github.com/xeol-io/bumpgen/releases/latest">
         <img src="https://img.shields.io/github/release/xeol-io/bumpgen.svg?color=FCAE00&style=for-the-badge"/>
     </a>
-    <img src="https://img.shields.io/github/downloads/xeol-io/bumpgen/total.svg?color=FCAE00&style=for-the-badge"/>
     <a href="https://discord.gg/bsWQjHMKPy">
         <img src="https://img.shields.io/discord/1233126412785815613?logo=discord&label=discord&color=5865F2&style=for-the-badge"/>
     </a>
 </p>
 
 ## 📝 Summary
-Dependabot but fixes the breaking changes for you as well.
+
+`bumpgen` bumps your dependencies and makes code changes for you if anything breaks.
+
+This may be a common scenario:
+
+> you: "I should upgrade to the latest version of x, it has banging new features and impressive performance improvments"
+>
+> you (internal monologue): _I don't want to feel pain anymore_
+
+Then use `bumpgen`!
+
+How does it work?
+
+- It uses [ts-morph](https://github.com/dsherret/ts-morph) to turn your codebase into an AST to understand code relationships
+- Uses the AST to get type definitions for external methods to understand how to use new package versions
+- Creates a plan graph DAG to execute things in the correct order to get to the root of problems (ref: [arxiv 2309.12499](https://huggingface.co/papers/2309.12499))
 
 ![demo](https://s3.amazonaws.com/static.xeol.io/mkdirp-demo-optimized.gif)
 
-## 🏙️ Architecture
+> `bumpgen` only supports typescript at the moment, but we're working on adding support for other strongly typed languages like C#, Java and Go
+
+## 🚀 Get Started
+
+To get started, you'll need an OpenAI API key. `gpt-4-turbo-preview` from OpenAI is the only supported model at this time.
+
+Then, run `bumpgen` this:
+
 ```
- > bumpgen @tanstack/react-query 5.28.14                                       
-       │                                                                       
+> export LLM_API_KEY="gpt4_key"
+> cd ~/my-repository
+> npm install -g bumpgen
+> bumpgen @tanstack/react-query 5.28.14
+```
+
+where `@tanstack/react-query` is the package you want to bump and `5.28.14` is the version you want to bump to.
+
+> If you'd like to be first to try the `bumpgen` GitHub App to replace your usage of dependabot + renovatebot, sign up [here](https://www.xeol.io/beta)
+
+<table>
+    <td>
+        <p align="center">
+            <img height="450" src="https://s3.amazonaws.com/static.xeol.io/memes/rm-meme.jpeg" alt="logo"/>
+        </p>
+    </td>
+</table>
+
+## 🏙️ Architecture
+
+```
+ > bumpgen @tanstack/react-query 5.28.14
+       │
 ┌┬─────▼──────────────────────────────────────────────────────────────────────┐
 ││ CLI                                                                        │
 └┴─────┬──▲───────────────────────────────────────────────────────────────────┘
-       │  │                                                                    
+       │  │
 ┌┬─────▼──┴───────────────────────────────────────────────────────────────────┐
 ││ Core (Codeplan)                                                            │
 ││                                                                            │
@@ -59,7 +101,7 @@ Dependabot but fixes the breaking changes for you as well.
 ││ └───────────────────────────────────┘ └──────────────────────────────────┘ │
 ││                                                                            │
 └┴─────┬──▲───────────────────────────────────────────────────────────────────┘
-       │  │                                                                    
+       │  │
 ┌┬─────▼──┴───────────────────────────┐  ┌┬───────────────────────────────────┐
 ││ Prompt Context                     │  ││ LLM                               │
 ││                                    │  ││                                   │
@@ -73,70 +115,43 @@ Dependabot but fixes the breaking changes for you as well.
 └┴────────────────────────────────────┘  └┴───────────────────────────────────┘
 ```
 
-
-#### CLI
-A CLI wrapper on top of the core logic
-
 #### Abstract Syntax Tree
-The AST is generated from **[ts-morph](https://github.com/dsherret/ts-morph)**. This AST allows `bumpgen` to understand the relationship between different functions in a complex codebase. This is the "master plan" to traverse a codebase.
+
+The AST is generated from **[ts-morph](https://github.com/dsherret/ts-morph)**. This AST allows `bumpgen` to understand the relationship between code properties in a codebase.
 
 #### Plan Graph
-The plan graph is a concept detailed in **[codeplan](https://huggingface.co/papers/2309.12499)** by Microsoft. The plan graph allows `bumpgen` to not only fix an issue at a point but also fix the 2nd order breaking changes from the fix itself. In short, it allows `bumpgen` to perpetuate a fix to the rest of the codebase. 
+
+The plan graph is a concept detailed in **[codeplan](https://huggingface.co/papers/2309.12499)** by Microsoft. The plan graph allows `bumpgen` to not only fix an issue at a point but also fix the 2nd order breaking changes from the fix itself. In short, it allows `bumpgen` to perpetuate a fix to the rest of the codebase.
 
 #### Prompt Context
+
 We pass the plan graph, the error, and the actual file with the breaking change as context to the LLM to maximize it's ability to fix the issue.
 
 #### LLM
-The backend model we use to fix the breaking changes. We use gpt4-turbo having the best results. (Future) Swap the model baesd on preference and security needs.
 
-#### Core Loop
-```
-1. Bump package version up                                        <-----
-2. Build to see breaking changes                                       |
-3. Look at a breaking change and understand its related functions      |
-4. Attempt to fix the breaking change                                  |
-5. Perpetuate the fix to related functions                             |
-6. Build to validate the fix                                           |
-7. Rinse and repeat until all build errors are fixed                   |
-8. Create Pull Request and trigger existing build and test         -----
-```
+We only support `gpt-4-turbo-preview` at this time.
 
 ## ⏱️ Benchmark
+
 ```
-bumpgen + GPT-4 Turbo         █████████░░░░░░░░░░░░░░░░   36.01%
-bumpgen + Claude 3            █████████░░░░░░░░░░░░░░░░   36.01% 
-naive + GPT-4 Turbo           █████████░░░░░░░░░░░░░░░░   36.01% 
+bumpgen + GPT-4 Turbo         ██████████░░░░░░░░░░░   44.2%
 ```
 
 We benchmarked `bumpgen` with GPT-4 Turbo against a [suite](https://github.com/xeol-io/swe-bump-bench) of version bumps with breaking changes.
 
-## 🚀 Get Started
-#### LLM API Key
-We only support GPT-4 Turbo right now.
-```
-LLM_API_KEY="gpt4_key"
-```
-
-#### Run Upgrade
-```
-> npm install -g bumpgen
-> bumpgen @tanstack/react-query 5.28.14 
-```
-
 ## 🎁 Contributing
-<p align="center">
-    <img src="https://s3.amazonaws.com/static.xeol.io/memes/rm-meme.jpeg" alt="logo"/>
-</p>
+
+Contributions are welcome! To get set up for development, see Development.
 
 #### Roadmap
+
 - [x] codeplan
 - [x] Typescript support
-- [ ] `bumpgen` GitHub app 
+- [ ] `bumpgen` GitHub app
 - [ ] Embeddings for different package versions
-- [ ] Benchmarks
+- [ ] Use test runners as an oracle
 - [ ] C# support
 - [ ] Java support
 - [ ] Go support
-- [ ] Python support
 
-[Join](https://img.shields.io/discord/1233126412785815613) our Discord community to contribute, learn more, ask questions! 
+[Join](https://img.shields.io/discord/1233126412785815613) our Discord community to contribute, learn more, and ask questions!
