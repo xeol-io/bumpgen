@@ -2,6 +2,7 @@ import fs from "fs/promises";
 import path from "path";
 
 import { 
+  findSequentialMatchedLinesIndices,
   formatNewCode,
   searchAndReplace, 
   splitMultiImportOldCode,
@@ -49,6 +50,7 @@ describe("splitMultiImportOldCode", () => {
       "const glob = promisify(rawGlob);",
     ]);
   });
+
   it("should split cold code with complex imports", () => {
     const oldCode =`import * as Sentry from "@sentry/react";
       const module = await import('my-module');
@@ -113,6 +115,7 @@ describe("formatNewCode", () => {
 
     expect(result).toEqual(["    import * as Sentry from '@sentry/replace';"]);
   });
+
   it("should format replacement code correctly for extra indents", () => {
     const line = "import * as Sentry from '@sentry/line';";
     const replace = "  import * as Sentry from '@sentry/replace';";
@@ -121,6 +124,7 @@ describe("formatNewCode", () => {
 
     expect(result).toEqual(["import * as Sentry from '@sentry/replace';"]);
   });
+
   it("should format replacement code correctly for tabs", () => {
     const line = "\t\timport * as Sentry from '@sentry/line';";
     const replace = "import * as Sentry from '@sentry/replace';";
@@ -128,5 +132,31 @@ describe("formatNewCode", () => {
     const result = formatNewCode(line, replace);
 
     expect(result).toEqual(["\t\timport * as Sentry from '@sentry/replace';"]);
+  });
+});
+
+describe("findSequentialMatchedLinesIndices", () => {
+  it("should find the right indices for the block of code to replace", () => {
+    const matchedIndices = [
+      [1, 5, 6],
+      [2, 9, 16],
+      [0, 3],
+    ];
+
+    const result = findSequentialMatchedLinesIndices(matchedIndices);
+
+    expect(result).toEqual({"startIndex": 1, "endIndex": 3});
+  });
+
+  it("should return -1 indices if nothing found", () => {
+    const matchedIndices = [
+      [1, 5, 6],
+      [3, 9, 16],
+      [0, 3],
+    ];
+
+    const result = findSequentialMatchedLinesIndices(matchedIndices);
+
+    expect(result).toEqual({"startIndex": -1, "endIndex": -1});
   });
 });
