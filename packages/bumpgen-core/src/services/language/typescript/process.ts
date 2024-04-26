@@ -31,6 +31,19 @@ type TopLevelTypes =
   | ExpressionStatement
   | TypeAliasDeclaration;
 
+const isTopLevelType = (node: Node): node is TopLevelTypes => {
+  return (
+    node.getKind() === SyntaxKind.ModuleDeclaration ||
+    node.getKind() === SyntaxKind.InterfaceDeclaration ||
+    node.getKind() === SyntaxKind.ClassDeclaration ||
+    node.getKind() === SyntaxKind.FunctionDeclaration ||
+    node.getKind() === SyntaxKind.VariableDeclaration ||
+    node.getKind() === SyntaxKind.ExportAssignment ||
+    node.getKind() === SyntaxKind.ExpressionStatement ||
+    node.getKind() === SyntaxKind.TypeAliasDeclaration
+  );
+};
+
 // walks the AST tree to find all children of the kind Identifier
 export const allChildrenOfKindIdentifier = (
   node: Node | SourceFile,
@@ -231,24 +244,14 @@ const getReferenceNodes = (node: TopLevelTypes) => {
         }
 
         const surroundingBlock = getSurroundingBlock(referencingNode);
-        const topLevelNode =
-          surroundingBlock.getFirstDescendantByKind(
-            SyntaxKind.ClassDeclaration,
-          ) ??
-          surroundingBlock.getFirstDescendantByKind(
-            SyntaxKind.FunctionDeclaration,
-          ) ??
-          surroundingBlock.getFirstDescendantByKind(
-            SyntaxKind.VariableDeclaration,
-          );
-        if (!topLevelNode) {
-          // TODO(benji): we have a limitation here, we're only processing references that are
-          // in a block of these three kinds, however the referencing block might just be a naked
-          // call expression like myClass.call() which we're not handling
+
+        //   // TODO(benji): we have a limitation here, we're only processing references that are
+        //   // in a block of these three kinds, however the referencing block might just be a naked
+        //   // call expression like myClass.call() which we're not handling
+        if (!isTopLevelType(surroundingBlock)) {
           return;
         }
-
-        const refNode = createTopLevelNode(topLevelNode);
+        const refNode = createTopLevelNode(surroundingBlock);
         if (!refNode) {
           return;
         }
