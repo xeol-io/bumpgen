@@ -67,6 +67,13 @@ where `@tanstack/react-query` is the package you want to bump and `5.28.14` is t
     </td>
 </table>
 
+## Limitations
+
+There are some limitations you should know about.
+
+- `bumpgen` can't handle multiple packages at this time. It will fail to upgrade packages that require peer dependencies to be updated the same time to work such as `@octokit/core` and `@octokit/plugin-retry`.
+- `bumpgen` is not good with very large frameworks like `vue`. These kind of upgrades (and vue 2 -> 3 specifically) can be arduous even for a human.
+
 ## 🏙️ Architecture
 
 ```
