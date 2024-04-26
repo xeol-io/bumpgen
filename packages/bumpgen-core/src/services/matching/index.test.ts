@@ -159,4 +159,16 @@ describe("findSequentialMatchedLinesIndices", () => {
 
     expect(result).toEqual({"startIndex": -1, "endIndex": -1});
   });
+
+  it("should handle empty lists", () => {
+    const matchedIndices = [
+      [1, 7],
+      [],
+      [2, 3, 4],
+    ];
+
+    const result = findSequentialMatchedLinesIndices(matchedIndices);
+
+    expect(result).toEqual({"startIndex": -1, "endIndex": -1});
+  });
 });

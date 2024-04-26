@@ -167,9 +167,7 @@ export const searchAndReplace = (
       )
       .map((item) => item.refIndex);
 
-    if (matchedLines.length > 0) {
-      allMatchedLines.push(matchedLines);
-    }
+    allMatchedLines.push(matchedLines);
   });
 
   const { startIndex, endIndex } =
