@@ -1,14 +1,13 @@
 #!/usr/bin/env node
 import React from "react";
 import { Option, program } from "@commander-js/extra-typings";
-import { render } from "ink";
-import { serializeError } from "serialize-error";
-
 import {
   makeBumpgen,
   SupportedLanguages,
   SupportedModels,
-} from "@repo/bumpgen-core";
+} from "@xeol/bumpgen-core";
+import { render } from "ink";
+import { serializeError } from "serialize-error";
 
 import App from "./app";
 

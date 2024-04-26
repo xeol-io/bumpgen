@@ -1,4 +1,4 @@
-name: Publish Prerelease
+name: Publish Prerelease for CLI
 on:
   pull_request:
     branches: [main]

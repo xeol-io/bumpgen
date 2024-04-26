@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@commander-js/extra-typings": "^12.0.1",
-    "@repo/bumpgen-core": "workspace:*",
+    "@xeol/bumpgen-core": "workspace:*",
     "zod": "^3.22.4",
     "@sindresorhus/tsconfig": "^3.0.1",
     "cfonts": "^3.2.0",
@@ -38,9 +38,9 @@
     "dist"
   ],
   "devDependencies": {
-    "@repo/eslint-config": "workspace:*",
-    "@repo/prettier-config": "workspace:*",
-    "@repo/tsconfig": "workspace:*",
+    "@xeol/eslint-config": "workspace:*",
+    "@xeol/prettier-config": "workspace:*",
+    "@xeol/tsconfig": "workspace:*",
     "@types/eslint": "^8.56.5",
     "@types/express": "^4.17.21",
     "@types/ms": "^0.7.34",
@@ -53,8 +53,8 @@
   "eslintConfig": {
     "root": true,
     "extends": [
-      "@repo/eslint-config/base"
+      "@xeol/eslint-config/base"
     ]
   },
-  "prettier": "@repo/prettier-config"
+  "prettier": "@xeol/prettier-config"
 }

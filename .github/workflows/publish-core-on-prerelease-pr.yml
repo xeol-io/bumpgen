@@ -1,4 +1,4 @@
-name: Publish Prerelease
+name: Publish Prerelease for @xeol/bumpgen-core
 on:
   pull_request:
     branches: [main]
@@ -41,7 +41,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
 
       - run: pnpm i
-      - run: pnpm --filter=@repo/bumpgen-core run build
-      - run: pnpm --filter=@repo/bumpgen-core publish --tag next --access public --no-git-checks
+      - run: pnpm --filter=@xeol/bumpgen-core run build
+      - run: pnpm --filter=@xeol/bumpgen-core publish --tag next --access public --no-git-checks
         env:
           NODE_AUTH_TOKEN: "${{ secrets.NPM_TOKEN }}"

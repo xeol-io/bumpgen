@@ -1,4 +1,12 @@
 import { spawn } from "child_process";
+import type {
+  BumpgenGraph,
+  PlanGraph,
+  PlanGraphNode,
+  SerializeableBumpgenEvent,
+  SupportedLanguage,
+  SupportedModel,
+} from "@xeol/bumpgen-core";
 import type { BoxProps, DOMElement } from "ink";
 import type { ReactNode } from "react";
 import React, { useEffect, useRef, useState } from "react";
@@ -8,15 +16,6 @@ import { topologicalSort } from "graphology-dag";
 import { Box, measureElement, Newline, Text, useApp, useInput } from "ink";
 import Spinner from "ink-spinner";
 import stripAnsi from "strip-ansi";
-
-import type {
-  BumpgenGraph,
-  PlanGraph,
-  PlanGraphNode,
-  SerializeableBumpgenEvent,
-  SupportedLanguage,
-  SupportedModel,
-} from "@repo/bumpgen-core";
 
 import { Sidebar } from "./components/sidebar";
 import { TitleText } from "./components/title-text";

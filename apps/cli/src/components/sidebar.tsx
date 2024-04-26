@@ -1,10 +1,9 @@
+import type { SerializeableBumpgenEvent } from "@xeol/bumpgen-core";
 import React, { useEffect, useState } from "react";
 import spinners from "cli-spinners";
 import { Box, Text } from "ink";
 import { Task, TaskList } from "ink-task-list";
 import ms from "ms";
-
-import type { SerializeableBumpgenEvent } from "@repo/bumpgen-core";
 
 import { Bold } from "../common/bold";
 

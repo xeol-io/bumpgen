@@ -9,8 +9,8 @@
     "typecheck": "turbo typecheck"
   },
   "devDependencies": {
-    "@repo/eslint-config": "workspace:*",
-    "@repo/tsconfig": "workspace:*",
+    "@xeol/eslint-config": "workspace:*",
+    "@xeol/tsconfig": "workspace:*",
     "prettier": "^3.2.5",
     "turbo": "latest"
   },

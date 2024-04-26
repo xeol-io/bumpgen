@@ -1,5 +1,5 @@
 {
-  "name": "@repo/prettier-config",
+  "name": "@xeol/prettier-config",
   "private": true,
   "version": "0.1.0",
   "type": "module",
@@ -16,8 +16,8 @@
     "prettier": "^3.1.1"
   },
   "devDependencies": {
-    "@repo/tsconfig": "workspace:*",
+    "@xeol/tsconfig": "workspace:*",
     "typescript": "^5.3.3"
   },
-  "prettier": "@repo/prettier-config"
+  "prettier": "@xeol/prettier-config"
 }

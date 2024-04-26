@@ -1,12 +1,11 @@
 {
-  "name": "@repo/test-project",
+  "name": "@xeol/test-project",
   "version": "0.0.0",
   "private": true,
   "exports": {
     ".": "./src/index.ts"
   },
-  "scripts": {
-  },
+  "scripts": {},
   "dependencies": {
     "@tanstack/react-query": "^5.29.2",
     "graphology": "^0.25.4",
@@ -20,9 +19,9 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
-    "@repo/eslint-config": "workspace:*",
-    "@repo/prettier-config": "workspace:*",
-    "@repo/tsconfig": "workspace:*",
+    "@xeol/eslint-config": "workspace:*",
+    "@xeol/prettier-config": "workspace:*",
+    "@xeol/tsconfig": "workspace:*",
     "@types/eslint": "^8.56.5",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.11.24",
@@ -34,8 +33,8 @@
   "eslintConfig": {
     "root": true,
     "extends": [
-      "@repo/eslint-config/base"
+      "@xeol/eslint-config/base"
     ]
   },
-  "prettier": "@repo/prettier-config"
+  "prettier": "@xeol/prettier-config"
 }
