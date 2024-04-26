@@ -1,6 +1,6 @@
 import path from "path";
 
-import { injectTypescriptService } from "./index";
+import { id, injectTypescriptService } from "./index";
 
 const client = injectTypescriptService();
 
@@ -12,10 +12,16 @@ describe("dependencyGraphService", () => {
     const project = client.ast.initialize(rootDir);
     const depGraph = client.graph.dependency.initialize(project);
 
-    const updatedNodes = depGraph.nodes().map((id) => {
-      const node = depGraph.getNodeAttributes(id);
+    const updatedNodes = depGraph.nodes().map((nodeId) => {
+      const node = depGraph.getNodeAttributes(nodeId);
+      const path = node?.path.replace(/^.*?(\/test-project\/)/, "$1");
       return {
         ...node,
+        id: id({
+          path: path,
+          kind: node.kind,
+          name: node.name,
+        }),
         // remove part of the path so snapshots don't fail
         path: node?.path.replace(/^.*?(\/test-project\/)/, "$1"),
         typeSignature: client.graph.getTypeSignature(project, node),

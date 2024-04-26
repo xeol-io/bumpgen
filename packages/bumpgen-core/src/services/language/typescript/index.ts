@@ -22,6 +22,8 @@ import { injectSubprocessService } from "../../subprocess";
 import { allChildrenOfKindIdentifier, processSourceFile } from "./process";
 import { getImportSignature, getSignature, isImportNode } from "./signatures";
 
+export { id } from "./process";
+
 const NcuUpgradeSchema = z.record(z.string());
 
 type ErrorRegexParsed = [

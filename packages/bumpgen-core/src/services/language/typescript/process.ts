@@ -73,7 +73,7 @@ export const getSurroundingBlock = (node: ImportSpecifier | Node): Node => {
   return secondFromTopAncestor;
 };
 
-const id = ({
+export const id = ({
   path,
   kind,
   name,
