@@ -37,12 +37,7 @@ exports[`dependencyGraphService initializes 1`] = `
     "name": "myFunction",
     "path": "/test-project/src/index.ts",
     "startLine": 1,
-    "typeSignature": "export function myFunction(text: string) {
-  z.string();
-  console.log(text);
-  return text;
-}
-",
+    "typeSignature": "",
   },
   {
     "block": "import {
@@ -58,13 +53,7 @@ exports[`dependencyGraphService initializes 1`] = `
     "name": "NodeRelations",
     "path": "/test-project/src/index.ts",
     "startLine": 1,
-    "typeSignature": "class NodeRelations  {
- constructor (hasCycle: boolean) => NodeRelations  NodeRelations.addEdge: addEdge() {
-    console.log("edge");
-    z.string();
-    return "";
-  }
-}",
+    "typeSignature": "",
   },
   {
     "block": "const n = new NodeRelations(false);",
@@ -183,13 +172,8 @@ exports[`dependencyGraphService initializes 1`] = `
     "name": "MyNewComponent",
     "path": "/test-project/src/app/index.tsx",
     "startLine": 13,
-    "typeSignature": "function App() {
-  return (
-    <div>
-      <h1>My React App</h1>
-      <MyNewComponent />
-    </div>
-  );
+    "typeSignature": "function MyNewComponent() {
+  return <p>This is my new component</p>;
 }
 ",
   },

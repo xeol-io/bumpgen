@@ -292,20 +292,24 @@ export const makeTypescriptService = (
       // the performance of .getType() and .getReturnType() in ts-morph is not very good.
       // thus, we need to compute these typeSignatures on the fly rather than when we
       // create the dependency graph
-      // TODO(benji): handle typesignature calculation for ImportClauses like 'import Foo from "bar"'
       getTypeSignature: (ast, node) => {
         const { name, kind, path } = node;
 
         const astNode = ast.tree
           .getSourceFile(path)
-          ?.getFirstChild() // get first child is the syntax tree / code
+          ?.getFirstChild()
           ?.getDescendantsOfKind(SyntaxKind[kind])
           .map((descendant) => {
-            if (
-              allChildrenOfKindIdentifier(descendant).some((identifier) => {
-                return identifier.getText() == name;
-              })
-            ) {
+            const idName = descendant
+              .getFirstDescendantByKind(SyntaxKind.Identifier)
+              ?.getSymbol()
+              ?.getName();
+            const nodeName =
+              "getName" in descendant
+                ? descendant.getName()
+                : descendant.getSymbol()?.getName();
+            const descendantName = nodeName ?? idName;
+            if (descendantName === name) {
               return {
                 node: descendant,
                 identifier: name,
