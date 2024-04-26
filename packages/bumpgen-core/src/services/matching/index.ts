@@ -163,6 +163,7 @@ export const searchAndReplace = (
 
     const matchedLines = result
       .filter(
+        // this addresses a fuse.js bug where high threshold matches are still returned
         (item) => item.score !== undefined && item.score <= threshold * 1.5,
       )
       .map((item) => item.refIndex);
