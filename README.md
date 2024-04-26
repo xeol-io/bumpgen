@@ -25,9 +25,7 @@
 Dependabot but fixes the breaking changes for you as well.
 
 <p align="center">
-    <video controls>
-        <source src="https://www.loom.com/share/e9893c1dde3a4895a7b9116bda1cfe39?sid=083bbc07-4e63-4383-9060-efbb45a9cbae" type="video/mp4">
-    </video>
+    <img src="https://s3.amazonaws.com/static.xeol.io/mkdirp.gif"/>
 </p>
 
 ## 🏙️ Architecture
@@ -114,9 +112,10 @@ naive + GPT-4 Turbo           █████████░░░░░░░�
 We benchmarked `bumpgen` with GPT-4 Turbo against a [suite](https://github.com/xeol-io/swe-bump-bench) of version bumps with breaking changes.
 
 ## 🚀 Get Started
-#### OpenAI Key
+#### LLM API Key
+We only support GPT-4 Turbo right now.
 ```
-OPEN_AI="gpt4_key"
+LLM_API_KEY="gpt4_key"
 ```
 
 #### Run Upgrade
@@ -135,6 +134,7 @@ OPEN_AI="gpt4_key"
 - [x] Typescript support
 - [ ] `bumpgen` GitHub app 
 - [ ] Embeddings for different package versions
+- [ ] Benchmarks
 - [ ] C# support
 - [ ] Java support
 - [ ] Go support
