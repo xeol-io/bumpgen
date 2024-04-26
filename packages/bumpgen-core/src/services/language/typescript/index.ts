@@ -19,7 +19,7 @@ import type { BumpgenLanguageService } from "../types";
 import { injectFilesystemService } from "../../filesystem";
 import { injectGraphService } from "../../graph";
 import { injectSubprocessService } from "../../subprocess";
-import { allChildrenOfKindIdentifier, processSourceFile } from "./process";
+import { processSourceFile } from "./process";
 import { getImportSignature, getSignature, isImportNode } from "./signatures";
 
 export { id } from "./process";
