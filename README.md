@@ -148,7 +148,7 @@ We benchmarked `bumpgen` with GPT-4 Turbo against a [suite](https://github.com/x
 
 ## 🎁 Contributing
 
-Contributions are welcome! To get set up for development, see Development.
+Contributions are welcome! To get set up for development, see [Development](./.github/development.md).
 
 #### Roadmap
 
