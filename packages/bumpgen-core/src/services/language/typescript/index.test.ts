@@ -12,9 +12,18 @@ describe("dependencyGraphService", () => {
     const project = client.ast.initialize(rootDir);
     const depGraph = client.graph.dependency.initialize(project);
 
+    const idMapping = new Map<string, string>();
+
     const updatedNodes = depGraph.nodes().map((nodeId) => {
       const node = depGraph.getNodeAttributes(nodeId);
       const path = node?.path.replace(/^.*?(\/test-project\/)/, "$1");
+      const updatedId = id({
+        path: path,
+        kind: node.kind,
+        name: node.name,
+      });
+      idMapping.set(nodeId, updatedId);
+      // idMapping[nodeId] = updatedId;
       return {
         ...node,
         id: id({
@@ -29,11 +38,14 @@ describe("dependencyGraphService", () => {
     });
 
     const graphObj = depGraph.export();
-
-    // delete edge key so snapshots don't fail
-    graphObj.edges.forEach((edge) => delete edge.key);
+    const updatedEdges = graphObj.edges.map((edge) => {
+      return {
+        source: idMapping.get(edge.source)!,
+        target: idMapping.get(edge.target)!,
+      };
+    });
 
     expect(updatedNodes).toMatchSnapshot();
-    expect(graphObj.edges).toMatchSnapshot();
+    expect(updatedEdges).toMatchSnapshot();
   });
 });

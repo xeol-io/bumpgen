@@ -407,121 +407,56 @@ type UseQueryResult<TData = unknown, TError = DefaultError> = UseBaseQueryResult
 exports[`dependencyGraphService initializes 2`] = `
 [
   {
-    "attributes": {
-      "relationship": "importDeclaration",
-      "source": "499d9d793ba233cf0a3ef8e4585b7e411901f15c",
-      "target": "b4690ab017d431ea4492ff3c79330a7290284c82",
-    },
-    "source": "499d9d793ba233cf0a3ef8e4585b7e411901f15c",
-    "target": "b4690ab017d431ea4492ff3c79330a7290284c82",
+    "source": "1216684097590598af275e16687b2cc97854fca6",
+    "target": "3c7052ef9bd663d73fba4ff6d45642ca28fca8a4",
   },
   {
-    "attributes": {
-      "relationship": "referencedBy",
-      "source": "499d9d793ba233cf0a3ef8e4585b7e411901f15c",
-      "target": "733fb6bfde999084a720fd74d20c79124a4e7949",
-    },
-    "source": "499d9d793ba233cf0a3ef8e4585b7e411901f15c",
-    "target": "733fb6bfde999084a720fd74d20c79124a4e7949",
+    "source": "1216684097590598af275e16687b2cc97854fca6",
+    "target": "434b34fc9e1caa8083526e928d9a0ae576d7876b",
   },
   {
-    "attributes": {
-      "relationship": "importDeclaration",
-      "source": "3abae6429154711292e6ec33fc050289209958e5",
-      "target": "5a9d43600be848878765e00840ef7084604664cf",
-    },
-    "source": "3abae6429154711292e6ec33fc050289209958e5",
-    "target": "5a9d43600be848878765e00840ef7084604664cf",
+    "source": "011126099144ccb4bcd717bfd267d60587d8cc90",
+    "target": "8204690232c2466371e669a014ef72327fa8f369",
   },
   {
-    "attributes": {
-      "relationship": "importDeclaration",
-      "source": "39287b2611c96ce21d773462b2b65622a9d141e6",
-      "target": "3d6a18e61378adb3158347587e6ab60eb39cd038",
-    },
-    "source": "39287b2611c96ce21d773462b2b65622a9d141e6",
-    "target": "3d6a18e61378adb3158347587e6ab60eb39cd038",
+    "source": "476de9c76d6f44d72d2b1245a9a93c7b94a99a1f",
+    "target": "134600b64a94189aa5713e98127bf32f0ab0f0b6",
   },
   {
-    "attributes": {
-      "relationship": "referencedBy",
-      "source": "41cbcc9031d9de2619afbe446cd506168b59feae",
-      "target": "d6194b21fbce1c9f94df98f0273fb4e543b70a81",
-    },
-    "source": "41cbcc9031d9de2619afbe446cd506168b59feae",
-    "target": "d6194b21fbce1c9f94df98f0273fb4e543b70a81",
+    "source": "96e3c33ad729df45fc174ad584ff76561b151355",
+    "target": "30fd08e8612650dedd7f10b31ffbc8a44324396f",
   },
   {
-    "attributes": {
-      "relationship": "referencedBy",
-      "source": "4751583d8062938f4a996ef45539f4e77507d9f9",
-      "target": "41cbcc9031d9de2619afbe446cd506168b59feae",
-    },
-    "source": "4751583d8062938f4a996ef45539f4e77507d9f9",
-    "target": "41cbcc9031d9de2619afbe446cd506168b59feae",
+    "source": "f71ccda3b25eb2c469d5d7c9d28526b913f28df8",
+    "target": "96e3c33ad729df45fc174ad584ff76561b151355",
   },
   {
-    "attributes": {
-      "relationship": "importDeclaration",
-      "source": "d6194b21fbce1c9f94df98f0273fb4e543b70a81",
-      "target": "77c88d8db141dff041dd73aadf6c29070ccbbf2b",
-    },
-    "source": "d6194b21fbce1c9f94df98f0273fb4e543b70a81",
-    "target": "77c88d8db141dff041dd73aadf6c29070ccbbf2b",
+    "source": "30fd08e8612650dedd7f10b31ffbc8a44324396f",
+    "target": "5e4ef8797659e2a8c5c502eec67bbfcd459c9d46",
   },
   {
-    "attributes": {
-      "relationship": "importDeclaration",
-      "source": "8075d0e4613922bbd56f0009959451346b3f370b",
-      "target": "f3db0d36061cc8a3501a31acec9a010118c9193d",
-    },
-    "source": "8075d0e4613922bbd56f0009959451346b3f370b",
-    "target": "f3db0d36061cc8a3501a31acec9a010118c9193d",
+    "source": "8e0051ad7c49716420e0140ade5add29840c0b96",
+    "target": "9f412e876bc9c60f4b805f54a113791059aad2e2",
   },
   {
-    "attributes": {
-      "relationship": "importDeclaration",
-      "source": "e529f2d724201ab2e85fe2d04206f906455b8c35",
-      "target": "f3db0d36061cc8a3501a31acec9a010118c9193d",
-    },
-    "source": "e529f2d724201ab2e85fe2d04206f906455b8c35",
-    "target": "f3db0d36061cc8a3501a31acec9a010118c9193d",
+    "source": "d377594088a1eac0cb38d0b30cce7d28f03f4011",
+    "target": "9f412e876bc9c60f4b805f54a113791059aad2e2",
   },
   {
-    "attributes": {
-      "relationship": "referencedBy",
-      "source": "e529f2d724201ab2e85fe2d04206f906455b8c35",
-      "target": "39287b2611c96ce21d773462b2b65622a9d141e6",
-    },
-    "source": "e529f2d724201ab2e85fe2d04206f906455b8c35",
-    "target": "39287b2611c96ce21d773462b2b65622a9d141e6",
+    "source": "d377594088a1eac0cb38d0b30cce7d28f03f4011",
+    "target": "476de9c76d6f44d72d2b1245a9a93c7b94a99a1f",
   },
   {
-    "attributes": {
-      "relationship": "importDeclaration",
-      "source": "af98bd4a9f21da0ef9138e91b2e2c0146038c81e",
-      "target": "6d08cd93852138810d10156622fdab68490ffadd",
-    },
-    "source": "af98bd4a9f21da0ef9138e91b2e2c0146038c81e",
-    "target": "6d08cd93852138810d10156622fdab68490ffadd",
+    "source": "e467e428b74115c75603dd6f843a91c3adcb5ee1",
+    "target": "b01d70a38703c8b8c0d59b211431fdba0462fd3a",
   },
   {
-    "attributes": {
-      "relationship": "importDeclaration",
-      "source": "4e567e969228d3bd9d437ea11af597903c8b3eb6",
-      "target": "f3db0d36061cc8a3501a31acec9a010118c9193d",
-    },
-    "source": "4e567e969228d3bd9d437ea11af597903c8b3eb6",
-    "target": "f3db0d36061cc8a3501a31acec9a010118c9193d",
+    "source": "87b9ecaf3b92371fe3d4b50777f320bfc95b0d82",
+    "target": "9f412e876bc9c60f4b805f54a113791059aad2e2",
   },
   {
-    "attributes": {
-      "relationship": "referencedBy",
-      "source": "4e567e969228d3bd9d437ea11af597903c8b3eb6",
-      "target": "3abae6429154711292e6ec33fc050289209958e5",
-    },
-    "source": "4e567e969228d3bd9d437ea11af597903c8b3eb6",
-    "target": "3abae6429154711292e6ec33fc050289209958e5",
+    "source": "87b9ecaf3b92371fe3d4b50777f320bfc95b0d82",
+    "target": "011126099144ccb4bcd717bfd267d60587d8cc90",
   },
 ]
 `;
