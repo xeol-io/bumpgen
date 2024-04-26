@@ -244,7 +244,7 @@ export const createMatchingService = () => {
             content = searchAndReplace(content, line, newCode);
           });      
         } else {
-          content = searchAndReplace(content, content, newCode);
+          content = searchAndReplace(content, oldCode, newCode);
         }
 
         return content;
