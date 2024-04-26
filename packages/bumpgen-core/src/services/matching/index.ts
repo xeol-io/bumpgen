@@ -42,8 +42,8 @@ const formatNewCode = (matchedIndent: number, newCode: string) => {
 };
 
 const findSequentialMatchedLinesIndices = (
-  allRefIndexes: number[][]
-): { startIndex: number, endIndex: number } => {
+  allRefIndexes: number[][],
+): { startIndex: number; endIndex: number } => {
   const isSequential = (combination: number[]): boolean => {
     combination.forEach((current, index, array) => {
       if (index < array.length - 1 && array[index + 1] !== current + 1) {
@@ -51,54 +51,56 @@ const findSequentialMatchedLinesIndices = (
       }
     });
     return true;
-  }
+  };
 
   // recursion black magic
   const getAllCombinations = (
-    currentIndex: number, 
+    currentIndex: number,
     currentCombination: number[],
-    bestCombination: { startIndex: number, endIndex: number }
-  ): { startIndex: number, endIndex: number } => {
+    bestCombination: { startIndex: number; endIndex: number },
+  ): { startIndex: number; endIndex: number } => {
     const indexList = allRefIndexes[currentIndex];
     const firstIndex = currentCombination[0];
     const lastIndex = currentCombination[currentCombination.length - 1];
 
     if (currentIndex === allRefIndexes.length) {
-
-      if (isSequential(currentCombination) &&
+      if (
+        isSequential(currentCombination) &&
         firstIndex &&
         lastIndex &&
-        currentCombination.length > 0 && 
-        (currentCombination.length > bestCombination.endIndex - bestCombination.startIndex + 1)
+        currentCombination.length > 0 &&
+        currentCombination.length >
+          bestCombination.endIndex - bestCombination.startIndex + 1
       ) {
         return { startIndex: firstIndex, endIndex: lastIndex };
-
-      }    
+      }
       return bestCombination;
     }
 
     let updatedBestCombination = bestCombination;
 
-    indexList && indexList.forEach(element => {
-      if (currentCombination.length === 0 ||
-        lastIndex &&
-        element === lastIndex + 1
-      ) {
-        currentCombination.push(element);
-        updatedBestCombination = getAllCombinations(
-          currentIndex + 1,
-          currentCombination,
-          updatedBestCombination
-        );
-        currentCombination.pop();
-      }
-    });
+    indexList &&
+      indexList.forEach((element) => {
+        if (
+          currentCombination.length === 0 ||
+          (lastIndex && element === lastIndex + 1)
+        ) {
+          currentCombination.push(element);
+          updatedBestCombination = getAllCombinations(
+            currentIndex + 1,
+            currentCombination,
+            updatedBestCombination,
+          );
+          currentCombination.pop();
+        }
+      });
 
     return updatedBestCombination;
-  }
+  };
 
-  if (allRefIndexes.length === 1 &&
-    allRefIndexes[0] && 
+  if (
+    allRefIndexes.length === 1 &&
+    allRefIndexes[0] &&
     allRefIndexes[0].length > 0 &&
     allRefIndexes[0][0]
   ) {
@@ -106,29 +108,28 @@ const findSequentialMatchedLinesIndices = (
   }
 
   return getAllCombinations(0, [], { startIndex: -1, endIndex: -1 });
-}
+};
 
-const splitMultiImportOldCode = (code: string): string[] => {
+export const splitMultiImportOldCode = (code: string): string[] => {
   const regexes = [
     /import\s+([a-zA-Z_$][0-9a-zA-Z_$]*)\s*=\s*require\(['"]([^'"]+)['"]\)(\.[a-zA-Z_$][0-9a-zA-Z_$]*)?\s*(;|\n|$)/g,
     /import\s+(['"]([^'"]+)['"]|[\s\S]+?from\s+['"]([^'"]+)['"])\s*(;|\n|$)/g,
-    /const\s+[a-zA-Z_$][0-9a-zA-Z_$]*\s*=\s*(await\s+)?(require\(['"][^'"]+['"]\)|import\(['"][^'"]+['"]\))\s*(;|\n|$)/g
+    /const\s+[a-zA-Z_$][0-9a-zA-Z_$]*\s*=\s*(await\s+)?(require\(['"][^'"]+['"]\)|import\(['"][^'"]+['"]\))\s*(;|\n|$)/g,
   ];
 
   const imports: string[] = [];
   let codeWithoutImports = code.trim();
 
+  console.log("=== multi import split");
   for (const regex of regexes) {
-    console.log("=== multi import split");
-
     let match: RegExpExecArray | null;
     while ((match = regex.exec(codeWithoutImports)) !== null) {
       imports.push(match[0]);
-      console.log(match[0]);
+      console.log("line:", match[0]);
     }
-    codeWithoutImports = codeWithoutImports.replace(regex, '').trim();
-    console.log("===");
+    codeWithoutImports = codeWithoutImports.replace(regex, "").trim();
   }
+  console.log("===");
 
   const remainingCodeSections: string[] = [];
 
@@ -137,9 +138,9 @@ const splitMultiImportOldCode = (code: string): string[] => {
   }
 
   return [...imports, ...remainingCodeSections];
-}
+};
 
-const searchAndReplace = (
+export const searchAndReplace = (
   content: string,
   oldCode: string,
   newCode: string,
@@ -148,33 +149,34 @@ const searchAndReplace = (
   const allMatchedLines: number[][] = [];
   const threshold = 0.2;
 
-  const fuse = new Fuse(
-    trimCode(content),
-    {
-      threshold: threshold,
-      ignoreLocation: true,
-      includeScore: true, 
-      includeMatches: true,
-      findAllMatches: true,
-      isCaseSensitive: true,
-      shouldSort: true,
-    });
-  
+  const fuse = new Fuse(trimCode(content), {
+    threshold: threshold,
+    ignoreLocation: true,
+    includeScore: true,
+    includeMatches: true,
+    findAllMatches: true,
+    isCaseSensitive: true,
+    shouldSort: true,
+  });
+
   // find all possible matched lines then find the sequential hits
-  trimCode(oldCode).forEach(line => {
+  trimCode(oldCode).forEach((line) => {
     const result = fuse.search(line);
     console.log(result);
-  
+
     const matchedLines = result
-      .filter(item => item.score !== undefined && item.score <= threshold * 1.5)
-      .map(item => item.refIndex);
-  
+      .filter(
+        (item) => item.score !== undefined && item.score <= threshold * 1.5,
+      )
+      .map((item) => item.refIndex);
+
     if (matchedLines.length > 0) {
       allMatchedLines.push(matchedLines);
     }
   });
 
-  const { startIndex, endIndex } = findSequentialMatchedLinesIndices(allMatchedLines);
+  const { startIndex, endIndex } =
+    findSequentialMatchedLinesIndices(allMatchedLines);
 
   console.log(`Looking for this code:`);
   console.log("=====");
@@ -193,9 +195,11 @@ const searchAndReplace = (
   }
   console.log("=====");
 
-  const matchedLines = splitContent.slice(startIndex, endIndex + 1).join('\n');
+  const matchedLines = splitContent.slice(startIndex, endIndex + 1).join("\n");
 
-  console.log(`Matched block starts at ${startIndex} and ends at ${endIndex}\n`);
+  console.log(
+    `Matched block starts at ${startIndex} and ends at ${endIndex}\n`,
+  );
   console.log("=== actual matched code block");
   console.log(matchedLines);
   console.log("=== \n");
@@ -209,17 +213,17 @@ const searchAndReplace = (
 
   const indentedNewCode = formatNewCode(
     countIndents(firstMatchedLine),
-    newCode
+    newCode,
   );
 
-  console.log("=== replacing with this new code")
+  console.log("=== replacing with this new code");
   console.log(indentedNewCode.join("\n"));
   console.log("=== \n");
 
   const updatedContents = [
     ...splitContent.slice(0, startIndex),
     ...indentedNewCode,
-    ...splitContent.slice(endIndex + 1)
+    ...splitContent.slice(endIndex + 1),
   ].join("\n");
 
   return updatedContents;
@@ -227,7 +231,7 @@ const searchAndReplace = (
 
 export const createMatchingService = () => {
   return {
-    replacements: { 
+    replacements: {
       fuzzy: ({
         content,
         oldCode,
@@ -242,7 +246,7 @@ export const createMatchingService = () => {
         if (multiImportOldCode.length > 1) {
           multiImportOldCode.forEach((line: string) => {
             content = searchAndReplace(content, line, newCode);
-          });      
+          });
         } else {
           content = searchAndReplace(content, oldCode, newCode);
         }
