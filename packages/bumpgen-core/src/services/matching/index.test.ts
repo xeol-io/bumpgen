@@ -1,7 +1,11 @@
 import fs from "fs/promises";
 import path from "path";
 
-import { searchAndReplace, splitMultiImportOldCode } from ".";
+import { 
+  formatNewCode,
+  searchAndReplace, 
+  splitMultiImportOldCode,
+} from ".";
 
 const getFileBefore = async (filename: string) => {
   return (
@@ -44,5 +48,32 @@ describe("splitMultiImportOldCode", () => {
       "import * as rawGlob from 'glob';",
       "const glob = promisify(rawGlob);",
     ]);
+  });
+});
+
+describe("formatNewCode", () => {
+  it("should format replacement code correctly for missing indents", () => {
+    const line = "    import * as Sentry from '@sentry/line';";
+    const replace = "import * as Sentry from '@sentry/replace';";
+
+    const result = formatNewCode(line, replace);
+
+    expect(result).toEqual(["    import * as Sentry from '@sentry/replace';"]);
+  });
+  it("should format replacement code correctly for extra indents", () => {
+    const line = "import * as Sentry from '@sentry/line';";
+    const replace = "  import * as Sentry from '@sentry/replace';";
+
+    const result = formatNewCode(line, replace);
+
+    expect(result).toEqual(["import * as Sentry from '@sentry/replace';"]);
+  });
+  it("should format replacement code correctly for tabs", () => {
+    const line = "\t\timport * as Sentry from '@sentry/line';";
+    const replace = "import * as Sentry from '@sentry/replace';";
+
+    const result = formatNewCode(line, replace);
+
+    expect(result).toEqual(["\t\timport * as Sentry from '@sentry/replace';"]);
   });
 });

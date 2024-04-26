@@ -1,23 +1,23 @@
 import Fuse from "fuse.js";
 
-const countIndents = (line: string) => {
-  let count = 0;
-  // eslint-disable-next-line @typescript-eslint/prefer-for-of
-  for (let i = 0; i < line.length; i++) {
-    if (line[i] === " " || line[i] === "\t") {
-      count++;
-    } else {
-      break;
-    }
-  }
-  return count;
-};
-
 const splitCode = (code: string) => code.split("\n");
 
 const trimCode = (code: string) => code.split("\n").map((line) => line.trim());
 
-const formatNewCode = (firstMatchedLine: string, newCode: string) => {
+export const formatNewCode = (firstMatchedLine: string, newCode: string) => {
+  const countIndents = (line: string) => {
+    let count = 0;
+    // eslint-disable-next-line @typescript-eslint/prefer-for-of
+    for (let i = 0; i < line.length; i++) {
+      if (line[i] === " " || line[i] === "\t") {
+        count++;
+      } else {
+        break;
+      }
+    }
+    return count;
+  };
+
   const splitNewCode = splitCode(newCode);
   const firstNewCodeLine = splitNewCode[0];
 
@@ -38,7 +38,7 @@ const formatNewCode = (firstMatchedLine: string, newCode: string) => {
   return formattedCode;
 };
 
-const findSequentialMatchedLinesIndices = (
+export const findSequentialMatchedLinesIndices = (
   allRefIndexes: number[][],
 ): { startIndex: number; endIndex: number } => {
   const isSequential = (combination: number[]): boolean => {
