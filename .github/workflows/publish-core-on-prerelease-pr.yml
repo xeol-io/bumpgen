@@ -35,6 +35,11 @@ jobs:
         with:
           script: require('./.github/versioning.js').verify({ github, context, core })
 
+      - name: set publishing config
+        run: pnpm config set '//registry.npmjs.org/:_authToken' "${NODE_AUTH_TOKEN}"
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+
       - run: pnpm i
       - run: pnpm --filter=@repo/bumpgen-core run build
       - run: pnpm --filter=@repo/bumpgen-core publish --tag next --access public

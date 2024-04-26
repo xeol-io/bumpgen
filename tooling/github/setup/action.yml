@@ -11,12 +11,6 @@ runs:
         registry-url: "https://registry.npmjs.org"
         cache: "pnpm"
 
-    - name: set publishing config
-      shell: bash
-      run: pnpm config set '//registry.npmjs.org/:_authToken' "${NODE_AUTH_TOKEN}"
-      env:
-        NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
-
     - shell: bash
       run: pnpm add -g turbo
 
