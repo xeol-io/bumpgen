@@ -245,9 +245,9 @@ const getReferenceNodes = (node: TopLevelTypes) => {
 
         const surroundingBlock = getSurroundingBlock(referencingNode);
 
-        //   // TODO(benji): we have a limitation here, we're only processing references that are
-        //   // in a block of these three kinds, however the referencing block might just be a naked
-        //   // call expression like myClass.call() which we're not handling
+        // TODO(benji): we have a limitation here, we're only processing references that are
+        // in a block of these three kinds, however the referencing block might just be a naked
+        // call expression like myClass.call() which we're not handling
         if (!isTopLevelType(surroundingBlock)) {
           return;
         }
