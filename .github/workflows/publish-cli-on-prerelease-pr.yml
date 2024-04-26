@@ -29,16 +29,16 @@ jobs:
 
       - name: Setup
         uses: ./tooling/github/setup
-        
+
       - uses: actions/github-script@v6
         env:
           PR_VERSION: ${{steps.pr-version.outputs.current-version}}
           MAIN_VERSION: ${{steps.main-version.outputs.current-version}}
         with:
           script: require('./.github/versioning.js').verify({ github, context, core })
-          
+
       - run: pnpm i
       - run: pnpm --filter=bumpgen run build
-      - run: pnpm --filter=bumpgen publish --tag next --access public --no-git-checks
+      - run: pnpm --filter=bumpgen publish --tag next --access public
         env:
           NODE_AUTH_TOKEN: "${{ secrets.NPM_TOKEN }}"

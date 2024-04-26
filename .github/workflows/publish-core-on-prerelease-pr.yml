@@ -37,6 +37,6 @@ jobs:
 
       - run: pnpm i
       - run: pnpm --filter=@repo/bumpgen-core run build
-      - run: pnpm --filter=@repo/bumpgen-core publish --tag next --access public --no-git-checks
+      - run: pnpm --filter=@repo/bumpgen-core publish --tag next --access public
         env:
           NODE_AUTH_TOKEN: "${{ secrets.NPM_TOKEN }}"
