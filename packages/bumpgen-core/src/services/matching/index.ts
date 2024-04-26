@@ -110,7 +110,7 @@ const findSequentialMatchedLinesIndices = (
   return getAllCombinations(0, [], { startIndex: -1, endIndex: -1 });
 };
 
-const splitMultiImportOldCode = (code: string): string[] => {
+export const splitMultiImportOldCode = (code: string): string[] => {
   const regexes = [
     /import\s+([a-zA-Z_$][0-9a-zA-Z_$]*)\s*=\s*require\(['"]([^'"]+)['"]\)(\.[a-zA-Z_$][0-9a-zA-Z_$]*)?\s*(;|\n|$)/g,
     /import\s+(['"]([^'"]+)['"]|[\s\S]+?from\s+['"]([^'"]+)['"])\s*(;|\n|$)/g,
@@ -120,17 +120,16 @@ const splitMultiImportOldCode = (code: string): string[] => {
   const imports: string[] = [];
   let codeWithoutImports = code.trim();
 
+  console.log("=== multi import split");
   for (const regex of regexes) {
-    console.log("=== multi import split");
-
     let match: RegExpExecArray | null;
     while ((match = regex.exec(codeWithoutImports)) !== null) {
       imports.push(match[0]);
-      console.log(match[0]);
+      console.log("line:", match[0]);
     }
     codeWithoutImports = codeWithoutImports.replace(regex, "").trim();
-    console.log("===");
   }
+  console.log("===");
 
   const remainingCodeSections: string[] = [];
 
