@@ -1,6 +1,6 @@
 import path from "path";
 
-import { injectTypescriptService } from "./index";
+import { id, injectTypescriptService } from "./index";
 
 const client = injectTypescriptService();
 
@@ -12,10 +12,26 @@ describe("dependencyGraphService", () => {
     const project = client.ast.initialize(rootDir);
     const depGraph = client.graph.dependency.initialize(project);
 
-    const updatedNodes = depGraph.nodes().map((id) => {
-      const node = depGraph.getNodeAttributes(id);
+    const idMapping = new Map<string, string>();
+
+    // we need to remap ids and paths so tests don't fail across
+    // runs in different environments
+    const updatedNodes = depGraph.nodes().map((nodeId) => {
+      const node = depGraph.getNodeAttributes(nodeId);
+      const path = node?.path.replace(/^.*?(\/test-project\/)/, "$1");
+      const updatedId = id({
+        path: path,
+        kind: node.kind,
+        name: node.name,
+      });
+      idMapping.set(nodeId, updatedId);
       return {
         ...node,
+        id: id({
+          path: path,
+          kind: node.kind,
+          name: node.name,
+        }),
         // remove part of the path so snapshots don't fail
         path: node?.path.replace(/^.*?(\/test-project\/)/, "$1"),
         typeSignature: client.graph.getTypeSignature(project, node),
@@ -23,11 +39,14 @@ describe("dependencyGraphService", () => {
     });
 
     const graphObj = depGraph.export();
-
-    // delete edge key so snapshots don't fail
-    graphObj.edges.forEach((edge) => delete edge.key);
+    const updatedEdges = graphObj.edges.map((edge) => {
+      return {
+        source: idMapping.get(edge.source)!,
+        target: idMapping.get(edge.target)!,
+      };
+    });
 
     expect(updatedNodes).toMatchSnapshot();
-    expect(graphObj.edges).toMatchSnapshot();
+    expect(updatedEdges).toMatchSnapshot();
   });
 });
