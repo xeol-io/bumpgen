@@ -14,6 +14,8 @@ describe("dependencyGraphService", () => {
 
     const idMapping = new Map<string, string>();
 
+    // we need to remap ids and paths so tests don't fail across
+    // runs in different environments
     const updatedNodes = depGraph.nodes().map((nodeId) => {
       const node = depGraph.getNodeAttributes(nodeId);
       const path = node?.path.replace(/^.*?(\/test-project\/)/, "$1");
