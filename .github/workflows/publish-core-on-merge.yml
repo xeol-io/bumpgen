@@ -53,10 +53,8 @@ jobs:
       - name: Setup
         uses: ./tooling/github/setup
 
-      - name: 📦️ Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: 🚀 Publish bumpgen-core to npm
-        run: pnpm publish packages/bumpgen-core
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter=@xeol/bumpgen-core run build
+      - run: pnpm --filter=@xeol/bumpgen-core publish --tag latest --access public --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

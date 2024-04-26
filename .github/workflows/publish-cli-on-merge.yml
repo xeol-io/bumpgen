@@ -54,11 +54,8 @@ jobs:
       - name: Setup
         uses: ./tooling/github/setup
 
-      - name: 📦️ Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: 🚀 Publish bumpgen cli to npm
-        shell: bash
-        run: pnpm publish apps/cli
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter=bumpgen run build
+      - run: pnpm --filter=bumpgen publish --tag latest --access public --no-git-checks
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: "${{ secrets.NPM_TOKEN }}"
