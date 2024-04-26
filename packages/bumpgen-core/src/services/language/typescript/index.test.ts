@@ -23,7 +23,6 @@ describe("dependencyGraphService", () => {
         name: node.name,
       });
       idMapping.set(nodeId, updatedId);
-      // idMapping[nodeId] = updatedId;
       return {
         ...node,
         id: id({
