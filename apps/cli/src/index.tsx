@@ -1,10 +1,12 @@
 #!/usr/bin/env node
 import React from "react";
 import { Option, program } from "@commander-js/extra-typings";
+import { select } from "@inquirer/prompts";
 import { render } from "ink";
 import { serializeError } from "serialize-error";
 
 import {
+  makeBumpFinder,
   makeBumpgen,
   SupportedLanguages,
   SupportedModels,
@@ -16,8 +18,8 @@ const command = program
   .name("bumpgen")
   .description("Upgrade packages with the help of AI")
   .version("0.0.1")
-  .argument("<package>", "name of the package to bump")
-  .argument("<version>", "upgrade to this version of the package")
+  .argument("[package]", "name of the package to bump")
+  .argument("[version]", "upgrade to this version of the package")
   .addOption(
     new Option("-l, --language <language>", "the language of the project")
       .choices(SupportedLanguages)
@@ -34,7 +36,47 @@ const command = program
 
 const { model, language, ipc, simple } = command.opts();
 
-const [pkg, version] = command.processedArgs;
+let [pkg, version] = command.processedArgs;
+
+const bumpFinder = makeBumpFinder({
+  language,
+  projectRoot: process.cwd(),
+});
+
+const available = await bumpFinder.list();
+
+if (!pkg) {
+  if (available.length === 0) {
+    console.log("All packages are on their latest major version!");
+    process.exit(0);
+  }
+
+  const choice = await select({
+    message: "Select a package to upgrade (major version changes only)",
+    choices: available.map((pkg, index) => {
+      return {
+        name: `${pkg.packageName}@${pkg.newVersion}`,
+        value: index,
+      };
+    }),
+  });
+
+  pkg = available[choice]!.packageName;
+  version = available[choice]!.newVersion;
+} else {
+  const choice = available.find((p) => p.packageName === pkg);
+
+  if (!choice) {
+    console.log(
+      `Package ${pkg} is not currently in your project, or is already on its latest major version`,
+    );
+    process.exit(1);
+  }
+
+  if (!version) {
+    version = choice.newVersion;
+  }
+}
 
 const bumpgen = makeBumpgen({
   llmApiKey: process.env.LLM_API_KEY ?? "",

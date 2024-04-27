@@ -27,13 +27,6 @@ export type BumpgenLanguageService<TAst = any> = {
     };
     install: (projectRoot: string) => Promise<string>;
   };
-  // replacements: {
-  //   apply: (
-  //     graph: BumpgenGraph<TAst>,
-  //     affectedNode: PlanGraphNode,
-  //     replacements: Replacement[],
-  //   ) => Promise<void>;
-  // };
   graph: {
     dependency: {
       initialize: (ast: AbstractSyntaxTree<TAst>) => DependencyGraph;
