@@ -1,3 +1,4 @@
+import type { SerializeableBumpgenEvent } from "@xeol/bumpgen-core";
 import type { BoxProps, DOMElement } from "ink";
 import React, { useEffect, useRef, useState } from "react";
 import spinners from "cli-spinners";
