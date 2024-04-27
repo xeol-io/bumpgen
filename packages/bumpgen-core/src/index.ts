@@ -27,7 +27,12 @@ export { injectGitService } from "./services/git";
 
 export type { SupportedLanguage } from "./models";
 export type { SupportedModel } from "./models/llm";
-export type { BumpgenGraph, PlanGraph, DependencyGraph } from "./models/graph";
+export type {
+  BumpgenGraph,
+  PlanGraph,
+  DependencyGraph,
+  SerializeableBumpgenGraph,
+} from "./models/graph";
 export type { PlanGraphNode, PlanGraphEdge } from "./models/graph/plan";
 export type {
   DependencyGraphNode,
@@ -46,7 +51,25 @@ const makeSerializeableGraph = (
   };
 };
 
-const _bumpgen = ({
+const bumpFinder = ({
+  services,
+  args,
+}: {
+  services: { language: BumpgenLanguageService };
+  args: {
+    projectRoot: string;
+  };
+}) => {
+  return {
+    list: async () => {
+      const { language } = services;
+      const { projectRoot } = args;
+      return await language.packages.upgrade.list(projectRoot);
+    },
+  };
+};
+
+const bumpgen = ({
   services,
   args,
 }: {
@@ -105,12 +128,15 @@ const _bumpgen = ({
       list: async () => {
         const { language } = services;
         const { projectRoot } = args;
-        return language.packages.upgrade.list(projectRoot);
+        return await language.packages.upgrade.list(projectRoot);
       },
       apply: async () => {
         const { language } = services;
         const { projectRoot, packageToUpgrade } = args;
-        return language.packages.upgrade.apply(projectRoot, packageToUpgrade);
+        return await language.packages.upgrade.apply(
+          projectRoot,
+          packageToUpgrade,
+        );
       },
     },
     graph: {
@@ -551,7 +577,7 @@ export const makeBumpgen = ({
   const filesystem = injectFilesystemService();
   const matching = injectMatchingService();
 
-  return _bumpgen({
+  return bumpgen({
     services: {
       llm,
       language: languageService,
@@ -560,6 +586,22 @@ export const makeBumpgen = ({
       matching,
     },
     args: { projectRoot, packageToUpgrade },
+  });
+};
+
+export const makeBumpFinder = ({
+  language,
+  projectRoot,
+}: {
+  language?: SupportedLanguage;
+  projectRoot?: string;
+}) => {
+  language = language ?? "typescript";
+  projectRoot = projectRoot ?? process.cwd();
+  const languageService = injectLanguageService(language)();
+  return bumpFinder({
+    services: { language: languageService },
+    args: { projectRoot },
   });
 };
 
