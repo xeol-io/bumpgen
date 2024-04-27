@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 import React from "react";
 import { Option, program } from "@commander-js/extra-typings";
-
 import { select } from "@inquirer/prompts";
 import { render } from "ink";
 import { serializeError } from "serialize-error";
@@ -12,8 +11,6 @@ import {
   SupportedLanguages,
   SupportedModels,
 } from "@xeol/bumpgen-core";
-import { render } from "ink";
-import { serializeError } from "serialize-error";
 
 import App from "./app";
 
