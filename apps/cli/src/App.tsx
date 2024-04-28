@@ -18,9 +18,9 @@ import Spinner from "ink-spinner";
 import { omit } from "radash";
 import stripAnsi from "strip-ansi";
 
-import { Sidebar } from "./components/sidebar";
+import { Sidebar } from "./components/Sidebar";
 import { TitleText } from "./components/TitleText";
-import { useStdoutDimensions } from "./use-stdout-dimensions";
+import { useStdoutDimensions } from "./hooks/use-stdout-dimensions";
 
 const getLatestPlanGraph = (events: SerializeableBumpgenEvent[]) => {
   const planGraphs = events
@@ -182,10 +182,12 @@ const App = (props: {
   language: SupportedLanguage;
   pkg: string;
   version: string;
+  port: number;
+  token?: string;
 }) => {
   const { exit } = useApp();
 
-  const { model, language, pkg, version } = props;
+  const { model, language, pkg, version, token, port } = props;
 
   const [columns, rows] = useStdoutDimensions();
 
@@ -245,11 +247,13 @@ const App = (props: {
         pkg,
         version,
         "-i",
-        "3000",
         "-l",
         language,
         "-m",
         model,
+        "-p",
+        port.toString(),
+        ...(token ? ["-t", token] : []),
       ],
       {
         shell: true,
