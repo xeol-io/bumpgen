@@ -141,10 +141,10 @@ We only support `gpt-4-turbo-preview` at this time.
 ## ⏱️ Benchmark
 
 ```
-bumpgen + GPT-4 Turbo         ██████████░░░░░░░░░░░   44.2%
+bumpgen + GPT-4 Turbo         ██████████░░░░░░░░░░░   45% (67 tasks)
 ```
 
-We benchmarked `bumpgen` with GPT-4 Turbo against a [suite](https://github.com/xeol-io/swe-bump-bench) of version bumps with breaking changes.
+We benchmarked `bumpgen` with GPT-4 Turbo against a [suite](https://github.com/xeol-io/swe-bump-bench) of version bumps with breaking changes. You can check out the evals [here](https://github.com/xeol-io/swe-bump-bench/tree/main/evals/bumpgen/v_8df9f7de936707815eb12e226517a1b0023383eb).
 
 ## 🎁 Contributing
 
