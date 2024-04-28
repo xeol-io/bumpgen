@@ -12,9 +12,6 @@
     <a href="https://github.com/xeol-io/bumpgen/stargazers">
         <img src="https://img.shields.io/github/stars/xeol-io/bumpgen?color=FCAE00&style=for-the-badge">
     </a>
-    <a href="https://github.com/xeol-io/bumpgen/releases/latest">
-        <img src="https://img.shields.io/github/release/xeol-io/bumpgen.svg?color=FCAE00&style=for-the-badge"/>
-    </a>
     <a href="https://discord.gg/bsWQjHMKPy">
         <img src="https://img.shields.io/discord/1233126412785815613?logo=discord&label=discord&color=5865F2&style=for-the-badge"/>
     </a>
@@ -40,7 +37,7 @@ How does it work?
 
 ![demo](https://s3.amazonaws.com/static.xeol.io/mkdirp-demo-optimized.gif)
 
-> `bumpgen` only supports typescript at the moment, but we're working on adding support for other strongly typed languages like C#, Java and Go
+> `bumpgen` only supports typescript or tsx at the moment, but we're working on adding support for other strongly typed languages like C#, Java and Go
 
 ## 🚀 Get Started
 
@@ -49,7 +46,7 @@ To get started, you'll need an OpenAI API key. `gpt-4-turbo-preview` from OpenAI
 Then, run `bumpgen` this:
 
 ```
-> export LLM_API_KEY="gpt4_key"
+> export LLM_API_KEY="<openai-api-key>"
 > cd ~/my-repository
 > npm install -g bumpgen
 > bumpgen @tanstack/react-query 5.28.14
@@ -153,7 +150,7 @@ Contributions are welcome! To get set up for development, see [Development](./.g
 #### Roadmap
 
 - [x] codeplan
-- [x] Typescript support
+- [x] Typescript/TSX support
 - [ ] `bumpgen` GitHub app
 - [ ] Embeddings for different package versions
 - [ ] Use test runners as an oracle
