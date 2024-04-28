@@ -7,11 +7,15 @@ settings:
 importers:
 
   .:
+    dependencies:
+      semver:
+        specifier: ^7.6.0
+        version: 7.6.0
     devDependencies:
-      '@repo/eslint-config':
+      '@xeol/eslint-config':
         specifier: workspace:*
         version: link:tooling/eslint
-      '@repo/tsconfig':
+      '@xeol/tsconfig':
         specifier: workspace:*
         version: link:tooling/typescript
       prettier:
@@ -29,12 +33,12 @@ importers:
       '@inquirer/prompts':
         specifier: ^5.0.2
         version: 5.0.2
-      '@repo/bumpgen-core':
-        specifier: workspace:*
-        version: link:../../packages/bumpgen-core
       '@sindresorhus/tsconfig':
         specifier: ^3.0.1
         version: 3.0.1
+      '@xeol/bumpgen-core':
+        specifier: workspace:*
+        version: link:../../packages/bumpgen-core
       cfonts:
         specifier: ^3.2.0
         version: 3.2.0
@@ -90,15 +94,6 @@ importers:
         specifier: ^3.22.4
         version: 3.22.4
     devDependencies:
-      '@repo/eslint-config':
-        specifier: workspace:*
-        version: link:../../tooling/eslint
-      '@repo/prettier-config':
-        specifier: workspace:*
-        version: link:../../tooling/prettier
-      '@repo/tsconfig':
-        specifier: workspace:*
-        version: link:../../tooling/typescript
       '@types/eslint':
         specifier: ^8.56.5
         version: 8.56.5
@@ -114,6 +109,15 @@ importers:
       '@types/react':
         specifier: ^18.2.79
         version: 18.2.79
+      '@xeol/eslint-config':
+        specifier: workspace:*
+        version: link:../../tooling/eslint
+      '@xeol/prettier-config':
+        specifier: workspace:*
+        version: link:../../tooling/prettier
+      '@xeol/tsconfig':
+        specifier: workspace:*
+        version: link:../../tooling/typescript
       eslint:
         specifier: ^8.57.0
         version: 8.57.0
@@ -175,18 +179,6 @@ importers:
         specifier: ^3.22.4
         version: 3.22.4
     devDependencies:
-      '@repo/eslint-config':
-        specifier: workspace:*
-        version: link:../../tooling/eslint
-      '@repo/prettier-config':
-        specifier: workspace:*
-        version: link:../../tooling/prettier
-      '@repo/test-project':
-        specifier: workspace:*
-        version: link:../test-project
-      '@repo/tsconfig':
-        specifier: workspace:*
-        version: link:../../tooling/typescript
       '@types/eslint':
         specifier: ^8.56.5
         version: 8.56.5
@@ -205,6 +197,18 @@ importers:
       '@types/uuid':
         specifier: ^9.0.8
         version: 9.0.8
+      '@xeol/eslint-config':
+        specifier: workspace:*
+        version: link:../../tooling/eslint
+      '@xeol/prettier-config':
+        specifier: workspace:*
+        version: link:../../tooling/prettier
+      '@xeol/test-project':
+        specifier: workspace:*
+        version: link:../test-project
+      '@xeol/tsconfig':
+        specifier: workspace:*
+        version: link:../../tooling/typescript
       eslint:
         specifier: ^8.57.0
         version: 8.57.0
@@ -254,15 +258,6 @@ importers:
         specifier: ^3.22.4
         version: 3.22.4
     devDependencies:
-      '@repo/eslint-config':
-        specifier: workspace:*
-        version: link:../../tooling/eslint
-      '@repo/prettier-config':
-        specifier: workspace:*
-        version: link:../../tooling/prettier
-      '@repo/tsconfig':
-        specifier: workspace:*
-        version: link:../../tooling/typescript
       '@types/eslint':
         specifier: ^8.56.5
         version: 8.56.5
@@ -272,6 +267,15 @@ importers:
       '@types/node':
         specifier: ^20.11.24
         version: 20.11.24
+      '@xeol/eslint-config':
+        specifier: workspace:*
+        version: link:../../tooling/eslint
+      '@xeol/prettier-config':
+        specifier: workspace:*
+        version: link:../../tooling/prettier
+      '@xeol/tsconfig':
+        specifier: workspace:*
+        version: link:../../tooling/typescript
       eslint:
         specifier: ^8.57.0
         version: 8.57.0
@@ -293,7 +297,7 @@ importers:
       '@npmcli/package-json':
         specifier: ^5.0.3
         version: 5.0.3
-      '@repo/bumpgen-core':
+      '@xeol/bumpgen-core':
         specifier: workspace:*
         version: link:../packages/bumpgen-core
       graphology:
@@ -330,18 +334,6 @@ importers:
         specifier: ^3.22.4
         version: 3.22.4
     devDependencies:
-      '@repo/eslint-config':
-        specifier: workspace:*
-        version: link:../tooling/eslint
-      '@repo/prettier-config':
-        specifier: workspace:*
-        version: link:../tooling/prettier
-      '@repo/test-project':
-        specifier: workspace:*
-        version: link:../packages/test-project
-      '@repo/tsconfig':
-        specifier: workspace:*
-        version: link:../tooling/typescript
       '@types/eslint':
         specifier: ^8.56.5
         version: 8.56.5
@@ -357,6 +349,18 @@ importers:
       '@types/semver':
         specifier: ^7.5.8
         version: 7.5.8
+      '@xeol/eslint-config':
+        specifier: workspace:*
+        version: link:../tooling/eslint
+      '@xeol/prettier-config':
+        specifier: workspace:*
+        version: link:../tooling/prettier
+      '@xeol/test-project':
+        specifier: workspace:*
+        version: link:../packages/test-project
+      '@xeol/tsconfig':
+        specifier: workspace:*
+        version: link:../tooling/typescript
       eslint:
         specifier: ^8.57.0
         version: 8.57.0
@@ -400,15 +404,15 @@ importers:
         specifier: ^4.6.0
         version: 4.6.0(eslint@8.57.0)
     devDependencies:
-      '@repo/prettier-config':
-        specifier: workspace:*
-        version: link:../prettier
-      '@repo/tsconfig':
-        specifier: workspace:*
-        version: link:../typescript
       '@types/eslint':
         specifier: ^8.56.2
         version: 8.56.5
+      '@xeol/prettier-config':
+        specifier: workspace:*
+        version: link:../prettier
+      '@xeol/tsconfig':
+        specifier: workspace:*
+        version: link:../typescript
       eslint:
         specifier: ^8.57.0
         version: 8.57.0
@@ -428,7 +432,7 @@ importers:
         specifier: ^3.1.1
         version: 3.2.5
     devDependencies:
-      '@repo/tsconfig':
+      '@xeol/tsconfig':
         specifier: workspace:*
         version: link:../typescript
       typescript:

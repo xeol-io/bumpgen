@@ -1,4 +1,12 @@
 import { spawn } from "child_process";
+import type {
+  BumpgenGraph,
+  PlanGraphNode,
+  SerializeableBumpgenEvent,
+  SerializeableBumpgenGraph,
+  SupportedLanguage,
+  SupportedModel,
+} from "@xeol/bumpgen-core";
 import type { BoxProps, DOMElement } from "ink";
 import type { ReactNode } from "react";
 import React, { useEffect, useRef, useState } from "react";
@@ -10,16 +18,7 @@ import Spinner from "ink-spinner";
 import { omit } from "radash";
 import stripAnsi from "strip-ansi";
 
-import type {
-  BumpgenGraph,
-  PlanGraphNode,
-  SerializeableBumpgenEvent,
-  SerializeableBumpgenGraph,
-  SupportedLanguage,
-  SupportedModel,
-} from "@repo/bumpgen-core";
-
-import { Sidebar } from "./components/Sidebar";
+import { Sidebar } from "./components/sidebar";
 import { TitleText } from "./components/TitleText";
 import { useStdoutDimensions } from "./use-stdout-dimensions";
 

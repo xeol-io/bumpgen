@@ -1,0 +1,47 @@
+name: verify version of bumpgen cli
+on:
+  pull_request:
+    branches: [main]
+    types: [labeled, unlabeled, opened, synchronize]
+    paths:
+      - "apps/cli/**"
+
+jobs:
+  verify-version:
+    runs-on: ubuntu-latest
+    steps:
+      # get main version
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: martinbeentjes/npm-get-version-action@main
+        with:
+          path: apps/cli
+        id: main-version
+
+      # get pr version
+      - uses: actions/checkout@v4
+      - uses: martinbeentjes/npm-get-version-action@main
+        with:
+          path: apps/cli
+        id: pr-version
+
+      - name: Setup
+        uses: ./tooling/github/setup
+
+      - uses: actions/github-script@v6
+        env:
+          PR_VERSION: ${{steps.pr-version.outputs.current-version}}
+          MAIN_VERSION: ${{steps.main-version.outputs.current-version}}
+        with:
+          script: |
+            require('./.github/versioning.js').verify({ github, context, core })
+
+  block-prerelease:
+    if: contains(github.event.pull_request.labels.*.name, 'prerelease')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v6
+        with:
+          script: |
+            core.setFailed(`PR with a prerelease label cannot be merged. Remove the label or change it to a release label and adjust the version as needed to fix.`)

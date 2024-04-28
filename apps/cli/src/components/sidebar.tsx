@@ -1,10 +1,9 @@
+import type { SerializeableBumpgenEvent } from "@xeol/bumpgen-core";
 import type { BoxProps, DOMElement } from "ink";
 import React, { useEffect, useRef, useState } from "react";
 import spinners from "cli-spinners";
 import { Box, measureElement, Text } from "ink";
 import ms from "ms";
-
-import type { SerializeableBumpgenEvent } from "@repo/bumpgen-core";
 
 import { Bold } from "../common/bold";
 import { useStdoutDimensions } from "../use-stdout-dimensions";

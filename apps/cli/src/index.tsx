@@ -10,7 +10,7 @@ import {
   makeBumpgen,
   SupportedLanguages,
   SupportedModels,
-} from "@repo/bumpgen-core";
+} from "@xeol/bumpgen-core";
 
 import App from "./app";
 

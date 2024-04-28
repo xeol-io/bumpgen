@@ -4,16 +4,16 @@ on:
   push:
     branches: [main]
     paths:
-      - 'packages/bumpgen-core/**'
+      - "packages/bumpgen-core/**"
 
 jobs:
   check:
-    name: 'Check if release is needed'
-    runs-on: 'ubuntu-latest'
+    name: "Check if release is needed"
+    runs-on: "ubuntu-latest"
     outputs:
       exists: ${{ steps.check-tag.outputs.exists }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: martinbeentjes/npm-get-version-action@main
         id: get-version
       - uses: mukunku/tag-exists-action@v1.1.0
@@ -22,15 +22,16 @@ jobs:
           tag: v${{ steps.get-version.outputs.current-version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   release:
-    name: 'Release'
+    name: "Release"
     needs: check
     if: needs.check.outputs.exists == 'false'
-    runs-on: 'ubuntu-latest'
+    runs-on: "ubuntu-latest"
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: martinbeentjes/npm-get-version-action@main
         id: get-version
       - uses: actions/create-release@v1
@@ -42,29 +43,18 @@ jobs:
           tag_name: v${{ steps.get-version.outputs.current-version}}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   publish:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - uses: ./tooling/github/setup
-        name: Install pnpm
-        with:
-          version: 8
-          run_install: false
+      - name: Setup
+        uses: ./tooling/github/setup
 
-      - name: Install Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version-file: ".nvmrc"
-          cache: pnpm
-          registry-url: https://registry.npmjs.org
-
-      - name: 📦️ Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: 🚀 Publish bumpgen-core to npm
-        run: pnpm publish packages/bumpgen-core
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter=@xeol/bumpgen-core run build
+      - run: pnpm --filter=@xeol/bumpgen-core publish --tag latest --access public --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

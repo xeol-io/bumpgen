@@ -6,7 +6,7 @@ const client = injectTypescriptService();
 
 describe("dependencyGraphService", () => {
   it("initializes", () => {
-    const pkg = path.dirname(require.resolve("@repo/test-project"));
+    const pkg = path.dirname(require.resolve("@xeol/test-project"));
     const rootDir = pkg.slice(0, -4); // remove /src
 
     const project = client.ast.initialize(rootDir);

@@ -1,5 +1,5 @@
 {
-  "name": "@repo/bumpgen-core",
+  "name": "@xeol/bumpgen-core",
   "version": "0.0.1",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -28,10 +28,10 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
-    "@repo/eslint-config": "workspace:*",
-    "@repo/prettier-config": "workspace:*",
-    "@repo/test-project": "workspace:*",
-    "@repo/tsconfig": "workspace:*",
+    "@xeol/eslint-config": "workspace:*",
+    "@xeol/prettier-config": "workspace:*",
+    "@xeol/test-project": "workspace:*",
+    "@xeol/tsconfig": "workspace:*",
     "@types/eslint": "^8.56.5",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.11.24",
@@ -47,8 +47,8 @@
   "eslintConfig": {
     "root": true,
     "extends": [
-      "@repo/eslint-config/base"
+      "@xeol/eslint-config/base"
     ]
   },
-  "prettier": "@repo/prettier-config"
+  "prettier": "@xeol/prettier-config"
 }

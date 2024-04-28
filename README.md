@@ -73,6 +73,7 @@ Dependabot but fixes the breaking changes for you as well.
 └┴────────────────────────────────────┘  └┴───────────────────────────────────┘
 ```
 
+
 #### CLI
 A CLI wrapper on top of the core logic
 

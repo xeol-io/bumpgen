@@ -9,13 +9,16 @@
     "typecheck": "turbo typecheck"
   },
   "devDependencies": {
-    "@repo/eslint-config": "workspace:*",
-    "@repo/tsconfig": "workspace:*",
+    "@xeol/eslint-config": "workspace:*",
+    "@xeol/tsconfig": "workspace:*",
     "prettier": "^3.2.5",
     "turbo": "latest"
   },
   "packageManager": "pnpm@9.0.6",
   "engines": {
     "node": ">=21"
+  },
+  "dependencies": {
+    "semver": "^7.6.0"
   }
 }
