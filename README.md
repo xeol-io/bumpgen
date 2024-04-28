@@ -46,7 +46,7 @@ To get started, you'll need an OpenAI API key. `gpt-4-turbo-preview` from OpenAI
 Then, run `bumpgen` this:
 
 ```
-> export LLM_API_KEY="gpt4_key"
+> export LLM_API_KEY="<openai-api-key>"
 > cd ~/my-repository
 > npm install -g bumpgen
 > bumpgen @tanstack/react-query 5.28.14
