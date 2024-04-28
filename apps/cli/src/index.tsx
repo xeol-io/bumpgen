@@ -32,9 +32,14 @@ const command = program
   )
   .option(
     "-t, --token <token>",
-    "OpenAI token (can also be set via the LLM_API_KEY environment variable)",
+    "LLM token (can also be set via the LLM_API_KEY environment variable)",
   )
-  .option("-p, --port <port>", "port to run the IPC server on", parseInt)
+  .option(
+    "-p, --port <port>",
+    "port to run the IPC server on (default: 3000)",
+    parseInt,
+    3000,
+  )
   .option("-s, --simple", "simple mode")
   .option("-i, --ipc", "run in ipc mode")
   .parse();
@@ -111,7 +116,7 @@ if (simple) {
         },
         body: JSON.stringify(event),
       };
-      await fetch(`http://localhost:${port ?? 3000}/data`, options);
+      await fetch(`http://localhost:${port}/data`, options);
     } catch (error) {
       console.log("error", serializeError(error));
       process.exit(1);

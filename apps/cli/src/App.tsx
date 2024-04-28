@@ -182,8 +182,8 @@ const App = (props: {
   language: SupportedLanguage;
   pkg: string;
   version: string;
+  port: number;
   token?: string;
-  port?: number;
 }) => {
   const { exit } = useApp();
 
@@ -251,7 +251,8 @@ const App = (props: {
         language,
         "-m",
         model,
-        ...(port ? ["-p", port.toString()] : []),
+        "-p",
+        port.toString(),
         ...(token ? ["-t", token] : []),
       ],
       {
