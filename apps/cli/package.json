@@ -8,7 +8,7 @@
   },
   "module": "dist/index.mjs",
   "bin": {
-    "bumpgen-cli": "dist/index.mjs"
+    "bumpgen": "dist/index.mjs"
   },
   "dependencies": {
     "@commander-js/extra-typings": "^12.0.1",
