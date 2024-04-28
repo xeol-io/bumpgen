@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Box, measureElement, Text } from "ink";
 import BigText from "ink-big-text";
 
-import { useStdoutDimensions } from "../use-stdout-dimensions";
+import { useStdoutDimensions } from "../hooks/use-stdout-dimensions";
 
 export const TitleText = (
   props: Omit<BoxProps, "flexDirection" | "alignItems" | "justifyContent"> & {

@@ -12,7 +12,7 @@ import {
   SupportedModels,
 } from "@xeol/bumpgen-core";
 
-import App from "./app";
+import App from "./App";
 
 const command = program
   .name("bumpgen")
@@ -30,11 +30,16 @@ const command = program
       .choices(SupportedModels)
       .default("gpt-4-turbo-preview" as const),
   )
+  .option(
+    "-t, --token <token>",
+    "OpenAI token (can also be set via the LLM_API_KEY environment variable)",
+  )
+  .option("-p, --port <port>", "port to run the IPC server on", parseInt)
   .option("-s, --simple", "simple mode")
-  .option("-i, --ipc <port>", "run in ipc mode", parseInt)
+  .option("-i, --ipc", "run in ipc mode")
   .parse();
 
-const { model, language, ipc, simple } = command.opts();
+const { model, language, port, ipc, simple, token } = command.opts();
 
 let [pkg, version] = command.processedArgs;
 
@@ -79,7 +84,7 @@ if (!pkg) {
 }
 
 const bumpgen = makeBumpgen({
-  llmApiKey: process.env.LLM_API_KEY ?? "",
+  llmApiKey: token ?? process.env.LLM_API_KEY ?? "",
   model,
   packageToUpgrade: {
     packageName: pkg,
@@ -106,7 +111,7 @@ if (simple) {
         },
         body: JSON.stringify(event),
       };
-      await fetch(`http://localhost:${ipc}/data`, options);
+      await fetch(`http://localhost:${port ?? 3000}/data`, options);
     } catch (error) {
       console.log("error", serializeError(error));
       process.exit(1);
@@ -117,7 +122,14 @@ if (simple) {
   }
 } else {
   const app = render(
-    <App model={model} language={language} pkg={pkg} version={version} />,
+    <App
+      model={model}
+      language={language}
+      pkg={pkg}
+      version={version}
+      token={token}
+      port={port}
+    />,
   );
   await app.waitUntilExit();
 }

@@ -5,8 +5,8 @@ import spinners from "cli-spinners";
 import { Box, measureElement, Text } from "ink";
 import ms from "ms";
 
-import { Bold } from "../common/bold";
-import { useStdoutDimensions } from "../use-stdout-dimensions";
+import { useStdoutDimensions } from "../hooks/use-stdout-dimensions";
+import { Bold } from "./Bold";
 import { Task } from "./task-list";
 
 const ExecutionHistory = (props: {
