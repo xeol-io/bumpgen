@@ -54,6 +54,7 @@ jobs:
       - name: Setup
         uses: ./tooling/github/setup
 
+      - run: mv README.md apps/cli/README.md
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter=bumpgen run build
       - run: pnpm --filter=bumpgen publish --tag latest --access public --no-git-checks

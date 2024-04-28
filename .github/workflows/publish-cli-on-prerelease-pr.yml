@@ -42,6 +42,7 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
 
+      - run: mv README.md apps/cli/README.md
       - run: pnpm i
       - run: pnpm --filter=bumpgen run build
       - run: pnpm --filter=bumpgen publish --tag next --access public --no-git-checks
