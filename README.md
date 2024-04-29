@@ -18,7 +18,6 @@
 </p>
 
 ## 📝 Summary
-
 `bumpgen` bumps your dependencies and makes code changes for you if anything breaks.
 
 This may be a common scenario:
@@ -29,7 +28,7 @@ This may be a common scenario:
 
 Then use `bumpgen`!
 
-How does it work?
+**How does it work?**
 
 - It uses [ts-morph](https://github.com/dsherret/ts-morph) to turn your codebase into an AST to understand code relationships
 - Uses the AST to get type definitions for external methods to understand how to use new package versions
@@ -56,14 +55,6 @@ where `@tanstack/react-query` is the package you want to bump and `5.28.14` is t
 
 > If you'd like to be first to try the `bumpgen` GitHub App to replace your usage of dependabot + renovatebot, sign up [here](https://www.xeol.io/beta)
 
-<table>
-    <td>
-        <p align="center">
-            <img height="450" src="https://s3.amazonaws.com/static.xeol.io/memes/rm-meme.jpeg" alt="logo"/>
-        </p>
-    </td>
-</table>
-
 ## Limitations
 
 There are some limitations you should know about.
@@ -72,7 +63,6 @@ There are some limitations you should know about.
 - `bumpgen` is not good with very large frameworks like `vue`. These kind of upgrades (and vue 2 -> 3 specifically) can be arduous even for a human.
 
 ## 🏙️ Architecture
-
 ```
  > bumpgen @tanstack/react-query 5.28.14
        │
@@ -134,6 +124,11 @@ We pass the plan graph, the error, and the actual file with the breaking change 
 #### LLM
 
 We only support `gpt-4-turbo-preview` at this time.
+
+<p align="center">
+    <img src="https://s3.amazonaws.com/static.xeol.io/memes/terminator-meme.png" alt="meme"/>
+</p>
+
 
 ## ⏱️ Benchmark
 
