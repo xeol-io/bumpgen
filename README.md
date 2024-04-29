@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-    <a href="https://www.xeol.io/">
+    <a href="https://www.xeol.io/beta">
         <img src="https://img.shields.io/badge/Github App Sign Up-FCAE00?logo=googlechrome&logoColor=black&style=for-the-badge"/>
     </a>
     <a href="https://github.com/xeol-io/bumpgen?tab=MIT-1-ov-file">
