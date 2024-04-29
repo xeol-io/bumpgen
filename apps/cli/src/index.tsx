@@ -3,7 +3,6 @@ import React from "react";
 import { Option, program } from "@commander-js/extra-typings";
 import { select } from "@inquirer/prompts";
 import { render } from "ink";
-import { toInt } from "radash";
 import { serializeError } from "serialize-error";
 
 import {
@@ -54,6 +53,13 @@ if (isNaN(port)) {
   process.exit(1);
 }
 
+const resolvedToken = token ?? process.env.LLM_API_KEY;
+
+if (!resolvedToken) {
+  console.log("LLM token must be provided");
+  process.exit(1);
+}
+
 const bumpFinder = makeBumpFinder({
   language,
   projectRoot: process.cwd(),
@@ -95,7 +101,7 @@ if (!pkg) {
 }
 
 const bumpgen = makeBumpgen({
-  llmApiKey: token ?? process.env.LLM_API_KEY ?? "",
+  llmApiKey: resolvedToken,
   model,
   packageToUpgrade: {
     packageName: pkg,
