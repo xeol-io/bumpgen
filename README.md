@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="https://s3.amazonaws.com/static.xeol.io/readme-banner.png" alt="logo"/>
+    <img src="https://github.com/xeol-io/bumpgen/assets/4740147/8abf2d07-6161-42e6-ad4e-2cc9181ad21a" alt="logo"/>
 </p>
 
 <p align="center">
