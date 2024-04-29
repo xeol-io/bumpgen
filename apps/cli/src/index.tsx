@@ -3,6 +3,7 @@ import React from "react";
 import { Option, program } from "@commander-js/extra-typings";
 import { select } from "@inquirer/prompts";
 import { render } from "ink";
+import { toInt } from "radash";
 import { serializeError } from "serialize-error";
 
 import {
@@ -37,7 +38,7 @@ const command = program
   .option(
     "-p, --port <port>",
     "port to run the IPC server on (default: 3000)",
-    parseInt,
+    (val) => parseInt(val),
     3000,
   )
   .option("-s, --simple", "simple mode")
@@ -47,6 +48,11 @@ const command = program
 const { model, language, port, ipc, simple, token } = command.opts();
 
 let [pkg, version] = command.processedArgs;
+
+if (isNaN(port)) {
+  console.log("Port must be a number");
+  process.exit(1);
+}
 
 const bumpFinder = makeBumpFinder({
   language,

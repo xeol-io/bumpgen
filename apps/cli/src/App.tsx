@@ -238,7 +238,7 @@ const App = (props: {
       res.status(200).send({ message: "Data received successfully" });
     });
 
-    const server = app.listen(3000);
+    const server = app.listen(port);
 
     const child = spawn(
       "node",
@@ -252,7 +252,7 @@ const App = (props: {
         "-m",
         model,
         "-p",
-        port.toString(),
+        `${port}`,
         ...(token ? ["-t", token] : []),
       ],
       {
