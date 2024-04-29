@@ -252,7 +252,7 @@ const App = (props: {
         "-m",
         model,
         "-p",
-        port.toString(),
+        `${port}`,
         ...(token ? ["-t", token] : []),
       ],
       {
