@@ -1,0 +1,27 @@
+# We need this action since github action path filtering does not mark excluded actions as skipped.
+# Since both of these jobs are required, we need something that marks them as successful.
+
+name: Skip verify version checks
+on:
+  pull_request:
+    branches: [main]
+    types: [labeled, unlabeled, opened, synchronize]
+    paths-ignore:
+      - "apps/**"
+      - "packages/**"
+
+jobs:
+  verify-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pass
+        run: |
+          echo 'Skipping because no changes to releasables were made.'
+
+  block-prerelease:
+    if: contains(github.event.pull_request.labels.*.name, 'prerelease')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pass
+        run: |
+          echo 'Skipping because no changes to releasables were made.'
