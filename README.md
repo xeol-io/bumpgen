@@ -12,7 +12,7 @@
     <a href="https://github.com/xeol-io/bumpgen/stargazers">
         <img src="https://img.shields.io/github/stars/xeol-io/bumpgen?color=FCAE00&style=for-the-badge">
     </a>
-    <a href="https://discord.gg/bsWQjHMKPy">
+    <a href="https://discord.gg/J7E9BqVHkG">
         <img src="https://img.shields.io/discord/1233126412785815613?logo=discord&label=discord&color=5865F2&style=for-the-badge"/>
     </a>
 </p>
