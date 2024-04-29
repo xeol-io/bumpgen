@@ -56,7 +56,9 @@ if (isNaN(port)) {
 const resolvedToken = token ?? process.env.LLM_API_KEY;
 
 if (!resolvedToken) {
-  console.log("LLM token must be provided");
+  console.log(
+    "LLM token must be provided (either via --token or the LLM_API_KEY environment variable)",
+  );
   process.exit(1);
 }
 
