@@ -87,7 +87,9 @@ if (!pkg) {
 
   pkg = available[choice]!.packageName;
   version = available[choice]!.newVersion;
-} else {
+}
+
+if (!version) {
   const choice = available.find((p) => p.packageName === pkg);
 
   if (!choice) {
@@ -96,10 +98,7 @@ if (!pkg) {
     );
     process.exit(1);
   }
-
-  if (!version) {
-    version = choice.newVersion;
-  }
+  version = choice.newVersion;
 }
 
 const bumpgen = makeBumpgen({
