@@ -56,6 +56,7 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter=bumpgen run build
+      - run: cp README.md apps/cli/README.md # copy the README to the CLI folder so it gets published
       - run: pnpm --filter=bumpgen publish --tag latest --access public --no-git-checks
         env:
           NODE_AUTH_TOKEN: "${{ secrets.NPM_TOKEN }}"
