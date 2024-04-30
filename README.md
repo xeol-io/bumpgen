@@ -38,7 +38,9 @@ Then use `bumpgen`!
 - It also uses the AST to get type definitions for external methods to understand how to use new package versions
 - `bumpgen` then creates a _plan graph_ DAG to execute things in the correct order to handle propagating changes (ref: [arxiv 2309.12499](https://huggingface.co/papers/2309.12499))
 
-> `bumpgen` only supports typescript and tsx at the moment, but we're working on adding support for other strongly typed languages like C#, Java and Go
+> [!NOTE] 
+> `bumpgen` only supports typescript and tsx at the moment, but we're working on adding support for other strongly typed languages. Hit the emoji button on our open issues
+> for [Java](https://github.com/xeol-io/bumpgen/issues/60), [golang](https://github.com/xeol-io/bumpgen/issues/59), [C#](https://github.com/xeol-io/bumpgen/issues/62) and [Python](https://github.com/xeol-io/bumpgen/issues/61) to request support.
 
 ## 🚀 Get Started
 
@@ -57,7 +59,8 @@ where `@tanstack/react-query` is the package you want to bump and `5.28.14` is t
 
 You can also run `bumpgen` without arguments and select which package to upgrade from the menu. Use `bumpgen --help` for a complete list of options.
 
-> If you'd like to be first in line to try the `bumpgen` GitHub App to replace your usage of dependabot + renovatebot, sign up [here](https://www.xeol.io/beta)
+> [!NOTE] 
+> If you'd like to be first in line to try the `bumpgen` GitHub App to replace your usage of dependabot + renovatebot, sign up [here](https://www.xeol.io/beta).
 
 ## Limitations
 
