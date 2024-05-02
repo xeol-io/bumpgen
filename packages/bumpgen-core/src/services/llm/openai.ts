@@ -29,21 +29,19 @@ const makePlanNodeMessage = (
     role: "user" as const,
     content: [
       `I'm upgrading the package '${bumpedPackage}' and my code is failing. You might need to modify the code or the imports. Look at the errors below and think step-by-step about what the errors mean and how to fix the code.\n`,
+      `<relevant_imports path=${planNode.path}>\n${importMessages.join("\n")}\n</relevant_imports>`,
       `<code \n  path="${planNode.path}"\n>`,
-    ]
-      .concat(importMessages.length ? [...importMessages, "\n"] : [])
-      .concat([`${planNode.block}`, "</code>\n"])
-      .concat(
-        planNode.kind === "seed" && planNode.errorMessages.length > 0
-          ? [
-              `The block has the following build errors:`,
-              "<errors>",
-              ...planNode.errorMessages.map((e) => `\n${e.message}\n`),
-              "</errors>",
-            ]
-          : [],
-      )
-      .join("\n"),
+      `${planNode.block}`,
+      "</code>\n",
+      ...(planNode.kind === "seed" && planNode.errorMessages.length > 0
+        ? [
+            `The block has the following build errors:`,
+            "<errors>",
+            ...planNode.errorMessages.map((e) => `\n${e.message}\n`),
+            "</errors>",
+          ]
+        : []),
+    ].join("\n"),
   };
 };
 
@@ -218,14 +216,7 @@ export const fitToContext = (
 export const createOpenAIService = (openai: OpenAI) => {
   return {
     codeplan: {
-      getReplacements: async (
-        context: LLMContext,
-        temperature: number,
-        // externalDependencyContext: {
-        //   imports: DependencyGraphNode[];
-        //   sourcegraph: ContextSearchResponse["getCodyContext"];
-        // },
-      ) => {
+      getReplacements: async (context: LLMContext, temperature: number) => {
         const {
           spatialContext,
           temporalContext,
