@@ -1,35 +1,5 @@
 [
   {
-    "id": "nhost__nhost-js-sdk-jwt-decode__^4.0.0",
-    "name": "nhost-js-sdk",
-    "owner": "nhost",
-    "pkgManager": "yarn",
-    "package": "jwt-decode",
-    "versionTo": "^4.0.0",
-    "nodeVersion": "v20.12.2",
-    "commit": "f0086438036f926f57c05ef04699e7ed6e2067da"
-  },
-  {
-    "id": "Minds__mobile-native-react-native-reanimated-hooks__^4.0.0",
-    "name": "mobile-native",
-    "owner": "Minds",
-    "pkgManager": "yarn",
-    "package": "react-native-reanimated-hooks",
-    "versionTo": "^4.0.0",
-    "nodeVersion": "v18.18",
-    "commit": "d48b3b20a759bad7a1512bb5db0dfb353c6998b7"
-  },
-  {
-    "id": "wavebeem__jsx-info-jest__^29.7.0",
-    "name": "jsx-info",
-    "owner": "wavebeem",
-    "pkgManager": "npm",
-    "package": "jest",
-    "versionTo": "^29.7.0",
-    "nodeVersion": "v20.12.2",
-    "commit": "deba0270942a3588e25da3af02409d7d5420a7db"
-  },
-  {
     "id": "che-incubator__chectl-execa__^8.0.1",
     "name": "chectl",
     "owner": "che-incubator",
@@ -90,16 +60,6 @@
     "commit": "64828ddef9222ee06b8521d37eabe18bd7a15a07"
   },
   {
-    "id": "typeorm__typeorm-mkdirp__^3.0.1",
-    "name": "typeorm",
-    "owner": "typeorm",
-    "pkgManager": "npm",
-    "package": "mkdirp",
-    "versionTo": "^3.0.1",
-    "nodeVersion": "v20.12.2",
-    "commit": "e7649d2746f907ff36b1efb600402dedd5f5a499"
-  },
-  {
     "id": "ineo6__hosts-lru-cache__^10.2.0",
     "name": "hosts",
     "owner": "ineo6",
@@ -110,16 +70,6 @@
     "commit": "631ae2288ed1f2ce3a7a4a4b39d669acffb355f2"
   },
   {
-    "id": "viptvx__hosts-lru-cache__^10.2.0",
-    "name": "hosts",
-    "owner": "viptvx",
-    "pkgManager": "npm",
-    "package": "lru-cache",
-    "versionTo": "^10.2.0",
-    "nodeVersion": "v20.12.2",
-    "commit": "8bafd2a781fb19d5fa5e080caea76e2b12655f2c"
-  },
-  {
     "id": "actions__labeler-@octokit-slash-plugin-retry__^7.1.0",
     "name": "labeler",
     "owner": "actions",
@@ -128,16 +78,6 @@
     "versionTo": "^7.1.0",
     "nodeVersion": "v20.12.2",
     "commit": "506e1a00c6c05ba98ac585056a23f16073fa5915"
-  },
-  {
-    "id": "p0-security__braekhus-pino-http__^9.0.0",
-    "name": "braekhus",
-    "owner": "p0-security",
-    "pkgManager": "yarn",
-    "package": "pino-http",
-    "versionTo": "^9.0.0",
-    "nodeVersion": "v20.12.2",
-    "commit": "8fc5a613ef21d642df2a5e5d051862321ff69ffe"
   },
   {
     "id": "dougkulak__libdefkit-meow__^13.2.0",
@@ -160,16 +100,6 @@
     "commit": "488e44727594133233a3ce1db6e39af90b3b2236"
   },
   {
-    "id": "zero8d__tozagroupbot-mongoose__^8.3.2",
-    "name": "tozagroupbot",
-    "owner": "zero8d",
-    "pkgManager": "yarn",
-    "package": "mongoose",
-    "versionTo": "^8.3.2",
-    "nodeVersion": "v20.12.2",
-    "commit": "831646ba524a07cf08ea49dfc8ad3cadaabbec9e"
-  },
-  {
     "id": "emtee40__global-agent-raycast-get-port__^7.1.0",
     "name": "global-agent-raycast",
     "owner": "emtee40",
@@ -190,16 +120,6 @@
     "commit": "9f0097dabd0ea161adb4fd8d74ca286663b956a9"
   },
   {
-    "id": "vickttor__PixSorte-API-jwt-decode__^4.0.0",
-    "name": "PixSorte-API",
-    "owner": "vickttor",
-    "pkgManager": "yarn",
-    "package": "jwt-decode",
-    "versionTo": "^4.0.0",
-    "nodeVersion": "v20.12.2",
-    "commit": "7284c5978edeb8a855fc52748b72ca514a2445e8"
-  },
-  {
     "id": "hugo-cardoso__context-vue-vue__^3.4.23",
     "name": "context-vue",
     "owner": "hugo-cardoso",
@@ -208,26 +128,6 @@
     "versionTo": "^3.4.23",
     "nodeVersion": "v20.12.2",
     "commit": "6f47161d447becef4ef549d76b5eab7fc797df36"
-  },
-  {
-    "id": "sor4chi__vue2-vanilla-extract-example-vue__3.4.23",
-    "name": "vue2-vanilla-extract-example",
-    "owner": "sor4chi",
-    "pkgManager": "pnpm",
-    "package": "vue",
-    "versionTo": "3.4.23",
-    "nodeVersion": "v20.12.2",
-    "commit": "564c31c6e2f74b2af24875a38afe3fa19f6f6856"
-  },
-  {
-    "id": "victortolbert__vite-ts-project-vue__^3.4.23",
-    "name": "vite-ts-project",
-    "owner": "victortolbert",
-    "pkgManager": "pnpm",
-    "package": "vue",
-    "versionTo": "^3.4.23",
-    "nodeVersion": "v20.12.2",
-    "commit": "cd3bf4b80b494447bf2559cb0b4d199b78ae82e6"
   },
   {
     "id": "jmerle__zeal-user-contrib-tar__^7.0.1",
@@ -250,16 +150,6 @@
     "commit": "f9a2daeb4f85fada0b2b82711f2aca24a01d4dc0"
   },
   {
-    "id": "frederickk__chatgpt-figma-plugin-chatgpt__^5.2.5",
-    "name": "chatgpt-figma-plugin",
-    "owner": "frederickk",
-    "pkgManager": "npm",
-    "package": "chatgpt",
-    "versionTo": "^5.2.5",
-    "nodeVersion": "v20.12.2",
-    "commit": "69c7be979e390420d145c5562777179738ad9e2e"
-  },
-  {
     "id": "MikeBirdTech__gpt3-vscode-extension-openai__^4.38.2",
     "name": "gpt3-vscode-extension",
     "owner": "MikeBirdTech",
@@ -278,16 +168,6 @@
     "versionTo": "^10.3.12",
     "nodeVersion": "v20.12.2",
     "commit": "f9a2daeb4f85fada0b2b82711f2aca24a01d4dc0"
-  },
-  {
-    "id": "frederickk__chatgpt-figma-plugin-chatgpt__^5.2.5",
-    "name": "chatgpt-figma-plugin",
-    "owner": "frederickk",
-    "pkgManager": "npm",
-    "package": "chatgpt",
-    "versionTo": "^5.2.5",
-    "nodeVersion": "v20.12.2",
-    "commit": "69c7be979e390420d145c5562777179738ad9e2e"
   },
   {
     "id": "hyperlane-xyz__hyperlane-warp-ui-template-@rainbow-me-slash-rainbowkit__2.0.5",
@@ -330,96 +210,6 @@
     "commit": "60d689b7163fc0a0c6c21e95f7012206d1dc4dd5"
   },
   {
-    "id": "ton-blockchain__verifier-@tanstack-slash-react-query__^5.29.2",
-    "name": "verifier",
-    "owner": "ton-blockchain",
-    "pkgManager": "npm",
-    "package": "@tanstack/react-query",
-    "versionTo": "^5.29.2",
-    "nodeVersion": "v20.12.2",
-    "commit": "78273f4399c8732e889927606666b603ffdfaee9"
-  },
-  {
-    "id": "ton-blockchain__verifier-notistack__^3.0.1",
-    "name": "verifier",
-    "owner": "ton-blockchain",
-    "pkgManager": "npm",
-    "package": "notistack",
-    "versionTo": "^3.0.1",
-    "nodeVersion": "v20.12.2",
-    "commit": "78273f4399c8732e889927606666b603ffdfaee9"
-  },
-  {
-    "id": "ton-blockchain__verifier-tvm-disassembler__^3.0.0",
-    "name": "verifier",
-    "owner": "ton-blockchain",
-    "pkgManager": "npm",
-    "package": "tvm-disassembler",
-    "versionTo": "^3.0.0",
-    "nodeVersion": "v20.12.2",
-    "commit": "78273f4399c8732e889927606666b603ffdfaee9"
-  },
-  {
-    "id": "xavdid__typed-install-commander__12.0.0",
-    "name": "typed-install",
-    "owner": "xavdid",
-    "pkgManager": "yarn",
-    "package": "commander",
-    "versionTo": "12.0.0",
-    "nodeVersion": "v20.12.2",
-    "commit": "77e250f3597faab35c82024bed79e479c4b3b796"
-  },
-  {
-    "id": "xavdid__typed-install-got__14.2.1",
-    "name": "typed-install",
-    "owner": "xavdid",
-    "pkgManager": "yarn",
-    "package": "got",
-    "versionTo": "14.2.1",
-    "nodeVersion": "v20.12.2",
-    "commit": "77e250f3597faab35c82024bed79e479c4b3b796"
-  },
-  {
-    "id": "xavdid__typed-install-ora__8.0.1",
-    "name": "typed-install",
-    "owner": "xavdid",
-    "pkgManager": "yarn",
-    "package": "ora",
-    "versionTo": "8.0.1",
-    "nodeVersion": "v20.12.2",
-    "commit": "77e250f3597faab35c82024bed79e479c4b3b796"
-  },
-  {
-    "id": "xavdid__typed-install-pkg-dir__8.0.0",
-    "name": "typed-install",
-    "owner": "xavdid",
-    "pkgManager": "yarn",
-    "package": "pkg-dir",
-    "versionTo": "8.0.0",
-    "nodeVersion": "v20.12.2",
-    "commit": "77e250f3597faab35c82024bed79e479c4b3b796"
-  },
-  {
-    "id": "Minds__mobile-native-@react-native-community-slash-hooks__^3.0.0",
-    "name": "mobile-native",
-    "owner": "Minds",
-    "pkgManager": "yarn",
-    "package": "@react-native-community/hooks",
-    "versionTo": "^3.0.0",
-    "nodeVersion": "v18.18",
-    "commit": "d48b3b20a759bad7a1512bb5db0dfb353c6998b7"
-  },
-  {
-    "id": "Minds__mobile-native-@tanstack-slash-react-query__^5.29.2",
-    "name": "mobile-native",
-    "owner": "Minds",
-    "pkgManager": "yarn",
-    "package": "@tanstack/react-query",
-    "versionTo": "^5.29.2",
-    "nodeVersion": "v18.18",
-    "commit": "d48b3b20a759bad7a1512bb5db0dfb353c6998b7"
-  },
-  {
     "id": "Minds__mobile-native-i18n-js__^4.4.3",
     "name": "mobile-native",
     "owner": "Minds",
@@ -440,56 +230,6 @@
     "commit": "d48b3b20a759bad7a1512bb5db0dfb353c6998b7"
   },
   {
-    "id": "Minds__mobile-native-mobx__^6.12.3",
-    "name": "mobile-native",
-    "owner": "Minds",
-    "pkgManager": "yarn",
-    "package": "mobx",
-    "versionTo": "^6.12.3",
-    "nodeVersion": "v18.18",
-    "commit": "d48b3b20a759bad7a1512bb5db0dfb353c6998b7"
-  },
-  {
-    "id": "Minds__mobile-native-react-i18next__^14.1.0",
-    "name": "mobile-native",
-    "owner": "Minds",
-    "pkgManager": "yarn",
-    "package": "react-i18next",
-    "versionTo": "^14.1.0",
-    "nodeVersion": "v18.18",
-    "commit": "d48b3b20a759bad7a1512bb5db0dfb353c6998b7"
-  },
-  {
-    "id": "Minds__mobile-native-react-native-chart-kit__^6.12.0",
-    "name": "mobile-native",
-    "owner": "Minds",
-    "pkgManager": "yarn",
-    "package": "react-native-chart-kit",
-    "versionTo": "^6.12.0",
-    "nodeVersion": "v18.18",
-    "commit": "d48b3b20a759bad7a1512bb5db0dfb353c6998b7"
-  },
-  {
-    "id": "Minds__mobile-native-react-native-elements__^3.4.3",
-    "name": "mobile-native",
-    "owner": "Minds",
-    "pkgManager": "yarn",
-    "package": "react-native-elements",
-    "versionTo": "^3.4.3",
-    "nodeVersion": "v18.18",
-    "commit": "d48b3b20a759bad7a1512bb5db0dfb353c6998b7"
-  },
-  {
-    "id": "Minds__mobile-native-react-native-image-colors__^2.4.0",
-    "name": "mobile-native",
-    "owner": "Minds",
-    "pkgManager": "yarn",
-    "package": "react-native-image-colors",
-    "versionTo": "^2.4.0",
-    "nodeVersion": "v18.18",
-    "commit": "d48b3b20a759bad7a1512bb5db0dfb353c6998b7"
-  },
-  {
     "id": "Minds__mobile-native-react-native-localize__^3.1.0",
     "name": "mobile-native",
     "owner": "Minds",
@@ -500,44 +240,14 @@
     "commit": "d48b3b20a759bad7a1512bb5db0dfb353c6998b7"
   },
   {
-    "id": "Minds__mobile-native-react-native-redash__^18.1.3",
+    "id": "Minds__mobile-native-react-native-reanimated-hooks__^4.0.0",
     "name": "mobile-native",
     "owner": "Minds",
     "pkgManager": "yarn",
-    "package": "react-native-redash",
-    "versionTo": "^18.1.3",
+    "package": "react-native-reanimated-hooks",
+    "versionTo": "^4.0.0",
     "nodeVersion": "v18.18",
     "commit": "d48b3b20a759bad7a1512bb5db0dfb353c6998b7"
-  },
-  {
-    "id": "Minds__mobile-native-react-native-vision-camera__^3.9.2",
-    "name": "mobile-native",
-    "owner": "Minds",
-    "pkgManager": "yarn",
-    "package": "react-native-vision-camera",
-    "versionTo": "^3.9.2",
-    "nodeVersion": "v18.18",
-    "commit": "d48b3b20a759bad7a1512bb5db0dfb353c6998b7"
-  },
-  {
-    "id": "datenanfragen__website-zustand__^4.5.2",
-    "name": "website",
-    "owner": "datenanfragen",
-    "pkgManager": "yarn",
-    "package": "zustand",
-    "versionTo": "^4.5.2",
-    "nodeVersion": "14.17.0",
-    "commit": "a5af3892b4eb579b719b28884e4e64a217705584"
-  },
-  {
-    "id": "ph1p__vuepress-jsdoc-del__^7.1.0",
-    "name": "vuepress-jsdoc",
-    "owner": "ph1p",
-    "pkgManager": "npm",
-    "package": "del",
-    "versionTo": "^7.1.0",
-    "nodeVersion": "v20.12.2",
-    "commit": "f696c0f525f095b722e60b82d04b22fc5fcf694e"
   },
   {
     "id": "functionalone__aws-least-privilege-winston__^3.13.0",
@@ -580,16 +290,6 @@
     "commit": "f519292b7b0039a9f27ec544157953a9d9e3aa42"
   },
   {
-    "id": "qcz__vscode-text-power-tools-change-case__^5.4.4",
-    "name": "vscode-text-power-tools",
-    "owner": "qcz",
-    "pkgManager": "npm",
-    "package": "change-case",
-    "versionTo": "^5.4.4",
-    "nodeVersion": "v20.12.2",
-    "commit": "1277dfe75387d115343906b84201768544fdf808"
-  },
-  {
     "id": "MetaMask__eth-ledger-bridge-keyring-@ethereumjs-slash-tx__^5.3.0",
     "name": "eth-ledger-bridge-keyring",
     "owner": "MetaMask",
@@ -618,16 +318,6 @@
     "versionTo": "^4.3.0",
     "nodeVersion": "v18",
     "commit": "127eb744ca0ba4de74e9bcdb3a8c997dfccdb644"
-  },
-  {
-    "id": "tusharmath__ts-codemod-typescript__^5.4.5",
-    "name": "ts-codemod",
-    "owner": "tusharmath",
-    "pkgManager": "yarn",
-    "package": "typescript",
-    "versionTo": "^5.4.5",
-    "nodeVersion": "v20.12.2",
-    "commit": "ed2be64731b2f53ca13e2870a09eb82d3b296b44"
   },
   {
     "id": "JoinColony__colonySDK-@colony-slash-colony-js__^7.1.0",
@@ -800,36 +490,6 @@
     "commit": "cccb49784ca199db00deca5520560890681c0dad"
   },
   {
-    "id": "victronenergy__venus-html5-app-@sentry-slash-react__^7.111.0",
-    "name": "venus-html5-app",
-    "owner": "victronenergy",
-    "pkgManager": "npm",
-    "package": "@sentry/react",
-    "versionTo": "^7.111.0",
-    "nodeVersion": "v20.12.2",
-    "commit": "9bb36644b1cc08c280104f1b8cad9b90907afd50"
-  },
-  {
-    "id": "victronenergy__venus-html5-app-@sentry-slash-tracing__^7.111.0",
-    "name": "venus-html5-app",
-    "owner": "victronenergy",
-    "pkgManager": "npm",
-    "package": "@sentry/tracing",
-    "versionTo": "^7.111.0",
-    "nodeVersion": "v20.12.2",
-    "commit": "9bb36644b1cc08c280104f1b8cad9b90907afd50"
-  },
-  {
-    "id": "victronenergy__venus-html5-app-chart.js__^4.4.2",
-    "name": "venus-html5-app",
-    "owner": "victronenergy",
-    "pkgManager": "npm",
-    "package": "chart.js",
-    "versionTo": "^4.4.2",
-    "nodeVersion": "v20.12.2",
-    "commit": "9bb36644b1cc08c280104f1b8cad9b90907afd50"
-  },
-  {
     "id": "epeejs__epee-react-admin-react-router-dom__^6.22.3",
     "name": "epee-react-admin",
     "owner": "epeejs",
@@ -950,16 +610,6 @@
     "commit": "ff8582176767c711d261d6140d0159d1c9227ade"
   },
   {
-    "id": "nhost__nhost-js-sdk-axios__^1.6.8",
-    "name": "nhost-js-sdk",
-    "owner": "nhost",
-    "pkgManager": "yarn",
-    "package": "axios",
-    "versionTo": "^1.6.8",
-    "nodeVersion": "v20.12.2",
-    "commit": "f0086438036f926f57c05ef04699e7ed6e2067da"
-  },
-  {
     "id": "karrioapi__karrio-dashboard-axios__^1.6.8",
     "name": "karrio-dashboard",
     "owner": "karrioapi",
@@ -968,26 +618,6 @@
     "versionTo": "^1.6.8",
     "nodeVersion": "v20.12.2",
     "commit": "00ef3e6f7f4e368310b1ce3ae99284a07734ae84"
-  },
-  {
-    "id": "kgoggin__graphql-codegen-reason-graphql__^16.8.1",
-    "name": "graphql-codegen-reason",
-    "owner": "kgoggin",
-    "pkgManager": "yarn",
-    "package": "graphql",
-    "versionTo": "^16.8.1",
-    "nodeVersion": "v20.12.2",
-    "commit": "8bdca29548574a333a704573c853e84642aa85bf"
-  },
-  {
-    "id": "kgoggin__graphql-codegen-reason-@graphql-codegen-slash-plugin-helpers__^5.0.3",
-    "name": "graphql-codegen-reason",
-    "owner": "kgoggin",
-    "pkgManager": "yarn",
-    "package": "@graphql-codegen/plugin-helpers",
-    "versionTo": "^5.0.3",
-    "nodeVersion": "v20.12.2",
-    "commit": "8bdca29548574a333a704573c853e84642aa85bf"
   },
   {
     "id": "aprilandjan__vscode-ascii-tree-generator-glob__^10.3.12",
