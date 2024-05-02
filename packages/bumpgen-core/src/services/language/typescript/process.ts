@@ -11,6 +11,7 @@ import type {
   SourceFile,
   TypeAliasDeclaration,
   VariableDeclaration,
+  VariableStatement,
 } from "ts-morph";
 import { Node, SyntaxKind } from "ts-morph";
 
@@ -116,14 +117,16 @@ const isExportableType = (
   | ClassDeclaration
   | FunctionDeclaration
   | VariableDeclaration
-  | TypeAliasDeclaration => {
+  | TypeAliasDeclaration
+  | VariableStatement => {
   return (
     node.getKind() === SyntaxKind.ModuleDeclaration ||
     node.getKind() === SyntaxKind.InterfaceDeclaration ||
     node.getKind() === SyntaxKind.ClassDeclaration ||
     node.getKind() === SyntaxKind.FunctionDeclaration ||
     node.getKind() === SyntaxKind.VariableDeclaration ||
-    node.getKind() === SyntaxKind.TypeAliasDeclaration
+    node.getKind() === SyntaxKind.TypeAliasDeclaration ||
+    node.getKind() === SyntaxKind.VariableStatement
   );
 };
 
