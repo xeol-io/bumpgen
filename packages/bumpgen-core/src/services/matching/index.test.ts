@@ -2,10 +2,9 @@ import fs from "fs/promises";
 import path from "path";
 
 import { 
-  findSequentialMatchedLinesIndices,
+  findMatchedBlockIndices,
   formatNewCode,
-  searchAndReplace, 
-  splitMultiImportOldCode,
+  advancedSearchAndReplace, 
 } from ".";
 
 const getFileBefore = async (filename: string) => {
@@ -24,85 +23,16 @@ const getFileAfter = async (filename: string) => {
   ).toString();
 };
 
-describe("searchAndReplace", () => {
+describe("advancedSearchAndReplace", () => {
   it("searchAndReplace glob.txt", async () => {
     const fileBefore = await getFileBefore("glob.txt");
     const fileAfter = await getFileAfter("glob.txt");
 
-    const oldCode = "import * as rawGlob from 'glob';";
+    const oldCode = "import * as rawGlob from 'glob'";
     const newCode = "import { glob as rawGlob } from 'glob';";
 
-    const result = searchAndReplace(fileBefore, oldCode, newCode);
-
+    const result = advancedSearchAndReplace(fileBefore, oldCode, newCode);
     expect(result).toBe(fileAfter);
-  });
-});
-
-describe("splitMultiImportOldCode", () => {
-  it("should split cold code with imports", () => {
-    const oldCode =
-      "import * as rawGlob from 'glob';\n\n\nconst glob = promisify(rawGlob);";
-
-    const result = splitMultiImportOldCode(oldCode);
-
-    expect(result).toEqual([
-      "import * as rawGlob from 'glob';",
-      "const glob = promisify(rawGlob);",
-    ]);
-  });
-
-  it("should split cold code with complex imports", () => {
-    const oldCode =`import * as Sentry from "@sentry/react";
-      const module = await import('my-module');
-      import 'my-module';
-      import Tool from "openai"
-      import * as X from "openai";
-      
-      import { 
-        ScopeContext,
-        ScopeContext2,
-        ScopeContext3,
-      } from "@sentry/types/types/scope";
-      import packageInfo from "../package.json";
-      import { Injectable, Inject } from '@graphql-modules/di';
-      const hello = require('./hello');
-      import myDefault, { myExport1, myExport2 } from 'my-module';
-      import express = require('express');
-      import x = require('x').default
-      import { myExport as myRenamedExport } from 'my-module';
-      
-      import type { MyType } from 'my-module';
-      
-      interface BoostProps {
-        boost: BoostModel;
-      }`;
-
-    const result = splitMultiImportOldCode(oldCode);
-    const expectedResult = [
-      `import * as Sentry from "@sentry/react";`,
-      `import 'my-module';`,
-      `import Tool from "openai"`,
-      `import * as X from "openai";`,
-      `import { 
-        ScopeContext,
-        ScopeContext2,
-        ScopeContext3,
-      } from "@sentry/types/types/scope";`,
-      `import packageInfo from "../package.json";`,
-      `import { Injectable, Inject } from '@graphql-modules/di';`,
-      `import myDefault, { myExport1, myExport2 } from 'my-module';`,
-      `import express = require('express');`,
-      `import x = require('x').default`,
-      `import { myExport as myRenamedExport } from 'my-module';`,
-      `import type { MyType } from 'my-module';`,
-      `const hello = require('./hello');`,
-      `const module = await import('my-module');`,
-      `interface BoostProps {
-        boost: BoostModel;
-      }`
-    ];
-
-    expectedResult.forEach(line => expect(result).toContain(line));
   });
 });
 
@@ -135,7 +65,7 @@ describe("formatNewCode", () => {
   });
 });
 
-describe("findSequentialMatchedLinesIndices", () => {
+describe("findMatchedBlockIndices", () => {
   it("should find the right indices for the block of code to replace", () => {
     const matchedIndices = [
       [1, 5, 6],
@@ -143,31 +73,51 @@ describe("findSequentialMatchedLinesIndices", () => {
       [0, 3],
     ];
 
-    const result = findSequentialMatchedLinesIndices(matchedIndices);
+    const result = findMatchedBlockIndices(matchedIndices);
 
     expect(result).toEqual({"startIndex": 1, "endIndex": 3});
   });
 
-  it("should return -1 indices if nothing found", () => {
+  it("should return -1 indices if no matching block found", () => {
     const matchedIndices = [
       [1, 5, 6],
       [3, 9, 16],
       [0, 3],
     ];
 
-    const result = findSequentialMatchedLinesIndices(matchedIndices);
+    const result = findMatchedBlockIndices(matchedIndices);
 
     expect(result).toEqual({"startIndex": -1, "endIndex": -1});
   });
 
-  it("should handle empty lists", () => {
+  it("should handle empty lists edge case", () => {
     const matchedIndices = [
       [1, 7],
       [],
       [2, 3, 4],
     ];
 
-    const result = findSequentialMatchedLinesIndices(matchedIndices);
+    const result = findMatchedBlockIndices(matchedIndices);
+
+    expect(result).toEqual({"startIndex": -1, "endIndex": -1});
+  });
+
+  it("should handle only one single line", () => {
+    const matchedIndices = [
+      [1, 7]
+    ];
+
+    const result = findMatchedBlockIndices(matchedIndices);
+
+    expect(result).toEqual({"startIndex": 1, "endIndex": 1});
+  });
+
+  it("should handle no matched indices", () => {
+    const matchedIndices = [
+      []
+    ];
+
+    const result = findMatchedBlockIndices(matchedIndices);
 
     expect(result).toEqual({"startIndex": -1, "endIndex": -1});
   });

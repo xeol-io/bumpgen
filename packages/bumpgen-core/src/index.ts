@@ -324,22 +324,11 @@ const bumpgen = ({
             let fileContents = await services.filesystem.read(planNode.path);
 
             for (const replacement of replacements) {
-              // this accounts for interline replacements but not formatting
-              let newFileContents = fileContents.replace(
-                replacement.oldCode.trim(),
-                replacement.newCode,
-              );
-
-              // this accounts for formatting but not interline replacements
-              if (newFileContents === fileContents) {
-                newFileContents = services.matching.replacements.fuzzy({
-                  content: fileContents,
-                  oldCode: replacement.oldCode,
-                  newCode: replacement.newCode,
-                });
-              }
-
-              fileContents = newFileContents;
+              fileContents = services.matching.replacements.fuzzy({
+                content: fileContents,
+                oldCode: replacement.oldCode,
+                newCode: replacement.newCode,
+              });
             }
 
             const originalSignature = planNode.typeSignature;

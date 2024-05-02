@@ -38,23 +38,61 @@ export const formatNewCode = (firstMatchedLine: string, newCode: string) => {
   return formattedCode;
 };
 
-const getAllCombinations = (allRefIndexes: number[][]) => {
-  if (allRefIndexes.length === 1 && allRefIndexes[0]) {
-    return allRefIndexes[0].map(element => [element]);
-  }
+export const findMatchedBlockIndices = (allRefIndexes: number[][]) => {
+  const getAllCombinations = (allRefIndexes: number[][]) => {
+    if (allRefIndexes.length === 1 && allRefIndexes[0]) {
+      return allRefIndexes[0].map(element => [element]);
+    }
 
-  const restCombinations = getAllCombinations(allRefIndexes.slice(1));
-  const allCombinations: number[][] = [];
+    const restCombinations = getAllCombinations(allRefIndexes.slice(1));
+    const allCombinations: number[][] = [];
 
-  if (allRefIndexes[0]) {
-    allRefIndexes[0].forEach(element => {
-      restCombinations.forEach(combination => {
-        allCombinations.push([element, ...combination]);
+    if (allRefIndexes[0]) {
+      allRefIndexes[0].forEach(element => {
+        restCombinations.forEach(combination => {
+          allCombinations.push([element, ...combination]);
+        });
       });
-    });
-  }
+    }
 
-  return allCombinations;
+    return allCombinations;
+  };
+
+  const isSequential = (combination: number[]): boolean => {
+    if (combination.length === 1) return true;
+
+    for (let i = 0; i < combination.length - 1; i++) {
+      const current = combination[i];
+      const next = combination[i + 1];
+  
+      if (current === undefined || next === undefined) {
+        continue;
+      }
+  
+      if (next !== current + 1 && current !== -1 && next !== -1) {
+        return false;
+      }
+    }
+    return true;
+  };
+
+  const allCombinations = getAllCombinations(allRefIndexes);
+  console.log(allCombinations);
+
+  let indices = { startIndex: -1, endIndex: -1 };
+
+  for (const combination of allCombinations) {
+    if (isSequential(combination)) {
+      const startIndex = combination[0];
+      const endIndex = combination[combination.length - 1];
+
+      if (combination.length > 0 && startIndex && endIndex) {
+        indices = { startIndex: startIndex, endIndex: endIndex };
+        break;
+      }
+  }};
+
+  return indices;
 };
 
 export const findSequentialMatchedLinesIndices = (
@@ -75,7 +113,6 @@ export const findSequentialMatchedLinesIndices = (
     }
     return true;
   };
-  
 
   // recursion black magic
   const getAllCombinations = (
@@ -134,37 +171,7 @@ export const findSequentialMatchedLinesIndices = (
   return getAllCombinations(0, [], { startIndex: -1, endIndex: -1 });
 };
 
-export const splitMultiImportOldCode = (code: string): string[] => {
-  const regexes = [
-    /import\s+([a-zA-Z_$][0-9a-zA-Z_$]*)\s*=\s*require\(['"]([^'"]+)['"]\)(\.[a-zA-Z_$][0-9a-zA-Z_$]*)?\s*(;|\n|$)/g,
-    /import\s+(['"]([^'"]+)['"]|[\s\S]+?from\s+['"]([^'"]+)['"])\s*(;|\n|$)/g,
-    /const\s+[a-zA-Z_$][0-9a-zA-Z_$]*\s*=\s*(await\s+)?(require\(['"][^'"]+['"]\)|import\(['"][^'"]+['"]\))\s*(;|\n|$)/g,
-  ];
-
-  const imports: string[] = [];
-  let codeWithoutImports = code.trim();
-
-  console.log("=== multi import split");
-  for (const regex of regexes) {
-    let match: RegExpExecArray | null;
-    while ((match = regex.exec(codeWithoutImports)) !== null) {
-      imports.push(match[0].trim());
-      console.log("line:", match[0]);
-    }
-    codeWithoutImports = codeWithoutImports.replace(regex, "").trim();
-  }
-  console.log("===");
-
-  const remainingCodeSections: string[] = [];
-
-  if (codeWithoutImports.length > 0) {
-    remainingCodeSections.push(codeWithoutImports);
-  }
-
-  return [...imports, ...remainingCodeSections];
-};
-
-export const searchAndReplace = (
+export const advancedSearchAndReplace = (
   content: string,
   oldCode: string,
   newCode: string,
@@ -200,8 +207,7 @@ export const searchAndReplace = (
     allMatchedLines.push(matchedLines);
   });
 
-  const { startIndex, endIndex } =
-    findSequentialMatchedLinesIndices(allMatchedLines);
+  const { startIndex, endIndex } = findMatchedBlockIndices(allMatchedLines);
 
   console.log(`Looking for this code:`);
   console.log("=====");
@@ -229,13 +235,13 @@ export const searchAndReplace = (
   console.log(matchedLines);
   console.log("=== \n");
 
-  // format the replacing code accordingly then search n replace
   const firstMatchedLine = splitContent[startIndex];
   if (firstMatchedLine === undefined) {
     console.log("This is a big oopsy");
     return content;
   }
-
+  
+  // format the replacing code accordingly then search n replace
   const formattedNewCode = formatNewCode(firstMatchedLine, newCode);
 
   console.log("=== replacing with this new code")
@@ -251,6 +257,15 @@ export const searchAndReplace = (
   return updatedContents;
 };
 
+const naiveSearchAndReplace = (
+  content: string,
+  oldCode: string,
+  newCode: string,
+): string => {
+  console.log("naive replacement done");
+  return content.replace(oldCode.trim(), newCode);
+};
+
 export const createMatchingService = () => {
   return {
     replacements: {
@@ -263,17 +278,12 @@ export const createMatchingService = () => {
         oldCode: string;
         newCode: string;
       }) => {
-        const multiImportOldCode = splitMultiImportOldCode(oldCode);
-
-        if (multiImportOldCode.length > 1) {
-          multiImportOldCode.forEach((line: string) => {
-            content = searchAndReplace(content, line, newCode);
-          });
+        if (content.includes(oldCode)) {
+          return naiveSearchAndReplace(content, oldCode, newCode);
         } else {
-          content = searchAndReplace(content, oldCode, newCode);
+          return advancedSearchAndReplace(content, oldCode, newCode);
         }
-
-        return content;
+  
       },
     },
   };
