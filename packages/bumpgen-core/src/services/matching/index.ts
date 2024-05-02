@@ -1,146 +1,97 @@
 import Fuse from "fuse.js";
 
-// TODO: account for tabbing as well
-const countIndents = (line: string) => {
-  let count = 0;
-  // eslint-disable-next-line @typescript-eslint/prefer-for-of
-  for (let i = 0; i < line.length; i++) {
-    if (line[i] === " ") {
-      count++;
-    } else {
-      break;
-    }
-  }
-  return count;
-};
-
 const splitCode = (code: string) => code.split("\n");
 
 const trimCode = (code: string) => code.split("\n").map((line) => line.trim());
 
-// TODO: account for negative indent differences, very unlikely scenario
-// TODO: remove empty lines at the beginning and end?
-const formatNewCode = (matchedIndent: number, newCode: string) => {
+export const formatNewCode = (firstMatchedLine: string, newCode: string) => {
+  const countIndents = (line: string) => {
+    let count = 0;
+    for (const char of line) {
+      if (char === " " || char === "\t") count++;
+      else break;
+    }
+    return count;
+  };
+
   const splitNewCode = splitCode(newCode);
-  const firstLine = splitNewCode[0];
+  const firstNewCodeLine = splitNewCode[0];
 
-  if (!firstLine) {
-    return [];
-  }
+  if (!firstNewCodeLine) return splitNewCode;
 
-  const indentDiff = matchedIndent - countIndents(firstLine);
+  const indentDiff = countIndents(firstMatchedLine) - countIndents(firstNewCodeLine);
 
-  const adjustedCode = splitNewCode.map((line) => {
+  const formattedCode = splitNewCode.map((line) => {
     if (indentDiff > 0) {
-      return " ".repeat(indentDiff) + line;
+      return firstMatchedLine[0]?.repeat(indentDiff) + line;
+    } else if (indentDiff < 0) {
+      return line.substring(-indentDiff);
     } else {
       return line;
     }
   });
 
-  return adjustedCode;
+  return formattedCode;
 };
 
-const findSequentialMatchedLinesIndices = (
-  allRefIndexes: number[][],
-): { startIndex: number; endIndex: number } => {
+export const findMatchedBlockIndices = (allRefIndexes: number[][]) => {
+  const getAllCombinations = (allRefIndexes: number[][]) => {
+    if (allRefIndexes.length === 1 && allRefIndexes[0]) {
+      return allRefIndexes[0].map(element => [element]);
+    }
+
+    const restCombinations = getAllCombinations(allRefIndexes.slice(1));
+    const allCombinations: number[][] = [];
+
+    if (allRefIndexes[0]) {
+      allRefIndexes[0].forEach(element => {
+        restCombinations.forEach(combination => {
+          allCombinations.push([element, ...combination]);
+        });
+      });
+    }
+
+    return allCombinations;
+  };
+
   const isSequential = (combination: number[]): boolean => {
-    combination.forEach((current, index, array) => {
-      if (index < array.length - 1 && array[index + 1] !== current + 1) {
+    if (combination.length === 1) return true;
+
+    for (let i = 0; i < combination.length - 1; i++) {
+      const current = combination[i];
+      const next = combination[i + 1];
+  
+      if (current === undefined || next === undefined) {
+        continue;
+      }
+  
+      if (next !== current + 1 && current !== -1 && next !== -1) {
         return false;
       }
-    });
+    }
     return true;
   };
 
-  // recursion black magic
-  const getAllCombinations = (
-    currentIndex: number,
-    currentCombination: number[],
-    bestCombination: { startIndex: number; endIndex: number },
-  ): { startIndex: number; endIndex: number } => {
-    const indexList = allRefIndexes[currentIndex];
-    const firstIndex = currentCombination[0];
-    const lastIndex = currentCombination[currentCombination.length - 1];
+  const allCombinations = getAllCombinations(allRefIndexes);
+  console.log(allCombinations);
 
-    if (currentIndex === allRefIndexes.length) {
-      if (
-        isSequential(currentCombination) &&
-        firstIndex &&
-        lastIndex &&
-        currentCombination.length > 0 &&
-        currentCombination.length >
-          bestCombination.endIndex - bestCombination.startIndex + 1
-      ) {
-        return { startIndex: firstIndex, endIndex: lastIndex };
+  let indices = { startIndex: -1, endIndex: -1 };
+
+  for (const combination of allCombinations) {
+    if (isSequential(combination)) {
+      const startIndex = combination[0];
+      const endIndex = combination[combination.length - 1];
+
+      if (combination.length > 0 && startIndex && endIndex) {
+        indices = { startIndex: startIndex, endIndex: endIndex };
+        break;
       }
-      return bestCombination;
-    }
+  }};
 
-    let updatedBestCombination = bestCombination;
-
-    indexList &&
-      indexList.forEach((element) => {
-        if (
-          currentCombination.length === 0 ||
-          (lastIndex && element === lastIndex + 1)
-        ) {
-          currentCombination.push(element);
-          updatedBestCombination = getAllCombinations(
-            currentIndex + 1,
-            currentCombination,
-            updatedBestCombination,
-          );
-          currentCombination.pop();
-        }
-      });
-
-    return updatedBestCombination;
-  };
-
-  if (
-    allRefIndexes.length === 1 &&
-    allRefIndexes[0] &&
-    allRefIndexes[0].length > 0 &&
-    allRefIndexes[0][0]
-  ) {
-    return { startIndex: allRefIndexes[0][0], endIndex: allRefIndexes[0][0] };
-  }
-
-  return getAllCombinations(0, [], { startIndex: -1, endIndex: -1 });
+  return indices;
 };
 
-export const splitMultiImportOldCode = (code: string): string[] => {
-  const regexes = [
-    /import\s+([a-zA-Z_$][0-9a-zA-Z_$]*)\s*=\s*require\(['"]([^'"]+)['"]\)(\.[a-zA-Z_$][0-9a-zA-Z_$]*)?\s*(;|\n|$)/g,
-    /import\s+(['"]([^'"]+)['"]|[\s\S]+?from\s+['"]([^'"]+)['"])\s*(;|\n|$)/g,
-    /const\s+[a-zA-Z_$][0-9a-zA-Z_$]*\s*=\s*(await\s+)?(require\(['"][^'"]+['"]\)|import\(['"][^'"]+['"]\))\s*(;|\n|$)/g,
-  ];
-
-  const imports: string[] = [];
-  let codeWithoutImports = code.trim();
-
-  console.log("=== multi import split");
-  for (const regex of regexes) {
-    let match: RegExpExecArray | null;
-    while ((match = regex.exec(codeWithoutImports)) !== null) {
-      imports.push(match[0]);
-      console.log("line:", match[0]);
-    }
-    codeWithoutImports = codeWithoutImports.replace(regex, "").trim();
-  }
-  console.log("===");
-
-  const remainingCodeSections: string[] = [];
-
-  if (codeWithoutImports.length > 0) {
-    remainingCodeSections.push(codeWithoutImports);
-  }
-
-  return [...imports, ...remainingCodeSections];
-};
-
-export const searchAndReplace = (
+export const advancedSearchAndReplace = (
   content: string,
   oldCode: string,
   newCode: string,
@@ -166,17 +117,17 @@ export const searchAndReplace = (
 
     const matchedLines = result
       .filter(
+        // this addresses a fuse.js bug where high threshold matches are still returned
         (item) => item.score !== undefined && item.score <= threshold * 1.5,
       )
       .map((item) => item.refIndex);
 
-    if (matchedLines.length > 0) {
-      allMatchedLines.push(matchedLines);
-    }
+    if (line === "") matchedLines.push(-1);
+
+    allMatchedLines.push(matchedLines);
   });
 
-  const { startIndex, endIndex } =
-    findSequentialMatchedLinesIndices(allMatchedLines);
+  const { startIndex, endIndex } = findMatchedBlockIndices(allMatchedLines);
 
   console.log(`Looking for this code:`);
   console.log("=====");
@@ -204,29 +155,35 @@ export const searchAndReplace = (
   console.log(matchedLines);
   console.log("=== \n");
 
-  // format the replacing code accordingly then search n replace
   const firstMatchedLine = splitContent[startIndex];
   if (firstMatchedLine === undefined) {
     console.log("This is a big oopsy");
     return content;
   }
+  
+  // format the replacing code accordingly then search n replace
+  const formattedNewCode = formatNewCode(firstMatchedLine, newCode);
 
-  const indentedNewCode = formatNewCode(
-    countIndents(firstMatchedLine),
-    newCode,
-  );
-
-  console.log("=== replacing with this new code");
-  console.log(indentedNewCode.join("\n"));
+  console.log("=== replacing with this new code")
+  console.log(formattedNewCode.join("\n"));
   console.log("=== \n");
 
   const updatedContents = [
     ...splitContent.slice(0, startIndex),
-    ...indentedNewCode,
-    ...splitContent.slice(endIndex + 1),
+    ...formattedNewCode,
+    ...splitContent.slice(endIndex + 1)
   ].join("\n");
 
   return updatedContents;
+};
+
+const naiveSearchAndReplace = (
+  content: string,
+  oldCode: string,
+  newCode: string,
+): string => {
+  console.log("naive replacement done");
+  return content.replace(oldCode.trim(), newCode);
 };
 
 export const createMatchingService = () => {
@@ -241,17 +198,12 @@ export const createMatchingService = () => {
         oldCode: string;
         newCode: string;
       }) => {
-        const multiImportOldCode = splitMultiImportOldCode(oldCode);
-
-        if (multiImportOldCode.length > 1) {
-          multiImportOldCode.forEach((line: string) => {
-            content = searchAndReplace(content, line, newCode);
-          });
+        if (content.includes(oldCode)) {
+          return naiveSearchAndReplace(content, oldCode, newCode);
         } else {
-          content = searchAndReplace(content, oldCode, newCode);
+          return advancedSearchAndReplace(content, oldCode, newCode);
         }
-
-        return content;
+  
       },
     },
   };
