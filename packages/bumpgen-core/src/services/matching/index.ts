@@ -7,13 +7,9 @@ const trimCode = (code: string) => code.split("\n").map((line) => line.trim());
 export const formatNewCode = (firstMatchedLine: string, newCode: string) => {
   const countIndents = (line: string) => {
     let count = 0;
-    // eslint-disable-next-line @typescript-eslint/prefer-for-of
-    for (let i = 0; i < line.length; i++) {
-      if (line[i] === " " || line[i] === "\t") {
-        count++;
-      } else {
-        break;
-      }
+    for (const char of line) {
+      if (char === " " || char === "\t") count++;
+      else break;
     }
     return count;
   };
