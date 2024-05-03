@@ -102,18 +102,57 @@ const indexSignatureDeclarationSignature = (
 };
 
 const functionDeclarationSignature = (node: FunctionDeclaration) => {
-  const typeDef = node.getText();
-  return enrichWithTypeReferences(typeDef, node);
+  // check if the node is a type decalaration or the full implementation
+  if (node.getDescendantsOfKind(SyntaxKind.Block).length >= 1) {
+    // ref: https://github.com/dsherret/ts-morph/issues/907
+    const params = node
+      .getParameters()
+      .map((parameter) => parameter.getText())
+      .join(", ");
+    const returnType = node.getReturnType().getText(
+      node,
+      // https://github.com/dsherret/ts-morph/issues/453#issuecomment-667578386
+      TypeFormatFlags.UseAliasDefinedOutsideCurrentScope,
+    );
+    return enrichWithTypeReferences(`(${params}) => ${returnType}`, node);
+  } else {
+    const typeDef = node.getText();
+    return enrichWithTypeReferences(typeDef, node);
+  }
 };
 
 const variableDeclarationSignature = (node: VariableDeclaration) => {
-  const typeDef = node.getText();
-  return enrichWithTypeReferences(typeDef, node);
+  // check if the node is a type decalaration or the full implementation
+  if (node.getDescendantsOfKind(SyntaxKind.Block).length >= 1) {
+    // ref: https://github.com/dsherret/ts-morph/issues/907
+    return node
+      .getType()
+      .getText(
+        undefined,
+        TypeFormatFlags.UseFullyQualifiedType |
+          TypeFormatFlags.InTypeAlias |
+          TypeFormatFlags.NoTruncation,
+      );
+  } else {
+    const typeDef = node.getText();
+    return enrichWithTypeReferences(typeDef, node);
+  }
 };
 
 const methodDeclarationSignature = (node: MethodDeclaration) => {
-  const typeDef = node.getText();
-  return enrichWithTypeReferences(typeDef, node);
+  // check if the node is a type decalaration or the full implementation
+  if (node.getDescendantsOfKind(SyntaxKind.Block).length >= 1) {
+    // ref: https://github.com/dsherret/ts-morph/issues/907
+    const params = node
+      .getParameters()
+      .map((parameter) => parameter.getText())
+      .join(", ");
+    const returnType = node.getReturnType().getText();
+    return enrichWithTypeReferences(`(${params}) => ${returnType}`, node);
+  } else {
+    const typeDef = node.getText();
+    return enrichWithTypeReferences(typeDef, node);
+  }
 };
 
 const heritageClauseSignature = (node: HeritageClause) => {
