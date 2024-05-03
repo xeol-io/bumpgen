@@ -140,14 +140,7 @@ exports[`dependencyGraphService initializes 1`] = `
     "name": "App",
     "path": "/test-project/src/app/index.tsx",
     "startLine": 4,
-    "typeSignature": "function App() {
-  return (
-    <div>
-      <h1>My React App</h1>
-      <MyNewComponent />
-    </div>
-  );
-}
+    "typeSignature": "() => JSX.Element
 ",
   },
   {
@@ -172,9 +165,22 @@ exports[`dependencyGraphService initializes 1`] = `
     "name": "MyNewComponent",
     "path": "/test-project/src/app/index.tsx",
     "startLine": 13,
-    "typeSignature": "function MyNewComponent() {
-  return <p>This is my new component</p>;
-}
+    "typeSignature": "() => JSX.Element
+",
+  },
+  {
+    "block": "export async function listDirectory(dir: string): Promise<null> {
+  console.log("Listing directory", dir);
+  return Promise.resolve(null);
+}",
+    "edits": [],
+    "endLine": 4,
+    "id": "2c69e417f3abb8fe23eec60a5a0241f706e58cec",
+    "kind": "FunctionDeclaration",
+    "name": "listDirectory",
+    "path": "/test-project/src/utils/dir.ts",
+    "startLine": 1,
+    "typeSignature": "(dir: string) => Promise<null>
 ",
   },
   {
@@ -312,11 +318,7 @@ type UseQueryResult<TData = unknown, TError = DefaultError> = UseBaseQueryResult
     "path": "/test-project/src/utils/index.ts",
     "startLine": 14,
     "typeSignature": "class NodeRelations  {
- constructor (hasCycle: boolean) => NodeRelations  NodeRelations.addEdge: addEdge() {
-    console.log("edge");
-    z.string();
-    return "";
-  }
+ constructor (hasCycle: boolean) => NodeRelations  NodeRelations.addEdge: () => string
 }",
   },
   {
@@ -332,11 +334,7 @@ type UseQueryResult<TData = unknown, TError = DefaultError> = UseBaseQueryResult
     "name": "myFunction",
     "path": "/test-project/src/utils/index.ts",
     "startLine": 34,
-    "typeSignature": "export function myFunction(text: string) {
-  z.string();
-  console.log(text);
-  return text;
-}
+    "typeSignature": "(text: string) => string
 ",
   },
   {
