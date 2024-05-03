@@ -36,7 +36,7 @@ const command = program
   )
   .option(
     "-p, --port <port>",
-    "port to run the IPC server on (default: 3000)",
+    "port to run the IPC server on",
     (val) => parseInt(val),
     3000,
   )

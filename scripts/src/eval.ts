@@ -3,8 +3,9 @@ import { exec } from "child_process";
 import { existsSync, readFileSync } from "fs";
 import { writeFile } from "fs/promises";
 import { program } from "@commander-js/extra-typings";
-import { injectGitService, makeBumpgen } from "@xeol/bumpgen-core";
 import { z } from "zod";
+
+import { injectGitService, makeBumpgen } from "@xeol/bumpgen-core";
 
 export const PredictionSchema = z.object({
   // the name of the model that generated the prediction
@@ -129,12 +130,7 @@ program
         if (errors.length === 0) break;
 
         const graph = bumpgen.graph.initialize(errors);
-        const temperature = Math.min(
-          iterations > maxIterations / 2
-            ? 0.2 * Math.exp(0.15 * (iterations - maxIterations / 2))
-            : 0.2,
-          1,
-        );
+
         console.log(
           `ITERATION ${iterations} of ${maxIterations} with temperation ${temperature}`,
         );
@@ -142,10 +138,7 @@ program
         let iterationResult;
 
         do {
-          iterationResult = await bumpgen.graph.plan.execute(
-            graph,
-            temperature,
-          );
+          iterationResult = await bumpgen.graph.plan.execute(graph);
           if (!iterationResult) break;
         } while (iterationResult);
 
