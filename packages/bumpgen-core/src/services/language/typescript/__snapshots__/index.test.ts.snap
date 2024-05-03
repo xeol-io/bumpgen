@@ -16,12 +16,7 @@ exports[`dependencyGraphService initializes 1`] = `
     "name": "date",
     "path": "/test-project/src/index.ts",
     "startLine": 1,
-    "typeSignature": "date = () =>
-  z.string().transform((v) => {
-    const date = v.replace(/(\\\\d+)(st|nd|rd|th)/, "$1");
-    return isNaN(new Date(date).getTime()) ? undefined : new Date(date);
-  })
-",
+    "typeSignature": "() => Zod.ZodEffects<Zod.ZodString, Date | undefined, string>",
   },
   {
     "block": "import {
@@ -353,15 +348,7 @@ type UseQueryResult<TData = unknown, TError = DefaultError> = UseBaseQueryResult
     "name": "useQueryFn",
     "path": "/test-project/src/utils/index.ts",
     "startLine": 5,
-    "typeSignature": "useQueryFn = () => {
-  useQuery({
-    queryKey: ["key"],
-    queryFn: () => {
-      return "data";
-    },
-  });
-}
-",
+    "typeSignature": "() => void",
   },
   {
     "block": "export const date = () =>
@@ -376,12 +363,7 @@ type UseQueryResult<TData = unknown, TError = DefaultError> = UseBaseQueryResult
     "name": "date",
     "path": "/test-project/src/utils/index.ts",
     "startLine": 28,
-    "typeSignature": "date = () =>
-  z.string().transform((v) => {
-    const date = v.replace(/(\\\\d+)(st|nd|rd|th)/, "$1");
-    return isNaN(new Date(date).getTime()) ? undefined : new Date(date);
-  })
-",
+    "typeSignature": "() => Zod.ZodEffects<Zod.ZodString, Date | undefined, string>",
   },
 ]
 `;
