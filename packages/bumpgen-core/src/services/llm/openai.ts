@@ -1,4 +1,5 @@
 import type { OpenAI } from "openai";
+import { unique } from "radash";
 
 import type { DependencyGraphNode } from "../../models/graph/dependency";
 import type { PlanGraphNode } from "../../models/graph/plan";
@@ -18,9 +19,13 @@ const makePlanNodeMessage = (
   importContext: DependencyGraphNode[],
   bumpedPackage: string,
 ) => {
-  const importMessages = importContext.map((context) => {
-    return context.block;
-  });
+  // We need to do this because we only store nodes for the specific identifiers in an import, so
+  // multiple can be in the same code block.
+  const importMessages = unique(
+    importContext.map((context) => {
+      return context.block;
+    }),
+  );
   return {
     role: "user" as const,
     content: [
