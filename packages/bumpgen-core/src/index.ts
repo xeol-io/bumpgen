@@ -241,7 +241,7 @@ const bumpgen = ({
           const { graphService } = services;
           return graphService.plan.nodes.nextPending(graph.plan) === undefined;
         },
-        execute: async (graph: BumpgenGraph, temperature: number) => {
+        execute: async (graph: BumpgenGraph, temperature = 0.2) => {
           const { llm, graphService, language } = services;
           const { packageToUpgrade } = args;
           const planNode = graphService.plan.nodes.nextPending(graph.plan);
@@ -453,15 +453,7 @@ const bumpgen = ({
             type: "graph.plan.execute" as const,
             status: "started" as const,
           };
-          const iterationResult = await bumpgen.graph.plan.execute(
-            graph,
-            Math.min(
-              iteration > maxIterations / 2
-                ? 0.2 * Math.exp(0.3 * (iteration - maxIterations / 2))
-                : 0.2,
-              2,
-            ),
-          );
+          const iterationResult = await bumpgen.graph.plan.execute(graph);
           if (!iterationResult) {
             break;
           }
