@@ -158,16 +158,15 @@ const bumpgen = ({
         >();
 
         for (const err of errs) {
-          const affectedNodes =
-            graphService.dependency.getNodesInFileWithinRange(
-              dependencyGraph,
-              projectRoot,
-              {
-                filePath: err.path,
-                startLine: err.line,
-                endLine: err.line,
-              },
-            );
+          const affectedNodes = graphService.dependency.getNodes(
+            dependencyGraph,
+            projectRoot,
+            {
+              filePath: err.path,
+              startLine: err.line,
+              endLine: err.line,
+            },
+          );
 
           if (affectedNodes.length === 0) {
             console.debug(
@@ -276,11 +275,12 @@ const bumpgen = ({
             },
           );
 
-          const importContext = graphService.dependency.getReferencingNodes(
+          const importContext = graphService.dependency.getNodes(
             graph.dependency,
+            args.projectRoot,
             {
-              id: planNode.id,
-              relationships: ["importDeclaration"],
+              filePath: depGraphNode.path,
+              kinds: ["ImportDeclaration", "ImportSpecifier"],
             },
           );
 

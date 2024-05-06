@@ -156,7 +156,6 @@ export const makeTypescriptService = (
 
         return {
           source: "ts-morph",
-
           tree: project,
         };
       },

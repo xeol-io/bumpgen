@@ -1,7 +1,6 @@
 import type { OpenAI } from "openai";
 import { unique } from "radash";
 
-// import type { ContextSearchResponse } from "../../clients/sourcegraph/responses";
 import type { DependencyGraphNode } from "../../models/graph/dependency";
 import type { PlanGraphNode } from "../../models/graph/plan";
 import type { LLMContext } from "../../models/llm";
@@ -20,6 +19,8 @@ const makePlanNodeMessage = (
   importContext: DependencyGraphNode[],
   bumpedPackage: string,
 ) => {
+  // We need to do this because we only store nodes for the specific identifiers in an import, so
+  // multiple can be in the same code block.
   const importMessages = unique(
     importContext.map((context) => {
       return context.block;
@@ -29,7 +30,7 @@ const makePlanNodeMessage = (
     role: "user" as const,
     content: [
       `I'm upgrading the package '${bumpedPackage}' and my code is failing. You might need to modify the code or the imports. Look at the errors below and think step-by-step about what the errors mean and how to fix the code.\n`,
-      `<relevant_imports path=${planNode.path}>\n${importMessages.join("\n")}\n</relevant_imports>`,
+      `<file_imports path=${planNode.path}>\n${importMessages.join("\n")}\n</file_imports>`,
       `<code \n  path="${planNode.path}"\n>`,
       `${planNode.block}`,
       "</code>\n",
@@ -47,17 +48,17 @@ const makePlanNodeMessage = (
 
 const makeExternalDependencyContextMessage = (
   pkg: string,
-  importContext: (DependencyGraphNode & {
+  externalImportContext: (DependencyGraphNode & {
     typeSignature: string;
   })[],
 ) => {
-  const typeSignatures = importContext
+  const typeSignatures = externalImportContext
     .filter((imp) => imp.typeSignature !== "")
     .map((imp) => {
       return `<import \n  statement="${imp.block}"\n>\n${imp.typeSignature}\n</import>`;
     });
 
-  const exports = importContext
+  const exports = externalImportContext
     .filter(
       (
         imp,
@@ -67,9 +68,7 @@ const makeExternalDependencyContextMessage = (
       } => !!imp.external,
     )
     .flatMap((imp) => {
-      return imp.external.exports.map((exp) => {
-        return exp;
-      });
+      return imp.external.exports;
     });
 
   if (typeSignatures.length === 0 && exports.length === 0) {
@@ -235,7 +234,7 @@ export const createOpenAIService = (openai: OpenAI) => {
             "- Maintain all hardcoded values as is.",
             "- Avoid adding comments within the code.",
             "- Refrain from using explicit type casting.",
-            "- Only show the specific lines of code that have been changed or need modification, without including unchanged surrounding code.",
+            "- Only show the specific lines of code that have been changed or need modification, without including unchanged surrounding code except to disambiguate the edited line.",
             "- Keep all existing variable, function, and class names unchanged.",
           ].join("\n"),
         };
@@ -290,7 +289,7 @@ export const createOpenAIService = (openai: OpenAI) => {
                           oldCode: {
                             type: "string",
                             description:
-                              "The old lines of code. Be sure to add lines before and after to disambiguate the change.",
+                              "The old lines of code. If needed, add lines before and after to disambiguate the change from other lines.",
                           },
                           newCode: {
                             type: "string",
