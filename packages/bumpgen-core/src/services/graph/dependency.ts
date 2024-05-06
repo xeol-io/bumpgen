@@ -2,7 +2,7 @@ import path from "path";
 import { unique } from "radash";
 
 import type { DependencyGraph } from "../../models/graph";
-import type { Relationship } from "../../models/graph/dependency";
+import type { Kind, Relationship } from "../../models/graph/dependency";
 
 export const createDependencyGraphService = () => {
   return {
@@ -45,38 +45,37 @@ export const createDependencyGraphService = () => {
     getNodeById: (graph: DependencyGraph, { id }: { id: string }) => {
       return graph.getNodeAttributes(id);
     },
-    getNodes: (graph: DependencyGraph) => {
-      return graph.nodes().map((node) => graph.getNodeAttributes(node));
-    },
-    getNodesInFile: (
-      graph: DependencyGraph,
-      { filePath }: { filePath: string },
-    ) => {
-      return graph
-        .filterNodes((_, attrs) => {
-          return attrs.path === filePath;
-        })
-        .map((node) => graph.getNodeAttributes(node));
-    },
-    getNodesInFileWithinRange: (
+    getNodes: (
       graph: DependencyGraph,
       projectRoot: string,
       {
         filePath,
         startLine,
         endLine,
-      }: { filePath: string; startLine: number; endLine: number },
+        kinds,
+      }: {
+        filePath?: string;
+        startLine?: number;
+        endLine?: number;
+        kinds?: Kind[];
+      },
     ) => {
-      const fullPath = path.join(projectRoot, filePath);
+      const fullPath = filePath
+        ? filePath.startsWith(projectRoot)
+          ? filePath
+          : path.join(projectRoot, filePath)
+        : null;
       return graph
         .filterNodes((_, attrs) => {
           return (
-            attrs.path === fullPath &&
-            attrs.startLine <= startLine &&
-            attrs.endLine >= endLine
+            (fullPath ? attrs.path === fullPath : true) &&
+            (startLine ? attrs.startLine <= startLine : true) &&
+            (endLine ? attrs.endLine >= endLine : true) &&
+            (kinds ? kinds.includes(attrs.kind) : true)
           );
         })
-        .map((node) => graph.getNodeAttributes(node));
+        .map((node) => graph.getNodeAttributes(node))
+        .sort((a, b) => a.startLine - b.startLine);
     },
   };
 };
