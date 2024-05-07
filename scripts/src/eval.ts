@@ -131,9 +131,7 @@ program
 
         const graph = bumpgen.graph.initialize(errors);
 
-        console.log(
-          `ITERATION ${iterations} of ${maxIterations} with temperation ${temperature}`,
-        );
+        console.log(`ITERATION ${iterations} of ${maxIterations}`);
 
         let iterationResult;
 
