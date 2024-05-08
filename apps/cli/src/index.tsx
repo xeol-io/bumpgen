@@ -40,11 +40,12 @@ const command = program
     (val) => parseInt(val),
     3000,
   )
+  .option("-n, --no-upgrade", "skip applying the upgrade")
   .option("-s, --simple", "simple mode")
   .option("-i, --ipc", "run in ipc mode")
   .parse();
 
-const { model, language, port, ipc, simple, token } = command.opts();
+const { model, language, port, ipc, simple, token, upgrade } = command.opts();
 
 let [pkg, version] = command.processedArgs;
 
@@ -113,13 +114,17 @@ const bumpgen = makeBumpgen({
 });
 
 if (simple) {
-  for await (const event of bumpgen.execute()) {
+  for await (const event of bumpgen.execute({
+    upgrade,
+  })) {
     console.log("event", event);
   }
 } else if (ipc) {
   console.log("Running in IPC mode");
 
-  for await (const event of bumpgen.executeSerializeable()) {
+  for await (const event of bumpgen.executeSerializeable({
+    upgrade,
+  })) {
     console.log("event", event);
     try {
       const options = {
@@ -147,6 +152,7 @@ if (simple) {
       version={version}
       token={token}
       port={port}
+      upgrade={upgrade}
     />,
   );
   await app.waitUntilExit();
