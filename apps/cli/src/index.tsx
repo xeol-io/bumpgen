@@ -43,9 +43,11 @@ const command = program
   .option("-n, --no-upgrade", "skip applying the upgrade")
   .option("-s, --simple", "simple mode")
   .option("-i, --ipc", "run in ipc mode")
+  .option("-d, --dir <dir>", "target directory for the upgrade")
   .parse();
 
-const { model, language, port, ipc, simple, token, upgrade } = command.opts();
+const { model, language, port, ipc, simple, token, upgrade, dir } =
+  command.opts();
 
 let [pkg, version] = command.processedArgs;
 
@@ -65,7 +67,7 @@ if (!resolvedToken) {
 
 const bumpFinder = makeBumpFinder({
   language,
-  projectRoot: process.cwd(),
+  projectRoot: dir,
 });
 
 const available = await bumpFinder.list();
@@ -110,7 +112,7 @@ const bumpgen = makeBumpgen({
     newVersion: version,
   },
   language,
-  projectRoot: process.cwd(),
+  projectRoot: dir,
 });
 
 if (simple) {
@@ -153,6 +155,7 @@ if (simple) {
       token={token}
       port={port}
       upgrade={upgrade}
+      dir={dir}
     />,
   );
   await app.waitUntilExit();

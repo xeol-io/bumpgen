@@ -184,11 +184,12 @@ const App = (props: {
   version: string;
   port: number;
   upgrade: boolean;
+  dir?: string;
   token?: string;
 }) => {
   const { exit } = useApp();
 
-  const { model, language, pkg, version, token, port, upgrade } = props;
+  const { model, language, pkg, version, token, port, upgrade, dir } = props;
 
   const [columns, rows] = useStdoutDimensions();
 
@@ -256,6 +257,7 @@ const App = (props: {
         `${port}`,
         ...(token ? ["-t", token] : []),
         ...(upgrade ? [] : ["-n"]),
+        ...(dir ? ["-d", dir] : []),
       ],
       {
         shell: true,

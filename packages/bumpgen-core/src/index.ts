@@ -1,3 +1,4 @@
+import path from "path";
 import process from "process";
 import { serializeError } from "serialize-error";
 import { v4 } from "uuid";
@@ -436,6 +437,10 @@ const bumpgen = ({
           data: errors,
         };
 
+        if (errors.length === 0) {
+          break;
+        }
+
         id = v4();
         yield {
           id,
@@ -559,7 +564,7 @@ export const makeBumpgen = ({
 }) => {
   model = model ?? "gpt-4-turbo-preview";
   language = language ?? "typescript";
-  projectRoot = projectRoot ?? process.cwd();
+  projectRoot = projectRoot ? path.resolve(projectRoot) : process.cwd();
   const languageService = injectLanguageService(language)();
   const llm = injectLLMService({ llmApiKey, model })();
   const graphService = injectGraphService();
@@ -586,7 +591,7 @@ export const makeBumpFinder = ({
   projectRoot?: string;
 }) => {
   language = language ?? "typescript";
-  projectRoot = projectRoot ?? process.cwd();
+  projectRoot = projectRoot ? path.resolve(projectRoot) : process.cwd();
   const languageService = injectLanguageService(language)();
   return bumpFinder({
     services: { language: languageService },
