@@ -394,22 +394,26 @@ const bumpgen = ({
   const execute = async function* (options?: {
     maxIterations?: number;
     timeout?: number;
+    upgrade?: boolean;
   }) {
+    const upgrade = options?.upgrade ?? true;
     let id;
     try {
-      id = v4();
-      yield {
-        type: "upgrade.apply" as const,
-        status: "started" as const,
-        id,
-      };
-      const applied = await bumpgen.upgrade.apply();
-      yield {
-        type: "upgrade.apply" as const,
-        status: "finished" as const,
-        data: applied,
-        id,
-      };
+      if (upgrade) {
+        id = v4();
+        yield {
+          type: "upgrade.apply" as const,
+          status: "started" as const,
+          id,
+        };
+        const applied = await bumpgen.upgrade.apply();
+        yield {
+          type: "upgrade.apply" as const,
+          status: "finished" as const,
+          data: applied,
+          id,
+        };
+      }
       let iteration = 0;
       const startedAt = Date.now();
 
@@ -500,8 +504,12 @@ const bumpgen = ({
     }
   };
 
-  const executeSerializeable = async function* () {
-    for await (const event of execute()) {
+  const executeSerializeable = async function* (options?: {
+    maxIterations?: number;
+    timeout?: number;
+    upgrade?: boolean;
+  }) {
+    for await (const event of execute(options)) {
       if (event.type === "graph.initialize" && event.status === "finished") {
         yield {
           ...event,

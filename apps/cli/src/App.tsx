@@ -183,11 +183,12 @@ const App = (props: {
   pkg: string;
   version: string;
   port: number;
+  upgrade: boolean;
   token?: string;
 }) => {
   const { exit } = useApp();
 
-  const { model, language, pkg, version, token, port } = props;
+  const { model, language, pkg, version, token, port, upgrade } = props;
 
   const [columns, rows] = useStdoutDimensions();
 
@@ -254,6 +255,7 @@ const App = (props: {
         "-p",
         `${port}`,
         ...(token ? ["-t", token] : []),
+        ...(upgrade ? [] : ["-n"]),
       ],
       {
         shell: true,
