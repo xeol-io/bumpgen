@@ -2,6 +2,7 @@ import { createHash } from "crypto";
 import type {
   ClassDeclaration,
   ExportAssignment,
+  ExportDeclaration,
   ExpressionStatement,
   FunctionDeclaration,
   Identifier,
@@ -23,6 +24,7 @@ import type {
 import { isImportNode } from "./signatures";
 
 type TopLevelTypes =
+  | ExportDeclaration
   | ModuleDeclaration
   | InterfaceDeclaration
   | ClassDeclaration
@@ -34,6 +36,7 @@ type TopLevelTypes =
 
 const isTopLevelType = (node: Node): node is TopLevelTypes => {
   return (
+    node.getKind() === SyntaxKind.ExportDeclaration ||
     node.getKind() === SyntaxKind.ModuleDeclaration ||
     node.getKind() === SyntaxKind.InterfaceDeclaration ||
     node.getKind() === SyntaxKind.ClassDeclaration ||
@@ -267,15 +270,24 @@ const getReferenceNodes = (node: TopLevelTypes) => {
 
 const createTopLevelNode = (n: TopLevelTypes) => {
   const kind = makeKind(n.getKind());
-  const idName = n
+
+  const identifierName = n
     .getFirstDescendantByKind(SyntaxKind.Identifier)
     ?.getSymbol()
     ?.getName();
   const nodeName = "getName" in n ? n.getName() : n.getSymbol()?.getName();
-  const name = nodeName ?? idName;
+  let name = nodeName ?? identifierName;
   if (!name) {
     return;
   }
+
+  // handling the case of 'export * from "x"' where the name is __export
+  // for all exports of this type, but we need to make sure ids are unique
+  // in the graph
+  if (n.getKind() === SyntaxKind.ExportDeclaration && name === "__export") {
+    name = n.getText();
+  }
+
   const path = n.getSourceFile().getFilePath();
   const surroundingBlock = getSurroundingBlock(n);
 
@@ -366,6 +378,12 @@ export const processSourceFile = (sourceFile: SourceFile) => {
 
   sourceFile.getVariableDeclarations().forEach((variableDeclaration) => {
     const { nodes, edges } = processTopLevelItem(variableDeclaration);
+    collectedNodes.push(...nodes);
+    collectedEdges.push(...edges);
+  });
+
+  sourceFile.getExportDeclarations().forEach((exportDeclaration) => {
+    const { nodes, edges } = processTopLevelItem(exportDeclaration);
     collectedNodes.push(...nodes);
     collectedEdges.push(...edges);
   });
