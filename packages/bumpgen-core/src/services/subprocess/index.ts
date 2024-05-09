@@ -30,6 +30,7 @@ export const createSubprocessService = (
     spawn: async (
       command: string,
       options?: {
+        cwd?: string;
         rejectOnStderr?: boolean;
         rejectOnNonZeroExit?: boolean;
         env?: typeof proc.env;
@@ -37,6 +38,7 @@ export const createSubprocessService = (
     ) => {
       return await new Promise<string>((resolve, reject) => {
         const child = childProcess.spawn(command, {
+          cwd: options?.cwd,
           shell: true,
           env: options?.env ?? proc.env,
         });
