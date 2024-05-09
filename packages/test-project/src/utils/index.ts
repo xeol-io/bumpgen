@@ -1,6 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 
+export * from "zod";
+export * from "@tanstack/react-query";
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const useQueryFn = () => {
   useQuery({
