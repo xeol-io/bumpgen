@@ -99,10 +99,11 @@ export const makeTypescriptService = (
 
   return {
     build: {
-      getErrors: async () => {
+      getErrors: async (projectRoot) => {
         let tscOutput = await subprocess.spawn(
           `npx tsc --noEmit --skipLibCheck --pretty`,
           {
+            cwd: projectRoot,
             rejectOnStderr: false,
           },
         );
@@ -228,6 +229,7 @@ export const makeTypescriptService = (
           console.log("Applying upgrades...");
 
           await subprocess.spawn(`${packageManager} install`, {
+            cwd: projectRoot,
             rejectOnStderr: false,
             rejectOnNonZeroExit: true,
           });
@@ -239,6 +241,7 @@ export const makeTypescriptService = (
         const { packageManager } = await findPackageManager(projectRoot);
 
         return await subprocess.spawn(`${packageManager} install`, {
+          cwd: projectRoot,
           rejectOnStderr: false,
         });
       },
