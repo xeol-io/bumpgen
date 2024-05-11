@@ -13,11 +13,11 @@ import type {
   DependencyGraphNode,
 } from "../../../models/graph/dependency";
 import type { FilesystemService } from "../../filesystem";
-import type { GraphService } from "../../graph";
+import type { GitService } from "../../git";
 import type { SubprocessService } from "../../subprocess";
 import type { BumpgenLanguageService } from "../types";
 import { injectFilesystemService } from "../../filesystem";
-import { injectGraphService } from "../../graph";
+import { injectGitService } from "../../git";
 import { injectSubprocessService } from "../../subprocess";
 import { processSourceFile } from "./process";
 import { getImportSignature, getSignature, isImportNode } from "./signatures";
@@ -56,7 +56,7 @@ const isRegexParsed = (value: unknown): value is ErrorRegexParsed => {
 export const makeTypescriptService = (
   filesystem: FilesystemService,
   subprocess: SubprocessService,
-  _graphService: GraphService,
+  git: GitService,
 ) => {
   const findPackageManager = async (projectRoot: string) => {
     let currentDir = projectRoot;
@@ -210,6 +210,50 @@ export const makeTypescriptService = (
               newVersion: version,
             };
           });
+        },
+        detect: async (projectRoot) => {
+          const packageJson = await PackageJson.load(projectRoot);
+
+          const existingDependencies = new Set([
+            ...(packageJson.content.dependencies
+              ? Object.keys(packageJson.content.dependencies)
+              : []),
+            ...(packageJson.content.devDependencies
+              ? Object.keys(packageJson.content.devDependencies)
+              : []),
+          ]);
+
+          await git.raw.cwd(projectRoot);
+          const branch = (await git.raw.branch()).current;
+
+          let diff = await git.raw.diff([branch, "package.json"]);
+
+          // if there are no changes in the package.json, we check against the main branch
+          if (!diff) {
+            const mainBranch = await git.getMainBranch(projectRoot);
+            diff = await git.raw.diff([mainBranch, "package.json"]);
+          }
+
+          const upgradedPackages = [];
+
+          const lines = diff.split("\n");
+          for (const line of lines) {
+            const match = line.match(/^\+[\s]*"([^"]+)": "([^"]+)",?$/);
+            if (match) {
+              const packageName = match[1];
+              const newVersion = match[2];
+
+              if (
+                packageName &&
+                newVersion &&
+                existingDependencies.has(packageName)
+              ) {
+                upgradedPackages.push({ packageName, newVersion });
+              }
+            }
+          }
+
+          return upgradedPackages;
         },
         apply: async (projectRoot, upgrade) => {
           const { packageManager } = await findPackageManager(projectRoot);
@@ -402,12 +446,12 @@ export const makeTypescriptService = (
 export const injectTypescriptService = () => {
   const filesystemService = injectFilesystemService();
   const subprocessService = injectSubprocessService();
-  const graphService = injectGraphService();
+  const gitService = injectGitService();
 
   return makeTypescriptService(
     filesystemService,
     subprocessService,
-    graphService,
+    gitService,
   );
 };
 

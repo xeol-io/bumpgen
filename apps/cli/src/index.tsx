@@ -41,12 +41,13 @@ const command = program
     3000,
   )
   .option("-n, --no-upgrade", "skip applying the upgrade")
+  .option("-a, --auto-detect", "auto-detect the package to upgrade")
   .option("-s, --simple", "simple mode")
   .option("-i, --ipc", "run in ipc mode")
   .option("-d, --dir <dir>", "target directory for the upgrade")
   .parse();
 
-const { model, language, port, ipc, simple, token, upgrade, dir } =
+const { model, language, port, ipc, simple, token, upgrade, dir, autoDetect } =
   command.opts();
 
 let [pkg, version] = command.processedArgs;
@@ -73,23 +74,43 @@ const bumpFinder = makeBumpFinder({
 const available = await bumpFinder.list();
 
 if (!pkg) {
-  if (available.length === 0) {
-    console.log("All packages are on their latest major version!");
-    process.exit(0);
+  if (autoDetect) {
+    const detected = await bumpFinder.detect();
+
+    if (detected.length > 0) {
+      if (detected.length > 1) {
+        console.error("Multiple package changes detected");
+        detected.forEach((p) =>
+          console.log(`${p.packageName}@${p.newVersion}`),
+        );
+        process.exit(1);
+      }
+
+      pkg = detected[0]!.packageName;
+      version = detected[0]!.newVersion;
+    } else {
+      console.log("No package changes detected");
+      process.exit(0);
+    }
+  } else {
+    if (available.length === 0) {
+      console.log("All packages are on their latest major version!");
+      process.exit(0);
+    }
+
+    const choice = await select({
+      message: "Select a package to upgrade (major version changes only)",
+      choices: available.map((pkg, index) => {
+        return {
+          name: `${pkg.packageName}@${pkg.newVersion}`,
+          value: index,
+        };
+      }),
+    });
+
+    pkg = available[choice]!.packageName;
+    version = available[choice]!.newVersion;
   }
-
-  const choice = await select({
-    message: "Select a package to upgrade (major version changes only)",
-    choices: available.map((pkg, index) => {
-      return {
-        name: `${pkg.packageName}@${pkg.newVersion}`,
-        value: index,
-      };
-    }),
-  });
-
-  pkg = available[choice]!.packageName;
-  version = available[choice]!.newVersion;
 }
 
 if (!version) {
