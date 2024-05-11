@@ -7,24 +7,31 @@ export const createSubprocessService = (
   return {
     exec: async (
       command: string,
-      options: {
+      options?: {
         rejectOnStderr?: boolean;
+        cwd?: string;
       },
     ) => {
       return await new Promise<string>((resolve, reject) => {
-        childProcess.exec(command, (error, stdout, stderr) => {
-          if (error) {
-            console.error(error);
-            reject(new Error(`Failed to execute command '${command}'`));
-          }
-          if (stderr) {
-            console.error(stderr);
-            if (options.rejectOnStderr) {
+        childProcess.exec(
+          command,
+          {
+            cwd: options?.cwd,
+          },
+          (error, stdout, stderr) => {
+            if (error) {
+              console.error(error);
               reject(new Error(`Failed to execute command '${command}'`));
             }
-          }
-          resolve(stdout);
-        });
+            if (stderr) {
+              console.error(stderr);
+              if (options?.rejectOnStderr) {
+                reject(new Error(`Failed to execute command '${command}'`));
+              }
+            }
+            resolve(stdout);
+          },
+        );
       });
     },
     spawn: async (

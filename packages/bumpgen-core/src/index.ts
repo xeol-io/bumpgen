@@ -67,6 +67,11 @@ const bumpFinder = ({
       const { projectRoot } = args;
       return await language.packages.upgrade.list(projectRoot);
     },
+    detect: async () => {
+      const { language } = services;
+      const { projectRoot } = args;
+      return await language.packages.upgrade.detect(projectRoot);
+    },
   };
 };
 

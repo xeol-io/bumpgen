@@ -1,19 +1,39 @@
-import type { SimpleGit, SimpleGitOptions } from "simple-git";
+import type { SimpleGit } from "simple-git";
 import { simpleGit } from "simple-git";
 
-export const createGitService = (git: SimpleGit) => {
-  return git;
+import type { SubprocessService } from "../subprocess";
+import { injectSubprocessService } from "../subprocess";
+
+export const createGitService = (
+  git: SimpleGit,
+  subprocess: SubprocessService,
+) => {
+  return {
+    raw: git,
+    getMainBranch: async (cwd: string) => {
+      await git.cwd(cwd);
+      return (
+        await subprocess.exec(
+          "git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@'",
+          {
+            cwd,
+          },
+        )
+      ).trim();
+    },
+  };
 };
 
-export const injectGitService = (basePath: string) => {
-  const options: Partial<SimpleGitOptions> = {
-    baseDir: basePath,
+export const injectGitService = () => {
+  const options = {
     binary: "git",
     maxConcurrentProcesses: 6,
   };
   const git = simpleGit(options);
 
-  return createGitService(git);
+  const subprocess = injectSubprocessService();
+
+  return createGitService(git, subprocess);
 };
 
 export type GitService = ReturnType<typeof createGitService>;
