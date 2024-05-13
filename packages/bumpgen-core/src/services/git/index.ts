@@ -12,7 +12,7 @@ export const createGitService = (
     raw: git,
     getMainBranch: async (cwd: string) => {
       await git.cwd(cwd);
-      return (
+      const mainBranch = (
         await subprocess.exec(
           "git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@'",
           {
@@ -20,6 +20,12 @@ export const createGitService = (
           },
         )
       ).trim();
+
+      if (!mainBranch) {
+        return null;
+      }
+
+      return mainBranch;
     },
   };
 };
