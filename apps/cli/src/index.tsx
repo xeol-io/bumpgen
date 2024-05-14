@@ -78,7 +78,9 @@ const available = await bumpFinder.list();
 
 if (!pkg) {
   if (autoDetect) {
-    const detected = await bumpFinder.detect();
+    const detected = await bumpFinder.detect(
+      autoDetect === true ? undefined : autoDetect,
+    );
 
     if (detected.length > 0) {
       if (detected.length > 1) {
