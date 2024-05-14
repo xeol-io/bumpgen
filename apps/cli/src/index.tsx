@@ -41,7 +41,10 @@ const command = program
     3000,
   )
   .option("-n, --no-upgrade", "skip applying the upgrade")
-  .option("-a, --auto-detect", "auto-detect the package to upgrade")
+  .option(
+    "-a, --auto-detect [branch]",
+    "auto-detect the package to upgrade, diff against [branch]",
+  )
   .option("-s, --simple", "simple mode")
   .option("-i, --ipc", "run in ipc mode")
   .option("-d, --dir <dir>", "target directory for the upgrade")
