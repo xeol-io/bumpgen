@@ -211,7 +211,7 @@ export const makeTypescriptService = (
             };
           });
         },
-        detect: async (projectRoot) => {
+        detect: async (projectRoot, target) => {
           const packageJson = await PackageJson.load(projectRoot);
 
           const existingDependencies = new Set([
@@ -224,15 +224,9 @@ export const makeTypescriptService = (
           ]);
 
           await git.raw.cwd(projectRoot);
-          const branch = (await git.raw.branch()).current;
+          const branch = target ?? (await git.raw.branch()).current;
 
-          let diff = await git.raw.diff([branch, "package.json"]);
-
-          // if there are no changes in the package.json, we check against the main branch
-          if (!diff) {
-            const mainBranch = await git.getMainBranch(projectRoot);
-            diff = await git.raw.diff([mainBranch, "package.json"]);
-          }
+          const diff = await git.raw.diff([branch, "package.json"]);
 
           const upgradedPackages = [];
 

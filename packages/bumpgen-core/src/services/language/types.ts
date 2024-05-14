@@ -20,7 +20,10 @@ export type BumpgenLanguageService<TAst = any> = {
   packages: {
     upgrade: {
       list: (projectRoot: string) => Promise<PackageUpgrade[]>;
-      detect: (projectRoot: string) => Promise<PackageUpgrade[]>;
+      detect: (
+        projectRoot: string,
+        target?: string,
+      ) => Promise<PackageUpgrade[]>;
       apply: (
         projectRoot: string,
         upgrade: PackageUpgrade,
