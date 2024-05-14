@@ -10,9 +10,6 @@ inputs:
   llm_key:
     description: "LLM API key"
     required: true
-  github_token:
-    description: "GitHub token"
-    required: true
 
 runs:
   using: "composite"
@@ -31,9 +28,9 @@ runs:
     - shell: bash
       name: Check for changes and commit
       env:
-        GITHUB_TOKEN: ${{ inputs.github_token }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        git add -A
+        git add -u
         if ! git diff-index --quiet HEAD; then
           git commit -m "chore: run bumpgen"
           git push origin HEAD:${GITHUB_REF#refs/heads/}
