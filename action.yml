@@ -10,6 +10,9 @@ inputs:
   llm_key:
     description: "LLM API key"
     required: true
+  github_token:
+    description: "GitHub token"
+    required: true
 
 runs:
   using: "composite"
@@ -27,13 +30,22 @@ runs:
         git config user.email "github-actions[bot]@users.noreply.github.com"
     - shell: bash
       name: Check for changes and commit
+      id: commit_changes
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ inputs.github_token }}
       run: |
         git add -u
         if ! git diff-index --quiet HEAD; then
           git commit -m "chore: run bumpgen"
-          git push origin HEAD:${GITHUB_REF#refs/heads/}
+          echo "::set-output name=changes_detected::true"
         else
           echo "No changes to commit"
+          echo "::set-output name=changes_detected::false"
         fi
+
+    - name: Push changes
+      if: steps.commit_changes.outputs.changes_detected == 'true'
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ inputs.github_token }}
+        branch: ${{ github.ref }}

@@ -23,3 +23,4 @@ jobs:
         with:
           path: "./packages/bumpgen-core/"
           llm_key: ${{ secrets.LLM_API_KEY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
