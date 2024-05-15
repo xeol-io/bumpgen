@@ -1,0 +1,51 @@
+name: "bumpgen"
+description: "handle breaking changes from dependency upgrades"
+author: Xeol <xeol.io>
+
+inputs:
+  path:
+    description: Repository path
+    required: false
+    default: "./"
+  llm_key:
+    description: "LLM API key"
+    required: true
+  github_token:
+    description: "GitHub token"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - shell: bash
+      env:
+        LLM_API_KEY: ${{ inputs.llm_key }}
+      run: |
+        npm install -g bumpgen
+        bumpgen --simple --dir ${{ inputs.path }} --no-upgrade --auto-detect
+    - shell: bash
+      name: Configure Git
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+    - shell: bash
+      name: Check for changes and commit
+      id: commit_changes
+      env:
+        GITHUB_TOKEN: ${{ inputs.github_token }}
+      run: |
+        git add -u
+        if ! git diff-index --quiet HEAD; then
+          git commit -m "chore: run bumpgen"
+          echo "::set-output name=changes_detected::true"
+        else
+          echo "No changes to commit"
+          echo "::set-output name=changes_detected::false"
+        fi
+
+    - name: Push changes
+      if: steps.commit_changes.outputs.changes_detected == 'true'
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ inputs.github_token }}
+        branch: ${{ github.ref }}

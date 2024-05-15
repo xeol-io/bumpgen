@@ -1,0 +1,26 @@
+name: "Bumpgen (core)"
+
+on:
+  pull_request:
+    types:
+      - opened
+      - labeled
+
+permissions:
+  pull-requests: read
+
+jobs:
+  main:
+    name: Run Bumpgen
+    runs-on: ubuntu-latest
+    if: ${{ github.actor == 'dependabot[bot]' || contains( github.event.pull_request.labels.*.name, 'run bumpgen') }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup
+        uses: ./tooling/github/setup
+      - name: Bumpgen
+        uses: ./
+        with:
+          path: "./packages/bumpgen-core/"
+          llm_key: ${{ secrets.LLM_API_KEY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
