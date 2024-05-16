@@ -15,7 +15,8 @@ jobs:
     runs-on: ubuntu-latest
     # Need to run on all commits on PRs opened by dependabot except those committed by bumpgen
     # This might not work
-    if: ${{ github.actor == 'dependabot[bot]' || contains( github.event.pull_request.labels.*.name, 'run bumpgen') }}
+    if: ${{ (github.event.pull_request.user.login == 'dependabot[bot]' || contains( github.event.pull_request.labels.*.name, 'run bumpgen')) && github.event.pull_request.commits[0].author.username != 'github-actions[bot]'}}
+    # if: ${{ github.actor == 'dependabot[bot]' || contains( github.event.pull_request.labels.*.name, 'run bumpgen') }}
     steps:
       - name: Print github obj
         run: echo '${{ toJson(github) }}'
