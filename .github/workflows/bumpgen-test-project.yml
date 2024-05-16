@@ -3,7 +3,7 @@ name: "Bumpgen"
 on:
   pull_request:
     paths:
-      - "packages/bumpgen-core/**"
+      - "packages/test-project/**"
     types:
       - opened
       - synchronize
@@ -26,6 +26,6 @@ jobs:
       - name: Bumpgen
         uses: ./
         with:
-          path: "./packages/bumpgen-core/"
+          path: "./packages/test-project/"
           llm_key: ${{ secrets.LLM_API_KEY }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
