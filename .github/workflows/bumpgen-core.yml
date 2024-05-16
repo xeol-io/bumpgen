@@ -13,8 +13,12 @@ jobs:
   main:
     name: Run Bumpgen
     runs-on: ubuntu-latest
+    # Need to run on all commits on PRs opened by dependabot except those committed by bumpgen
+    # This might not work
     if: ${{ github.actor == 'dependabot[bot]' || contains( github.event.pull_request.labels.*.name, 'run bumpgen') }}
     steps:
+      - name: Print github obj
+        run: echo '${{ toJson(github) }}'
       - uses: actions/checkout@v4
       - name: Setup
         uses: ./tooling/github/setup
