@@ -1,0 +1,31 @@
+name: "Bumpgen"
+
+on:
+  pull_request:
+    paths:
+      - "apps/cli/**"
+    types:
+      - opened
+      - synchronize
+      - labeled
+      - unlabeled
+
+permissions:
+  pull-requests: read
+  contents: write
+
+jobs:
+  main:
+    name: Run Bumpgen
+    runs-on: ubuntu-latest
+    if: ${{ (github.event.pull_request.user.login == 'dependabot[bot]' || contains( github.event.pull_request.labels.*.name, 'run bumpgen')) && github.event.pull_request.commits[0].author.username != 'github-actions[bot]'}}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup
+        uses: ./tooling/github/setup
+      - name: Bumpgen
+        uses: ./
+        with:
+          path: "./apps/cli/"
+          llm_key: ${{ secrets.LLM_API_KEY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
