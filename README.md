@@ -38,9 +38,8 @@ Then use `bumpgen`!
 - It also uses the AST to get type definitions for external methods to understand how to use new package versions
 - `bumpgen` then creates a _plan graph_ DAG to execute things in the correct order to handle propagating changes (ref: [arxiv 2309.12499](https://huggingface.co/papers/2309.12499))
 
-> [!NOTE] 
-> `bumpgen` only supports typescript and tsx at the moment, but we're working on adding support for other strongly typed languages. Hit the emoji button on our open issues
-> for [Java](https://github.com/xeol-io/bumpgen/issues/60), [golang](https://github.com/xeol-io/bumpgen/issues/59), [C#](https://github.com/xeol-io/bumpgen/issues/62) and [Python](https://github.com/xeol-io/bumpgen/issues/61) to request support.
+> [!NOTE]
+> `bumpgen` only supports typescript and tsx at the moment, but we're working on adding support for other strongly typed languages. Hit the emoji button on our open issues for [Java](https://github.com/xeol-io/bumpgen/issues/60), [golang](https://github.com/xeol-io/bumpgen/issues/59), [C#](https://github.com/xeol-io/bumpgen/issues/62) and [Python](https://github.com/xeol-io/bumpgen/issues/61) to request support.
 
 ## 🚀 Get Started
 
@@ -59,7 +58,46 @@ where `@tanstack/react-query` is the package you want to bump and `5.28.14` is t
 
 You can also run `bumpgen` without arguments and select which package to upgrade from the menu. Use `bumpgen --help` for a complete list of options.
 
-> [!NOTE] 
+### Github Action
+
+We've created a GitHub action that can be used to run bumpgen. The intended usage is to be triggered on dependabot or renovatebot PRs - if breaking changes are detected, bumpgen will commit to the PR branch.
+
+> [!NOTE]
+> The action commits changes to the branch it was triggered from. If you would like those commits to trigger other CI workflows, you will need to use a GitHub [Personal Access Token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens).
+
+#### Example Workflow
+
+```yml
+name: "Bumpgen"
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+
+permissions:
+  pull-requests: read
+  contents: write
+
+jobs:
+  main:
+    name: Run Bumpgen
+    runs-on: ubuntu-latest
+    if: ${{ github.event.pull_request.user.login == 'dependabot[bot]' && github.event.pull_request.commits[0].author.username != 'github-actions[bot]'}} # Use renovate[bot] for renovate PRs
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup # Checkout and setup your project before running the bumpgen action
+        uses: ./tooling/github/setup
+      - name: Bumpgen
+        uses: xeol-io/bumpgen@v0.0.1
+        with:
+          path: "./packages/bumpgen-core/" # The location of your project's package.json file
+          llm_key: ${{ secrets.LLM_API_KEY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+```
+
+> [!NOTE]
 > If you'd like to be first in line to try the `bumpgen` GitHub App to replace your usage of dependabot + renovatebot, sign up [here](https://www.xeol.io/beta).
 
 ## Limitations
