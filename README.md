@@ -74,7 +74,6 @@ on:
   pull_request:
     types:
       - opened
-      - synchronize
 
 permissions:
   pull-requests: read
@@ -84,7 +83,7 @@ jobs:
   main:
     name: Run Bumpgen
     runs-on: ubuntu-latest
-    if: ${{ github.event.pull_request.user.login == 'dependabot[bot]' && github.event.pull_request.commits[0].author.username != 'github-actions[bot]'}} # Use renovate[bot] for renovate PRs
+    if: ${{ github.event.pull_request.user.login == 'dependabot[bot]'}} # Use renovate[bot] for renovate PRs
     steps:
       - uses: actions/checkout@v4
       - name: Setup # Checkout and setup your project before running the bumpgen action
