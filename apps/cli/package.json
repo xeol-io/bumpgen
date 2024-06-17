@@ -34,7 +34,7 @@
     "react": "^18.2.0",
     "serialize-error": "^11.0.3",
     "strip-ansi": "^7.1.0",
-    "type-fest": "^4.15.0",
+    "type-fest": "^4.20.1",
     "zod": "^3.22.4"
   },
   "files": [
